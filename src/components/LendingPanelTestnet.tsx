@@ -362,15 +362,23 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               onClick={handleFaucet}
-              disabled={busy || !faucetReady || !!pendingMint}
+              disabled={busy || !faucetReady || !!pendingMint || !balances || !position}
               className="rounded-full bg-[var(--color-public)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-              title={!faucetReady ? 'Faucet URL not configured — set VITE_FAUCET_URL' : ''}
+              title={
+                !faucetReady
+                  ? 'Faucet URL not configured — set VITE_FAUCET_URL'
+                  : !balances || !position
+                    ? 'Waiting for PXE to sync balances + position…'
+                    : ''
+              }
             >
               {pendingMint
                 ? 'Faucet mint pending…'
-                : faucetReady
-                  ? `Request 10k ${t0sym} from faucet`
-                  : 'Faucet not configured'}
+                : !balances || !position
+                  ? 'Syncing balances…'
+                  : faucetReady
+                    ? `Request 10k ${t0sym} from faucet`
+                    : 'Faucet not configured'}
             </button>
             <button
               onClick={handleDeposit}
