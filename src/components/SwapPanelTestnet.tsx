@@ -128,6 +128,35 @@ export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
     }
   }
 
+  async function handleShield() {
+    if (!client || !balances) return
+    setError(null)
+    setBusy(true)
+    setResult(null)
+    const amount = balances.publicAZA // shield all available public azETH
+    pushNote(`transfer_to_private — shielding ${amount} ${t0sym} pub → priv (real proof ~40 s)`)
+    const stopCapture = captureProofLog(pushProofEvent)
+    try {
+      // transfer_to_private(to, amount) — msg_sender is implicit; pulls from
+      // caller's own public balance and mints a fresh private note to `to`.
+      // No PublicAuthwit needed because msg_sender == the public-balance owner.
+      await client.token0.methods
+        .transfer_to_private(client.address, amount)
+        .send({ from: client.address, fee: client.feeOpts })
+      setResult(
+        `Shielded ${fmt(amount)} ${t0sym} — your public balance dropped to 0 and an equivalent ` +
+          `private note was minted to your address. The same observer that watched the original ` +
+          `faucet mint can no longer track this balance through subsequent swaps.`,
+      )
+      await refreshAll(client)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      stopCapture()
+      setBusy(false)
+    }
+  }
+
   async function handleFaucet() {
     if (!client) return
     setError(null)
@@ -299,6 +328,20 @@ export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
                 : faucetReady
                   ? `Request 10k ${t0sym} (private) from faucet`
                   : 'Faucet not configured'}
+            </button>
+            <button
+              onClick={handleShield}
+              disabled={busy || !balances || balances.publicAZA === 0n}
+              className="rounded-full border border-[var(--color-private)] bg-white px-4 py-2 text-sm font-medium text-[var(--color-private)] hover:bg-[var(--color-private)]/5 disabled:opacity-50"
+              title={
+                balances && balances.publicAZA > 0n
+                  ? `Convert your ${fmt(balances.publicAZA)} public ${t0sym} into a private note via Token.transfer_to_private`
+                  : `No public ${t0sym} to shield — request one from the faucet first`
+              }
+            >
+              {balances && balances.publicAZA > 0n
+                ? `Shield ${fmt(balances.publicAZA)} ${t0sym} (pub → priv)`
+                : `Shield ${t0sym} (pub → priv)`}
             </button>
             <button
               onClick={handleSwap}
