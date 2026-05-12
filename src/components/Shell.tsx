@@ -10,6 +10,7 @@ import { StatsStrip } from './StatsStrip'
 import { Walkthrough } from './Walkthrough'
 import { PrivacyMatrix } from './PrivacyMatrix'
 import { SwapPanel } from './SwapPanel'
+import { SwapPanelTestnet } from './SwapPanelTestnet'
 import { LaunchpadMatrix } from './LaunchpadMatrix'
 import { LaunchpadPanel } from './LaunchpadPanel'
 import { LendingMatrix } from './LendingMatrix'
@@ -115,13 +116,23 @@ export function Shell() {
       <main className="mt-10 flex-1">
         <PrivacyMatrix onTry={(id) => setActiveVariant(id)} />
 
-        {activeVariant && sandboxState && (activeVariant === 'a' || activeVariant === 'c' || activeVariant === 'f') && (
-          <SwapPanel
-            variant={activeVariant}
+        {activeVariant === 'a' && sandboxState && network === 'testnet' && (
+          <SwapPanelTestnet
             state={sandboxState}
+            azguardAccount={account}
             onClose={() => setActiveVariant(null)}
           />
         )}
+        {activeVariant &&
+          sandboxState &&
+          network === 'sandbox' &&
+          (activeVariant === 'a' || activeVariant === 'c' || activeVariant === 'f') && (
+            <SwapPanel
+              variant={activeVariant}
+              state={sandboxState}
+              onClose={() => setActiveVariant(null)}
+            />
+          )}
         {activeVariant && !sandboxState && (
           <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
             Variant {activeVariant} needs the sandbox deployment. Run{' '}

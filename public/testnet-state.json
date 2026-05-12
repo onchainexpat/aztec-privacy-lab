@@ -127,5 +127,9 @@
     "AZB": "100000"
   },
   "network": "testnet",
-  "deployedAt": "2026-05-12T04:14:37.686Z"
+  "deployedAt": "2026-05-12T04:14:37.686Z",
+  "reserves": {
+    "AZA": "50000",
+    "AZB": "100000"
+  }
 }

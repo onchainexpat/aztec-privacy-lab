@@ -17,6 +17,7 @@ export interface MintResponse {
   txHash: string
   amount: string
   token: 'AZA' | 'AZB'
+  private: boolean
   to: string
 }
 
@@ -25,14 +26,18 @@ export interface MintError {
   retryAfterSeconds?: number
 }
 
-export async function faucetMint(to: string, token: 'AZA' | 'AZB'): Promise<MintResponse> {
+export async function faucetMint(
+  to: string,
+  token: 'AZA' | 'AZB',
+  opts: { private?: boolean } = {},
+): Promise<MintResponse> {
   if (!FAUCET_URL) {
     throw new Error('Faucet not configured (VITE_FAUCET_URL is empty).')
   }
   const res = await fetch(`${FAUCET_URL}/mint`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to, token }),
+    body: JSON.stringify({ to, token, private: opts.private === true }),
   })
   const json = (await res.json().catch(() => ({}))) as Partial<MintResponse> & Partial<MintError>
   if (!res.ok) {

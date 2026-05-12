@@ -15,7 +15,8 @@
     "sandbox:uniswap": "tsx scripts/wire-uniswap-stack.ts",
     "sandbox:swap-l1": "tsx scripts/run-uniswap-swap.ts",
     "testnet:generate-key": "tsx scripts/generate-testnet-key.ts",
-    "testnet:setup": "tsx scripts/setup-testnet.ts"
+    "testnet:setup": "tsx scripts/setup-testnet.ts",
+    "testnet:seed-amm": "tsx scripts/seed-testnet-amm.ts"
   },
   "dependencies": {
     "@azguardwallet/client": "^0.9.0",

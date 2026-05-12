@@ -28,6 +28,12 @@ const ADDRESS_RE = /^0x[0-9a-fA-F]{64}$/
 interface MintBody {
   to?: unknown
   token?: unknown
+  /** When true, mint as a private note instead of into the public balance.
+   *  Mint_to_private is a private function on the Token contract, so this
+   *  variant generates a real IVC proof in the faucet's PXE (~30 s extra
+   *  wall clock per request). Needed for AMM-side demos where the swap
+   *  call expects the caller to have private notes. */
+  private?: unknown
 }
 
 async function main() {
@@ -65,6 +71,7 @@ async function main() {
     const body = (req.body ?? {}) as MintBody
     const to = typeof body.to === 'string' ? body.to.trim() : ''
     const token = typeof body.token === 'string' ? body.token.toUpperCase().trim() : ''
+    const isPrivate = body.private === true
 
     if (!ADDRESS_RE.test(to)) {
       res.status(400).json({ error: 'invalid `to` — expected 0x-prefixed 64-hex Aztec address' })
@@ -75,7 +82,8 @@ async function main() {
       return
     }
 
-    const decision = checkRateLimit(to, token)
+    const rateKey = `${token}${isPrivate ? ':priv' : ''}`
+    const decision = checkRateLimit(to, rateKey)
     if (!decision.allowed) {
       res.status(429).json({ error: decision.reason, retryAfterSeconds: decision.retryAfterSeconds })
       return
@@ -85,12 +93,16 @@ async function main() {
       const contract = token === 'AZA' ? wallet.token0 : wallet.token1
       const recipient = AztecAddress.fromString(to)
 
-      console.log(`[faucet] minting ${MINT_AMOUNT} ${token} → ${to}`)
-      // Submit and return immediately. Real proving + block inclusion can take
-      // minutes; the client polls its own PXE for the balance bump.
-      const sent = await mint(contract, recipient, wallet)
-      recordMint(to, token)
-      res.json({ txHash: sent.txHash, amount: MINT_AMOUNT.toString(), token, to })
+      console.log(`[faucet] minting ${MINT_AMOUNT} ${token} ${isPrivate ? 'private' : 'public'} → ${to}`)
+      const sent = await mint(contract, recipient, wallet, isPrivate)
+      recordMint(to, rateKey)
+      res.json({
+        txHash: sent.txHash,
+        amount: MINT_AMOUNT.toString(),
+        token,
+        private: isPrivate,
+        to,
+      })
     } catch (err) {
       console.error('[faucet] mint failed:', err)
       const message = err instanceof Error ? err.message : String(err)
@@ -107,15 +119,19 @@ async function mint(
   contract: FaucetWallet['token0'],
   to: AztecAddress,
   wallet: FaucetWallet,
+  isPrivate: boolean,
 ): Promise<{ txHash: string }> {
-  // mint_to_public is a public function but the entrypoint IVC proof is still
-  // generated. Pass `wait: NO_WAIT` so we get the tx hash immediately
-  // (TxSendResultImmediate { txHash, ... }) instead of awaiting block
-  // inclusion (~36 s on testnet). Client polls its own PXE for the balance
-  // bump.
-  const sent = await contract.methods
-    .mint_to_public(to, MINT_AMOUNT)
-    .send({ from: wallet.admin, fee: wallet.feeOpts, wait: NO_WAIT })
+  // wait: NO_WAIT returns TxSendResultImmediate immediately after submission —
+  // client polls its own PXE for the balance bump rather than the server
+  // awaiting block inclusion.
+  const interaction = isPrivate
+    ? contract.methods.mint_to_private(to, MINT_AMOUNT)
+    : contract.methods.mint_to_public(to, MINT_AMOUNT)
+  const sent = await interaction.send({
+    from: wallet.admin,
+    fee: wallet.feeOpts,
+    wait: NO_WAIT,
+  })
   return { txHash: sent.txHash.toString() }
 }
 
