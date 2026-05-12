@@ -1,0 +1,30 @@
+{
+  "name": "aztec-privacy-lab-faucet",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aztec/accounts": "4.2.0-rc.1",
+    "@aztec/aztec.js": "4.2.0-rc.1",
+    "@aztec/constants": "4.2.0-rc.1",
+    "@aztec/foundation": "4.2.0-rc.1",
+    "@aztec/noir-contracts.js": "4.2.0-rc.1",
+    "@aztec/pxe": "4.2.0-rc.1",
+    "@aztec/stdlib": "4.2.0-rc.1",
+    "@aztec/wallets": "4.2.0-rc.1",
+    "better-sqlite3": "^11.3.0",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.6.0"
+  }
+}

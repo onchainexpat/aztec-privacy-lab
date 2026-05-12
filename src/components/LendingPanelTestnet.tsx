@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { initTestnetClient, resetTestnetAccount, type TestnetClient } from '../lib/browser-testnet'
 import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
+import { faucetMint, isFaucetConfigured, FAUCET_URL } from '../lib/faucet'
 
 interface Props {
   state: SandboxState
@@ -15,6 +16,14 @@ interface Balances {
   publicAZB: bigint
 }
 
+interface Position {
+  collateral: bigint
+  debt: bigint
+}
+
+const DEPOSIT_AMOUNT = 5_000n
+const BORROW_AMOUNT = 1_000n
+
 export function LendingPanelTestnet({ state, onClose }: Props) {
   const [progress, setProgress] = useState<string | null>(null)
   const [client, setClient] = useState<TestnetClient | null>(null)
@@ -22,16 +31,34 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
   const [result, setResult] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [balances, setBalances] = useState<Balances | null>(null)
-  const [position, setPosition] = useState<{ collateral: bigint; debt: bigint } | null>(null)
-  const commitmentRef = useRef<bigint | null>(null)
+  const [position, setPosition] = useState<Position | null>(null)
+  const [pendingMint, setPendingMint] = useState<{ token: string; txHash: string } | null>(null)
+  const pollRef = useRef<number | null>(null)
 
   const cfg = NETWORKS.testnet
   const ld2 = state.publicCollateralPrivateDebt
+  const faucetReady = isFaucetConfigured()
 
   useEffect(() => {
     if (!client) return
-    void refreshBalances(client)
+    void refreshAll(client)
   }, [client])
+
+  // While a mint tx is pending, poll balances every 15s so the visitor sees
+  // the bump arrive without manually refreshing.
+  useEffect(() => {
+    if (!client || !pendingMint) return
+    pollRef.current = window.setInterval(() => {
+      void refreshAll(client)
+    }, 15_000)
+    return () => {
+      if (pollRef.current !== null) window.clearInterval(pollRef.current)
+    }
+  }, [client, pendingMint])
+
+  async function refreshAll(c: TestnetClient) {
+    await Promise.all([refreshBalances(c), refreshPosition(c)])
+  }
 
   async function refreshBalances(c: TestnetClient) {
     try {
@@ -41,15 +68,36 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
         c.token1.methods.balance_of_private(c.address).simulate({ from: c.address }),
         c.token1.methods.balance_of_public(c.address).simulate({ from: c.address }),
       ])
-      setBalances({
+      const next: Balances = {
         privateAZA: pA.result as bigint,
         publicAZA: uA.result as bigint,
         privateAZB: pB.result as bigint,
         publicAZB: uB.result as bigint,
+      }
+      setBalances(next)
+      // Clear pending mint flag once the relevant balance has actually moved.
+      if (pendingMint) {
+        const expected = pendingMint.token === 'AZA' ? next.publicAZA : next.publicAZB
+        if (expected > 0n) setPendingMint(null)
+      }
+    } catch {
+      // transient PXE sync failures are fine
+    }
+  }
+
+  async function refreshPosition(c: TestnetClient) {
+    if (!c.ld2) return
+    try {
+      const [coll, dbt] = await Promise.all([
+        c.ld2.methods.get_collateral(c.ld2Commitment).simulate({ from: c.address }),
+        c.ld2.methods.get_debt(c.ld2Commitment).simulate({ from: c.address }),
+      ])
+      setPosition({
+        collateral: coll.result as bigint,
+        debt: dbt.result as bigint,
       })
     } catch {
-      // balance reads can transiently fail while PXE catches up
-      setBalances(null)
+      // ignore
     }
   }
 
@@ -76,8 +124,88 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
     setClient(null)
     setBalances(null)
     setPosition(null)
-    commitmentRef.current = null
+    setPendingMint(null)
     setResult('Local account credentials cleared. Click "Initialize" to generate a new one.')
+  }
+
+  async function handleFaucet() {
+    if (!client) return
+    setError(null)
+    setBusy(true)
+    setResult(null)
+    try {
+      const resp = await faucetMint(client.address.toString(), 'AZA')
+      setPendingMint({ token: 'AZA', txHash: resp.txHash })
+      setResult(
+        `Faucet mint submitted: ${resp.amount} AZA → your address. tx ${shortHex(resp.txHash)}. ` +
+          `Block inclusion takes ~36 s on testnet; the balance below will update once it lands.`,
+      )
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleDeposit() {
+    if (!client?.ld2) return
+    setError(null)
+    setBusy(true)
+    setResult(null)
+    try {
+      const { Fr } = await import('@aztec/aztec.js/fields')
+      const { SetPublicAuthwitContractInteraction } = await import('@aztec/aztec.js/authorization')
+      const nonce = Fr.random()
+      // Authorise ld2 to pull DEPOSIT_AMOUNT AZA from our public balance.
+      const authIntent = {
+        caller: client.ld2.address,
+        call: await client.token0.methods
+          .transfer_in_public(client.address, client.ld2.address, DEPOSIT_AMOUNT, nonce)
+          .getFunctionCall(),
+      }
+      const authInteraction = await SetPublicAuthwitContractInteraction.create(
+        client.wallet,
+        client.address,
+        authIntent,
+        true,
+      )
+      await authInteraction.send({ fee: client.feeOpts })
+      await client.ld2.methods
+        .deposit_public(DEPOSIT_AMOUNT, client.ld2Commitment, nonce)
+        .send({ from: client.address, fee: client.feeOpts })
+      setResult(
+        `Deposited ${DEPOSIT_AMOUNT} AZA publicly into commitment ${shortHex(
+          '0x' + client.ld2Commitment.toString(16),
+        )} on ld2.`,
+      )
+      await refreshAll(client)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleBorrow() {
+    if (!client?.ld2) return
+    setError(null)
+    setBusy(true)
+    setResult(null)
+    try {
+      const { Fr } = await import('@aztec/aztec.js/fields')
+      const secret = Fr.fromString(client.accountSecretHex)
+      await client.ld2.methods
+        .borrow_private(secret, client.address, BORROW_AMOUNT)
+        .send({ from: client.address, fee: client.feeOpts })
+      setResult(
+        `Borrowed ${BORROW_AMOUNT} AZB as a PRIVATE note. Public LTV check enforced against the commitment — the contract sees the commitment + new debt total, not your address.`,
+      )
+      await refreshAll(client)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -94,8 +222,8 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
       <p className="mt-2 text-sm text-black/60">
         Custom <code className="font-mono text-xs">PublicCollateralPrivateDebt</code> contract
         deployed on Aztec Alpha v4 testnet. Each visitor gets their own per-tab Schnorr
-        account (persisted in localStorage). Fees paid by the canonical SponsoredFPC paymaster
-        — you don't need a faucet to deploy the account itself.
+        account (persisted in localStorage). Fees on every tx paid by the canonical
+        SponsoredFPC paymaster — no fee-juice claim needed.
       </p>
 
       {ld2 && (
@@ -148,6 +276,17 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
                   {shortAddr(client.address.toString())}
                 </p>
               </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-sky-900/60">
+                  ld2 commitment
+                </p>
+                <p
+                  className="mt-0.5 font-mono text-sky-950"
+                  title={'0x' + client.ld2Commitment.toString(16)}
+                >
+                  {shortHex('0x' + client.ld2Commitment.toString(16))}
+                </p>
+              </div>
               {cfg.explorerUrl && (
                 <a
                   href={`${cfg.explorerUrl}/contracts/${client.address.toString()}`}
@@ -169,30 +308,79 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
 
           {balances && (
             <div className="mt-3 grid grid-cols-1 gap-3 rounded-xl border border-black/10 bg-zinc-50 p-3 text-sm md:grid-cols-2">
-              <Stat label={`AZA balance`} privAmt={balances.privateAZA} pubAmt={balances.publicAZA} />
-              <Stat label={`AZB balance`} privAmt={balances.privateAZB} pubAmt={balances.publicAZB} />
+              <Stat label="AZA balance" privAmt={balances.privateAZA} pubAmt={balances.publicAZA} />
+              <Stat label="AZB balance" privAmt={balances.privateAZB} pubAmt={balances.publicAZB} />
             </div>
           )}
 
-          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-3 text-xs text-amber-900">
-            <p className="font-medium">Interactive deposit / borrow — coming next</p>
-            <p className="mt-1 text-amber-900/80">
-              To exercise <code className="font-mono">deposit_public</code> +{' '}
-              <code className="font-mono">borrow_private</code> against ld2 you need some AZA
-              in your public balance. The faucet endpoint that mints AZA to per-tab accounts
-              is the next piece of work (Vercel function size + 10 s timeout make it
-              non-trivial; likely lives on a separate VPS or the home archive node).
-              In the meantime: your testnet account is real and deployed, you can browse the
-              ld2 contract state on Aztecscan, or clone the repo and run a local sandbox to
-              exercise the full flow against your own deploy.
-            </p>
-            {position && (
-              <p className="mt-2">
-                <span className="font-medium">Position (public):</span>{' '}
-                {fmt(position.collateral)} AZA collateral · {fmt(position.debt)} AZB debt
-              </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              onClick={handleFaucet}
+              disabled={busy || !faucetReady || !!pendingMint}
+              className="rounded-full bg-[var(--color-public)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+              title={!faucetReady ? 'Faucet URL not configured — set VITE_FAUCET_URL' : ''}
+            >
+              {pendingMint
+                ? 'Faucet mint pending…'
+                : faucetReady
+                  ? 'Request 10k AZA from faucet'
+                  : 'Faucet not configured'}
+            </button>
+            <button
+              onClick={handleDeposit}
+              disabled={busy || !balances || balances.publicAZA < DEPOSIT_AMOUNT}
+              className="rounded-full bg-[var(--color-public)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {`Deposit ${DEPOSIT_AMOUNT} AZA publicly (to commitment)`}
+            </button>
+            <button
+              onClick={handleBorrow}
+              disabled={busy || !position || position.collateral === 0n}
+              className="rounded-full border border-[var(--color-private)] bg-[var(--color-private)]/5 px-4 py-2 text-sm font-medium text-[var(--color-private)] hover:bg-[var(--color-private)]/10 disabled:opacity-50"
+              title={
+                !position || position.collateral === 0n
+                  ? 'Need collateral against your commitment first — deposit AZA'
+                  : ''
+              }
+            >
+              {`Borrow ${BORROW_AMOUNT} AZB privately`}
+            </button>
+            {busy && progress && (
+              <span className="text-xs text-black/50">{progress}</span>
             )}
           </div>
+
+          {position && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-3 text-xs text-amber-900">
+              <p className="font-medium">
+                On-chain position against your commitment (publicly readable)
+              </p>
+              <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-2">
+                <dt className="text-amber-900/60">commitment</dt>
+                <dd className="font-mono">
+                  {shortHex('0x' + client.ld2Commitment.toString(16))}
+                </dd>
+                <dt className="text-amber-900/60">collateral</dt>
+                <dd className="font-mono">{fmt(position.collateral)} {ld2?.collateralAsset ?? 'AZA'}</dd>
+                <dt className="text-amber-900/60">debt</dt>
+                <dd className="font-mono">{fmt(position.debt)} {ld2?.debtAsset ?? 'AZB'}</dd>
+              </dl>
+              <p className="mt-2 text-amber-900/70">
+                Debt is enforced in public state for the LTV check — but the borrower's
+                identity isn't tied to it. Anyone can read the commitment + debt, no-one can
+                link them back to a wallet without the visitor's account secret.
+              </p>
+            </div>
+          )}
+
+          {!faucetReady && (
+            <p className="mt-3 text-[11px] text-black/50">
+              No faucet URL configured. Set <code className="font-mono">VITE_FAUCET_URL</code>{' '}
+              at build time and rebuild — see <code className="font-mono">faucet/README.md</code>.
+              Without it the deposit + borrow buttons stay disabled because per-tab accounts
+              start at 0 AZA. Current value: <code className="font-mono">{FAUCET_URL || '(unset)'}</code>.
+            </p>
+          )}
         </>
       )}
 
@@ -234,6 +422,11 @@ function fmt(n: bigint): string {
 
 function shortAddr(a: string): string {
   return `${a.slice(0, 10)}…${a.slice(-6)}`
+}
+
+function shortHex(s: string): string {
+  if (s.length <= 14) return s
+  return `${s.slice(0, 10)}…${s.slice(-4)}`
 }
 
 function formatError(e: unknown): string {

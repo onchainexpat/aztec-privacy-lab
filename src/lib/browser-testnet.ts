@@ -27,6 +27,13 @@ export interface TestnetClient {
   freshAccount: boolean
   /** Fee options to attach to every send/call. SponsoredFPC pays gas. */
   feeOpts: { paymentMethod: SponsoredFeePaymentMethod }
+  /** The visitor's account secret. Used to derive the ld2 position commitment
+   *  as pedersen(secret, address). Only present in this tab; the only place
+   *  it lives is the visitor's localStorage. */
+  accountSecretHex: string
+  /** ld2 position commitment derived from (accountSecret, accountAddress).
+   *  This is the public key the visitor uses to deposit/borrow on ld2. */
+  ld2Commitment: bigint
   token0: TokenContract
   token1: TokenContract
   amm: AMMContract | null
@@ -213,12 +220,22 @@ export function initTestnetClient(
         )
       : null
 
+    // Derive the ld2 position commitment from the account secret + address.
+    // This mirrors `pedersen_hash([secret, owner.to_field()])` in the
+    // contract's borrow_private function, so the visitor can prove ownership
+    // of their position by re-supplying the same secret.
+    onProgress?.('deriving ld2 commitment…')
+    const { pedersenHash } = await import('@aztec/foundation/crypto/sync')
+    const ld2Commitment = pedersenHash([secret, address.toField()]).toBigInt()
+
     onProgress?.('ready')
     return {
       wallet,
       address,
       freshAccount,
       feeOpts,
+      accountSecretHex: persisted.secret,
+      ld2Commitment,
       token0,
       token1,
       amm,
