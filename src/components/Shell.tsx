@@ -16,6 +16,7 @@ import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
 import { VotingPanel } from './VotingPanel'
+import { VotingPanelTestnet } from './VotingPanelTestnet'
 import { BridgePanel } from './BridgePanel'
 import { loadDeployState, type SandboxState } from '../lib/sandbox-state'
 import type { Variation } from '../data/variations'
@@ -185,7 +186,14 @@ export function Shell() {
           </div>
         </div>
 
-        {votingOpen && sandboxState && (
+        {votingOpen && sandboxState && network === 'testnet' && (
+          <VotingPanelTestnet
+            state={sandboxState}
+            azguardAccount={account}
+            onClose={() => setVotingOpen(false)}
+          />
+        )}
+        {votingOpen && sandboxState && network === 'sandbox' && (
           <VotingPanel state={sandboxState} onClose={() => setVotingOpen(false)} />
         )}
 
