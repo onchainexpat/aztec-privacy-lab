@@ -28,7 +28,10 @@ interface Balances {
   publicAZB: bigint
 }
 
-const SWAP_IN = 1_000n
+// Smaller swap amount so meaningful price impact shows up against the
+// ~200 azETH / 500 k azUSDC medium pool. 1 azETH ≈ $2,500 — realistic retail
+// trade size; ~0.5 % price impact at $1 M pool depth.
+const SWAP_IN = 1n
 
 export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
   const [progress, setProgress] = useState<string | null>(null)
