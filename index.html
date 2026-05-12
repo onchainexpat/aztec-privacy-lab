@@ -5,6 +5,44 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>aztec-experiments</title>
+    <script>
+      // Patch console.* synchronously, BEFORE the JS bundle loads. The Aztec
+      // SDK uses pino-browser, which captures `_console` at module-load time
+      // and reads `_console[level]` once during logger setup. If our patch
+      // ran from inside the React bundle (proof-log.ts), Vite's import
+      // hoisting could let pino's logger setup grab the original console
+      // methods first, and the dashboard's proof log would never see SDK
+      // events. Inlining the patch here guarantees the right order.
+      ;(function () {
+        if (window.__proofConsoleQueue) return
+        var queue = []
+        window.__proofConsoleQueue = queue
+        // Listener slot — proof-log.ts assigns this once it loads so events
+        // get dispatched live rather than just buffered.
+        window.__proofConsoleDispatch = null
+        var methods = ['info', 'log', 'debug', 'warn', 'error', 'trace']
+        for (var i = 0; i < methods.length; i++) {
+          ;(function (m) {
+            var orig = console[m]
+            Object.defineProperty(console, m, {
+              value: function () {
+                var args = Array.prototype.slice.call(arguments)
+                var dispatch = window.__proofConsoleDispatch
+                if (dispatch) {
+                  try { dispatch(m, args) } catch (e) { /* never break logging */ }
+                } else {
+                  queue.push({ method: m, args: args, ts: Date.now() })
+                  if (queue.length > 200) queue.shift()
+                }
+                return orig.apply(console, arguments)
+              },
+              writable: true,
+              configurable: true,
+            })
+          })(methods[i])
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

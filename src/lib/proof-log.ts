@@ -2,12 +2,16 @@
 // them to a UI sink, so the dashboard can show what's actually happening
 // during a "wait" — witness generation, IVC stages, tx submission, etc.
 //
-// Important: pino-browser snapshots `console.info/log/debug/warn/error` at
-// module-load time. If we patch console AFTER pino-browser has loaded, pino
-// still holds a reference to the ORIGINAL methods and our patch is invisible.
-// The fix is to install the console patch at app startup — before any
-// dynamic import of @aztec/wallets/embedded (which transitively loads pino).
-// `main.tsx` imports this file as a side effect so the patch installs first.
+// The console patch itself lives in index.html as an inline <script>, NOT
+// here. Reason: pino-browser snapshots `_console[level]` during logger setup,
+// which Vite bundles together with the rest of the codegen'd contract files'
+// transitive imports. By the time this TS module's body runs, pino's logger
+// has already captured the original console methods. Patching from index.html
+// runs before the bundle, guaranteeing pino sees our wrapper.
+//
+// This module exposes the dispatch hook (window.__proofConsoleDispatch) so
+// the inline patch routes captured args to our typed event sink. Any events
+// buffered before this module loaded get drained on init.
 
 export type ProofEvent = {
   ts: number
@@ -39,7 +43,7 @@ export function subscribeProofEvents(listener: ProofEventSink): () => void {
   }
 }
 
-function intercept(args: unknown[], kind: ProofEvent['kind'] = 'info'): void {
+function matchAndEmit(_method: string, args: unknown[]): void {
   if (activeSink === null && globalListeners.size === 0) return
   const text = args
     .map((a) => {
@@ -54,7 +58,12 @@ function intercept(args: unknown[], kind: ProofEvent['kind'] = 'info'): void {
   for (const { match, source } of INTERESTING_PATTERNS) {
     const m = text.match(match)
     if (!m) continue
-    const ev: ProofEvent = { ts: Date.now(), kind, source: source(m[0]), message: trimMessage(text) }
+    const ev: ProofEvent = {
+      ts: Date.now(),
+      kind: 'info',
+      source: source(m[0]),
+      message: trimMessage(text),
+    }
     if (activeSink) activeSink(ev)
     for (const listener of globalListeners) listener(ev)
     return
@@ -64,41 +73,37 @@ function intercept(args: unknown[], kind: ProofEvent['kind'] = 'info'): void {
 function trimMessage(text: string): string {
   return text
     .replace(/^\[\d{2}:\d{2}:\d{2}\.\d{3}\]\s+(INFO|DEBUG|TRACE|WARN|ERROR):\s+/, '')
-    .replace(/\s+\{[^{}]*\}\s*$/, '') // drop pino's JSON tail if present
+    .replace(/\s+\{[^{}]*\}\s*$/, '')
     .slice(0, 240)
 }
 
-// Install console patches ONCE at module load. Critical: this file must be
-// imported by main.tsx BEFORE any @aztec/* module that transitively loads
-// pino-browser. Otherwise pino's snapshot of _console.* points at the
-// originals and we never see anything.
-const consoleMethods = ['info', 'log', 'debug', 'warn', 'error', 'trace'] as const
-type ConsoleMethod = (typeof consoleMethods)[number]
+interface ProofConsoleQueueEntry {
+  method: string
+  args: unknown[]
+  ts: number
+}
 
 declare global {
   interface Window {
-    __proofLogPatched?: true
+    __proofConsoleQueue?: ProofConsoleQueueEntry[]
+    __proofConsoleDispatch?: ((method: string, args: unknown[]) => void) | null
   }
 }
 
-if (typeof window !== 'undefined' && !window.__proofLogPatched) {
-  for (const m of consoleMethods) {
-    const original = console[m] as (...a: unknown[]) => void
-    const patched = ((...args: unknown[]) => {
-      try {
-        intercept(args)
-      } catch {
-        // never let a bug in our intercept break logging
-      }
-      original.apply(console, args)
-    }) as Console[ConsoleMethod]
-    Object.defineProperty(console, m, {
-      value: patched,
-      writable: true,
-      configurable: true,
-    })
+// Drain any events captured before this module loaded, then hand the
+// inline-script patch a live dispatcher so future events skip the buffer.
+if (typeof window !== 'undefined') {
+  const drained = window.__proofConsoleQueue ?? []
+  for (const entry of drained) {
+    try {
+      matchAndEmit(entry.method, entry.args)
+    } catch {
+      // ignore
+    }
   }
-  window.__proofLogPatched = true
+  // Clear and replace the queue with a live dispatcher
+  window.__proofConsoleQueue = []
+  window.__proofConsoleDispatch = matchAndEmit
 }
 
 /** Begin routing matching console output through `sink`. Returns stop fn. */
