@@ -1,0 +1,49 @@
+{
+  "name": "aztec-experiments",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "sandbox:setup": "tsx scripts/setup-sandbox.ts",
+    "sandbox:seed": "tsx scripts/seed-and-swap.ts",
+    "sandbox:l1-portal": "tsx scripts/deploy-l1-portal.ts",
+    "sandbox:mock-router": "tsx scripts/plant-mock-router.ts",
+    "sandbox:uniswap": "tsx scripts/wire-uniswap-stack.ts",
+    "sandbox:swap-l1": "tsx scripts/run-uniswap-swap.ts",
+    "testnet:generate-key": "tsx scripts/generate-testnet-key.ts",
+    "testnet:setup": "tsx scripts/setup-testnet.ts"
+  },
+  "dependencies": {
+    "@aztec/accounts": "^4.2.1",
+    "@aztec/aztec.js": "^4.2.1",
+    "@aztec/ethereum": "^4.2.1",
+    "@aztec/l1-artifacts": "^4.2.1",
+    "@aztec/noir-contracts.js": "^4.2.1",
+    "@aztec/pxe": "^4.2.1",
+    "@aztec/wallets": "^4.2.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^24.12.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "tailwindcss": "^4.3.0",
+    "tsx": "^4.21.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^8.0.10",
+    "vite-plugin-node-polyfills": "^0.26.0"
+  }
+}

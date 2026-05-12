@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "private_swap_wrapper",
+  "public_total_crowdfunding",
+  "per_donor_receipts",
+  "public_collateral_private_debt",
+]
