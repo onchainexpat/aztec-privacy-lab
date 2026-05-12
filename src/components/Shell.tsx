@@ -12,6 +12,7 @@ import { WalletPanel } from './WalletPanel'
 import { PrivacyMatrix } from './PrivacyMatrix'
 import { SwapPanel } from './SwapPanel'
 import { SwapPanelTestnet } from './SwapPanelTestnet'
+import { LPPanelTestnet } from './LPPanelTestnet'
 import { LaunchpadMatrix } from './LaunchpadMatrix'
 import { LaunchpadPanel } from './LaunchpadPanel'
 import { LendingMatrix } from './LendingMatrix'
@@ -121,6 +122,13 @@ export function Shell() {
 
         {activeVariant === 'a' && sandboxState && network === 'testnet' && (
           <SwapPanelTestnet
+            state={sandboxState}
+            azguardAccount={account}
+            onClose={() => setActiveVariant(null)}
+          />
+        )}
+        {activeVariant === 'f' && sandboxState && network === 'testnet' && (
+          <LPPanelTestnet
             state={sandboxState}
             azguardAccount={account}
             onClose={() => setActiveVariant(null)}

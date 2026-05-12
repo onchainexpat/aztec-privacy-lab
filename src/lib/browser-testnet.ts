@@ -36,6 +36,7 @@ export interface TestnetClient {
   ld2Commitment: bigint
   token0: TokenContract
   token1: TokenContract
+  lpToken: TokenContract | null
   amm: AMMContract | null
   ld2: PublicCollateralPrivateDebtContract | null
   voting: PrivateVotingContract | null
@@ -202,6 +203,12 @@ export function initTestnetClient(
     }
     await wallet.registerContract(deserialize(state.token0.instance), tokenMod.TokenContract.artifact)
     await wallet.registerContract(deserialize(state.token1.instance), tokenMod.TokenContract.artifact)
+    if (state.lpToken) {
+      await wallet.registerContract(
+        deserialize(state.lpToken.instance),
+        tokenMod.TokenContract.artifact,
+      )
+    }
     if (state.amm) {
       await wallet.registerContract(deserialize(state.amm.instance), ammMod.AMMContract.artifact)
     }
@@ -226,6 +233,12 @@ export function initTestnetClient(
       addressMod.AztecAddress.fromString(state.token1.address),
       wallet,
     )
+    const lpToken = state.lpToken
+      ? await tokenMod.TokenContract.at(
+          addressMod.AztecAddress.fromString(state.lpToken.address),
+          wallet,
+        )
+      : null
     const amm = state.amm
       ? await ammMod.AMMContract.at(addressMod.AztecAddress.fromString(state.amm.address), wallet)
       : null
@@ -260,6 +273,7 @@ export function initTestnetClient(
       ld2Commitment,
       token0,
       token1,
+      lpToken,
       amm,
       ld2,
       voting,
