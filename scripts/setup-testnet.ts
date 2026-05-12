@@ -68,7 +68,13 @@ async function main() {
   const info = await node.getNodeInfo()
   log('node version', info.nodeVersion, '· l1ChainId', info.l1ChainId, '· rollupVersion', info.rollupVersion)
 
-  const wallet = await EmbeddedWallet.create(node, { ephemeral: true })
+  // proverEnabled: true is REQUIRED for testnet. EmbeddedWallet defaults to
+  // false (fake proofs for fast local dev); the testnet sequencer runs real
+  // verification and rejects fake proofs with `Invalid tx: Invalid proof`.
+  const wallet = await EmbeddedWallet.create(node, {
+    ephemeral: true,
+    pxe: { proverEnabled: true },
+  })
 
   log('resolving canonical SponsoredFPC…')
   const sponsoredFpc = await getSponsoredFPCAddress()
