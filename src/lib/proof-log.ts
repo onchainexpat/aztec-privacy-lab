@@ -35,9 +35,20 @@ const INTERESTING_PATTERNS: { match: RegExp; source: (s: string) => string }[] =
 let activeSink: ProofEventSink | null = null
 let originals: { info: typeof console.info; log: typeof console.log; debug: typeof console.debug } | null = null
 
+// Global subscribers — Shell uses this to render a proof indicator in the
+// header regardless of which panel is open. Panel-local sinks remain for the
+// per-panel scrolling log.
+const globalListeners = new Set<ProofEventSink>()
+
+export function subscribeProofEvents(listener: ProofEventSink): () => void {
+  globalListeners.add(listener)
+  return () => {
+    globalListeners.delete(listener)
+  }
+}
+
 function intercept(args: unknown[], kind: ProofEvent['kind'] = 'info') {
   const sink = activeSink
-  if (!sink) return
   const text = args
     .map((a) => {
       if (typeof a === 'string') return a
@@ -51,7 +62,9 @@ function intercept(args: unknown[], kind: ProofEvent['kind'] = 'info') {
   for (const { match, source } of INTERESTING_PATTERNS) {
     const m = text.match(match)
     if (!m) continue
-    sink({ ts: Date.now(), kind, source: source(m[0]), message: trimMessage(text) })
+    const ev: ProofEvent = { ts: Date.now(), kind, source: source(m[0]), message: trimMessage(text) }
+    if (sink) sink(ev)
+    for (const listener of globalListeners) listener(ev)
     return
   }
 }
@@ -106,4 +119,10 @@ export function captureProofLog(sink: ProofEventSink): () => void {
 /** Convenience: emit a "note" event from app code, alongside captured events. */
 export function noteProofEvent(sink: ProofEventSink | undefined, source: string, message: string) {
   sink?.({ ts: Date.now(), kind: 'note', source, message })
+}
+
+/** Manually emit an event to global subscribers — for "dashboard" notes that
+ *  panels want surfaced in the header indicator too, not just their own log. */
+export function emitGlobalProofEvent(event: ProofEvent) {
+  for (const listener of globalListeners) listener(event)
 }

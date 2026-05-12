@@ -4,6 +4,7 @@ import { type ConnectedAccount } from '../lib/wallet'
 import { NetworkBadge } from './NetworkBadge'
 import { WalletConnect } from './WalletConnect'
 import { NodeStatus } from './NodeStatus'
+import { HeaderProofIndicator } from './HeaderProofIndicator'
 import { SandboxStatePanel } from './SandboxState'
 import { StatsStrip } from './StatsStrip'
 import { Walkthrough } from './Walkthrough'
@@ -70,6 +71,7 @@ export function Shell() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <HeaderProofIndicator />
           {cfg.faucetUrl && (
             <a
               href={cfg.faucetUrl}

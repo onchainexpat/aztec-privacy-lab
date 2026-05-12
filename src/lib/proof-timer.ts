@@ -7,8 +7,8 @@
 // live counter. After proving, `lastProof.durationMs` exposes the final
 // wall-clock — that's what visitors see as "Proof generated in X.Xs".
 
-import { useEffect, useMemo, useState } from 'react'
-import type { ProofEvent } from './proof-log'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { subscribeProofEvents, type ProofEvent } from './proof-log'
 
 export interface ProofTimerState {
   /** True while a ClientIVC proof is being generated right now. */
@@ -26,9 +26,8 @@ function isProofEnd(ev: ProofEvent): boolean {
   return ev.source === 'prover' && /Generated ClientIVC proof/i.test(ev.message)
 }
 
+/** Per-panel proof timer — driven by a local events array the panel maintains. */
 export function useProofTimer(events: ProofEvent[]): ProofTimerState {
-  // Find the most recent proof-related event pair. Recompute on every events
-  // change; cheap because we only look at the tail.
   const { startedAt, endedAt } = useMemo(() => {
     let start: number | null = null
     let end: number | null = null
@@ -62,4 +61,41 @@ export function useProofTimer(events: ProofEvent[]): ProofTimerState {
     elapsedMs: 0,
     lastProof: { durationMs: endedAt - startedAt },
   }
+}
+
+/** Global proof timer — subscribes to the dashboard-wide event emitter so the
+ *  header can show a proof indicator regardless of which panel is open. */
+export function useGlobalProofTimer(): ProofTimerState {
+  const [proving, setProving] = useState(false)
+  const [elapsedMs, setElapsedMs] = useState(0)
+  const [lastProof, setLastProof] = useState<{ durationMs: number } | null>(null)
+  const startRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const unsub = subscribeProofEvents((ev) => {
+      if (isProofStart(ev)) {
+        startRef.current = ev.ts
+        setProving(true)
+        setElapsedMs(0)
+      } else if (isProofEnd(ev) && startRef.current !== null) {
+        const duration = ev.ts - startRef.current
+        startRef.current = null
+        setProving(false)
+        setLastProof({ durationMs: duration })
+      }
+    })
+    return unsub
+  }, [])
+
+  useEffect(() => {
+    if (!proving) return
+    const id = window.setInterval(() => {
+      if (startRef.current !== null) {
+        setElapsedMs(Date.now() - startRef.current)
+      }
+    }, 100)
+    return () => window.clearInterval(id)
+  }, [proving])
+
+  return { proving, elapsedMs, lastProof }
 }
