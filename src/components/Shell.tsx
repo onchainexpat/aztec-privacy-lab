@@ -149,6 +149,7 @@ export function Shell() {
         {activeLending === 'ld2' && sandboxState && network === 'testnet' && (
           <LendingPanelTestnet
             state={sandboxState}
+            azguardAccount={account}
             onClose={() => setActiveLending(null)}
           />
         )}

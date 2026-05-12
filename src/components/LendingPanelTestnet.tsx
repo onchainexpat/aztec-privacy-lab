@@ -4,9 +4,11 @@ import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
 import { faucetMint, isFaucetConfigured, FAUCET_URL } from '../lib/faucet'
 import { captureProofLog, type ProofEvent } from '../lib/proof-log'
+import type { ConnectedAccount } from '../lib/wallet'
 
 interface Props {
   state: SandboxState
+  azguardAccount: ConnectedAccount | null
   onClose: () => void
 }
 
@@ -25,7 +27,7 @@ interface Position {
 const DEPOSIT_AMOUNT = 5_000n
 const BORROW_AMOUNT = 1_000n
 
-export function LendingPanelTestnet({ state, onClose }: Props) {
+export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
   const [progress, setProgress] = useState<string | null>(null)
   const [client, setClient] = useState<TestnetClient | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -256,10 +258,12 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
 
       <p className="mt-2 text-sm text-black/60">
         Custom <code className="font-mono text-xs">PublicCollateralPrivateDebt</code> contract
-        deployed on Aztec Alpha v4 testnet. Each visitor gets their own per-tab Schnorr
-        account (persisted in localStorage). Fees on every tx paid by the canonical
+        deployed on Aztec Alpha v4 testnet. Fees on every tx paid by the canonical
         SponsoredFPC paymaster — no fee-juice claim needed.
       </p>
+
+      <AccountModeBanner azguardAccount={azguardAccount} clientReady={!!client} />
+
 
       {ld2 && (
         <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-xs md:grid-cols-2">
@@ -456,6 +460,47 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
         </pre>
       )}
     </section>
+  )
+}
+
+function AccountModeBanner({
+  azguardAccount,
+  clientReady,
+}: {
+  azguardAccount: ConnectedAccount | null
+  clientReady: boolean
+}) {
+  if (!azguardAccount) {
+    return (
+      <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700">
+        <p className="font-medium text-zinc-900">
+          Demo mode — no wallet connected
+        </p>
+        <p className="mt-1">
+          This panel will spin up a per-tab Schnorr account in your browser (random secret
+          stored in <code className="font-mono">localStorage</code>). No real wallet, no real
+          funds at risk — perfect for trying the demo without installing anything.
+        </p>
+        <p className="mt-1 text-zinc-600">
+          Want to use your own wallet? Click <strong>Connect wallet</strong> in the header to
+          link Azguard. (Heads-up: connecting today is informational only — the demo still
+          runs against the per-tab account. Full Azguard routing is in progress.)
+        </p>
+      </div>
+    )
+  }
+  return (
+    <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50/60 p-3 text-xs text-sky-900">
+      <p className="font-medium">
+        Azguard connected · {shortAddr(azguardAccount.address)}
+      </p>
+      <p className="mt-1 text-sky-900/80">
+        Your Azguard wallet is linked, but the ld2 demo currently still uses a per-tab
+        Schnorr account for tx submission. Routing through Azguard's{' '}
+        <code className="font-mono">client.execute([{'{'} kind: "send_transaction", … {'}'}])</code>{' '}
+        is the next piece of work. {clientReady && 'Per-tab account already initialized below.'}
+      </p>
+    </div>
   )
 }
 
