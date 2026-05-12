@@ -131,5 +131,26 @@
   "reserves": {
     "AZA": "200",
     "AZB": "500000"
+  },
+  "crowdfunding": {
+    "address": "0x15e4592a8f18adeca21dee8fd056b73e648266961d618b0d319bd6879e368a48",
+    "instance": {
+      "version": 1,
+      "salt": "0x29b3ffab67d4cc23a8fbfadb9e74d7580b99f783b9ab93ca964b75986c7b4b54",
+      "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+      "currentContractClassId": "0x0eb5de62c782822358c2cec8d397769c3733f0a4e8a46778b2e765ec7388b171",
+      "originalContractClassId": "0x0eb5de62c782822358c2cec8d397769c3733f0a4e8a46778b2e765ec7388b171",
+      "initializationHash": "0x1ba23ec448a8d29fb77ce3f29ec570810e3f75d12bb17ea96e0d96a4734d0f16",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x15e4592a8f18adeca21dee8fd056b73e648266961d618b0d319bd6879e368a48"
+    },
+    "donationToken": "azETH",
+    "operator": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+    "deadline": "1781220884"
   }
 }
