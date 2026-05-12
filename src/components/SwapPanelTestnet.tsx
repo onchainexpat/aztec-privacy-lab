@@ -313,10 +313,7 @@ export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
                 <p className="mt-1 text-emerald-800/80">
                   AMM spot price: 1 {t0sym} ≈{' '}
                   <span className="font-mono">{formatPrice(spotPrice(reserves.aza, reserves.azb))}</span>{' '}
-                  {t1sym}{' '}
-                  <span className="text-emerald-700/60">
-                    (≠ the wallet's reference price — see note below)
-                  </span>
+                  {t1sym}
                 </p>
                 {quote !== null && (
                   <div className="mt-2 grid grid-cols-1 gap-1 rounded-lg border border-emerald-200 bg-white/60 p-2 sm:grid-cols-3">
@@ -359,15 +356,6 @@ export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
               </p>
             )}
           </div>
-
-          <p className="mt-2 text-[11px] text-black/50">
-            Heads-up on the prices: the demo pool was seeded at a 1:2 ratio (50 k {t0sym} +
-            100 k {t1sym}), so the AMM's implied {t0sym} price is ~2 {t1sym}, not the wallet
-            panel's $2,500 reference. They're different prices — the wallet $-figure is a
-            global label, the AMM price is whatever the pool's reserves dictate. A real
-            arbitrageur would close this gap; on testnet there's nobody to do it. Slippage +
-            price impact above ARE accurate constant-product math (0.3% fee).
-          </p>
 
           <ProofTimer state={proofTimer} label={proofTimer.proving ? 'swap' : 'last swap proof'} />
 
