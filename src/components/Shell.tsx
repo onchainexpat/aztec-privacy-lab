@@ -14,6 +14,7 @@ import { SwapPanel } from './SwapPanel'
 import { AMMPanelTestnet } from './AMMPanelTestnet'
 import { LaunchpadMatrix } from './LaunchpadMatrix'
 import { LaunchpadPanel } from './LaunchpadPanel'
+import { LaunchpadPanelTestnet } from './LaunchpadPanelTestnet'
 import { LendingMatrix } from './LendingMatrix'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
@@ -152,13 +153,35 @@ export function Shell() {
           <LaunchpadMatrix onTry={(id) => setActiveLaunchpad(id)} />
         </div>
 
+        {activeLaunchpad === 'lp1' && sandboxState && network === 'testnet' && (
+          <LaunchpadPanelTestnet
+            state={sandboxState}
+            onClose={() => setActiveLaunchpad(null)}
+          />
+        )}
         {(activeLaunchpad === 'lp1' || activeLaunchpad === 'lp2' || activeLaunchpad === 'lp3') &&
-          sandboxState && (
+          sandboxState &&
+          network === 'sandbox' && (
             <LaunchpadPanel
               variant={activeLaunchpad}
               state={sandboxState}
               onClose={() => setActiveLaunchpad(null)}
             />
+          )}
+        {(activeLaunchpad === 'lp2' || activeLaunchpad === 'lp3') &&
+          sandboxState &&
+          network === 'testnet' && (
+            <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+              Variant {activeLaunchpad} uses a custom Noir contract that's currently only deployed
+              on the sandbox. Switch the network toggle to <strong>Sandbox</strong> to try it, or
+              ask for a testnet port.
+              <button
+                onClick={() => setActiveLaunchpad(null)}
+                className="ml-3 underline"
+              >
+                Close
+              </button>
+            </section>
           )}
 
         <div className="mt-16">

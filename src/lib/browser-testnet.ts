@@ -15,6 +15,7 @@ import type { Wallet } from '@aztec/aztec.js/wallet'
 import type { TokenContract } from '@aztec/noir-contracts.js/Token'
 import type { AMMContract } from '@aztec/noir-contracts.js/AMM'
 import type { PrivateVotingContract } from '@aztec/noir-contracts.js/PrivateVoting'
+import type { CrowdfundingContract } from '@aztec/noir-contracts.js/Crowdfunding'
 import type { PublicCollateralPrivateDebtContract } from '../contracts/PublicCollateralPrivateDebt'
 import type { SandboxState } from './sandbox-state'
 import type { SponsoredFeePaymentMethod } from '@aztec/aztec.js/fee'
@@ -40,6 +41,7 @@ export interface TestnetClient {
   amm: AMMContract | null
   ld2: PublicCollateralPrivateDebtContract | null
   voting: PrivateVotingContract | null
+  crowdfunding: CrowdfundingContract | null
 }
 
 const STORAGE_KEY = 'aztec-experiments:testnet-account'
@@ -110,6 +112,7 @@ export function initTestnetClient(
       ammMod,
       ld2Mod,
       votingMod,
+      crowdfundingMod,
       feeMod,
       contractsMod,
       fieldsMod,
@@ -122,6 +125,7 @@ export function initTestnetClient(
       import('@aztec/noir-contracts.js/AMM'),
       import('../contracts/PublicCollateralPrivateDebt'),
       import('@aztec/noir-contracts.js/PrivateVoting'),
+      import('@aztec/noir-contracts.js/Crowdfunding'),
       import('@aztec/aztec.js/fee'),
       import('@aztec/aztec.js/contracts'),
       import('@aztec/aztec.js/fields'),
@@ -224,6 +228,12 @@ export function initTestnetClient(
         votingMod.PrivateVotingContract.artifact,
       )
     }
+    if (state.crowdfunding) {
+      await wallet.registerContract(
+        deserialize(state.crowdfunding.instance),
+        crowdfundingMod.CrowdfundingContract.artifact,
+      )
+    }
 
     const token0 = await tokenMod.TokenContract.at(
       addressMod.AztecAddress.fromString(state.token0.address),
@@ -254,6 +264,12 @@ export function initTestnetClient(
           wallet,
         )
       : null
+    const crowdfunding = state.crowdfunding
+      ? await crowdfundingMod.CrowdfundingContract.at(
+          addressMod.AztecAddress.fromString(state.crowdfunding.address),
+          wallet,
+        )
+      : null
 
     // Derive the ld2 position commitment from the account secret + address.
     // This mirrors `pedersen_hash([secret, owner.to_field()])` in the
@@ -277,6 +293,7 @@ export function initTestnetClient(
       amm,
       ld2,
       voting,
+      crowdfunding,
     }
   })()
   cached = promise.then(

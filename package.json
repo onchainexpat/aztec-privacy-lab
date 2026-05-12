@@ -18,7 +18,8 @@
     "testnet:setup": "tsx scripts/setup-testnet.ts",
     "testnet:seed-amm": "tsx scripts/seed-testnet-amm.ts",
     "testnet:reseed-amm": "tsx scripts/reseed-testnet-amm.ts",
-    "testnet:redeploy-amm": "tsx scripts/redeploy-testnet-amm.ts"
+    "testnet:redeploy-amm": "tsx scripts/redeploy-testnet-amm.ts",
+    "testnet:deploy-launchpad": "tsx scripts/deploy-testnet-launchpad.ts"
   },
   "dependencies": {
     "@azguardwallet/client": "^0.9.0",
