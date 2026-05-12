@@ -12,6 +12,7 @@
  */
 import express, { type Request, type Response } from 'express'
 import { AztecAddress } from '@aztec/aztec.js/addresses'
+import { NO_WAIT } from '@aztec/aztec.js/contracts'
 
 import { loadTestnetState } from './state.ts'
 import { bootWallet, type FaucetWallet } from './wallet.ts'
@@ -107,20 +108,15 @@ async function mint(
   to: AztecAddress,
   wallet: FaucetWallet,
 ): Promise<{ txHash: string }> {
-  // mint_to_public is a public function — no private execution needed beyond
-  // the account contract's entrypoint (which still needs an IVC proof). The
-  // Token contract treats msg_sender as the minter check; the admin is
-  // pre-registered as a minter at deploy time.
+  // mint_to_public is a public function but the entrypoint IVC proof is still
+  // generated. Pass `wait: NO_WAIT` so we get the tx hash immediately
+  // (TxSendResultImmediate { txHash, ... }) instead of awaiting block
+  // inclusion (~36 s on testnet). Client polls its own PXE for the balance
+  // bump.
   const sent = await contract.methods
     .mint_to_public(to, MINT_AMOUNT)
-    .send({ from: wallet.admin, fee: wallet.feeOpts })
-  // .send() resolves to a result that contains the tx hash. The exact shape
-  // varies a bit across versions; coerce safely.
-  const txHash =
-    (sent as { txHash?: { toString: () => string } }).txHash?.toString() ??
-    (sent as { tx?: { txHash?: { toString: () => string } } }).tx?.txHash?.toString() ??
-    'unknown'
-  return { txHash }
+    .send({ from: wallet.admin, fee: wallet.feeOpts, wait: NO_WAIT })
+  return { txHash: sent.txHash.toString() }
 }
 
 main().catch((err) => {
