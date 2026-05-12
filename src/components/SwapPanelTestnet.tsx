@@ -6,6 +6,7 @@ import { faucetMint, isFaucetConfigured } from '../lib/faucet'
 import { captureProofLog, type ProofEvent } from '../lib/proof-log'
 import { useProofTimer } from '../lib/proof-timer'
 import { ProofTimer } from './ui/ProofTimer'
+import { formatUSD } from '../lib/prices'
 import type { ConnectedAccount } from '../lib/wallet'
 
 interface Props {
@@ -296,12 +297,20 @@ export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
           <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 text-xs text-emerald-900">
             <p className="font-medium">Pool reserves (public state)</p>
             <p className="mt-1 font-mono">
-              {reserves
-                ? `${fmt(reserves.aza)} ${t0sym} · ${fmt(reserves.azb)} ${t1sym}`
-                : 'loading…'}
+              {reserves ? (
+                <>
+                  {fmt(reserves.aza)} {t0sym}{' '}
+                  <span className="text-emerald-700/70">({formatUSD(reserves.aza, t0sym)})</span>{' '}
+                  · {fmt(reserves.azb)} {t1sym}{' '}
+                  <span className="text-emerald-700/70">({formatUSD(reserves.azb, t1sym)})</span>
+                </>
+              ) : (
+                'loading…'
+              )}
               {quote !== null && (
                 <span className="ml-3 text-emerald-700">
-                  quote: {SWAP_IN} {t0sym} → {fmt(quote)} {t1sym}
+                  quote: {SWAP_IN} {t0sym} → {fmt(quote)} {t1sym} (
+                  {formatUSD(SWAP_IN, t0sym)} → {formatUSD(quote, t1sym)})
                 </span>
               )}
             </p>

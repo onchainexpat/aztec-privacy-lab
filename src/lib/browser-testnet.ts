@@ -68,9 +68,31 @@ function saveAccount(a: PersistedAccount) {
 /** Clear the visitor's local account — useful if they want a fresh one. */
 export function resetTestnetAccount() {
   if (typeof localStorage !== 'undefined') localStorage.removeItem(STORAGE_KEY)
+  cached = null
+  broadcastClient(null)
 }
 
 let cached: Promise<TestnetClient> | null = null
+let resolvedClient: TestnetClient | null = null
+
+/** Read-only access to the already-resolved TestnetClient if one exists.
+ *  Used by the top-level WalletPanel so it can show balances without forcing
+ *  a fresh init — visitors who started in a demo panel get instant sync here. */
+export function getResolvedTestnetClient(): TestnetClient | null {
+  return resolvedClient
+}
+
+const clientListeners = new Set<(client: TestnetClient | null) => void>()
+export function subscribeTestnetClient(listener: (client: TestnetClient | null) => void): () => void {
+  clientListeners.add(listener)
+  return () => {
+    clientListeners.delete(listener)
+  }
+}
+function broadcastClient(client: TestnetClient | null) {
+  resolvedClient = client
+  for (const l of clientListeners) l(client)
+}
 
 export function initTestnetClient(
   state: SandboxState,
@@ -243,9 +265,15 @@ export function initTestnetClient(
       voting,
     }
   })()
-  cached = promise.catch((e) => {
-    cached = null
-    throw e
-  })
+  cached = promise.then(
+    (c) => {
+      broadcastClient(c)
+      return c
+    },
+    (e) => {
+      cached = null
+      throw e
+    },
+  )
   return cached
 }

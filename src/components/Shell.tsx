@@ -8,6 +8,7 @@ import { HeaderProofIndicator } from './HeaderProofIndicator'
 import { SandboxStatePanel } from './SandboxState'
 import { StatsStrip } from './StatsStrip'
 import { Walkthrough } from './Walkthrough'
+import { WalletPanel } from './WalletPanel'
 import { PrivacyMatrix } from './PrivacyMatrix'
 import { SwapPanel } from './SwapPanel'
 import { SwapPanelTestnet } from './SwapPanelTestnet'
@@ -107,6 +108,8 @@ export function Shell() {
         hasSandboxDeployment={!!sandboxState?.amm}
         hasUniswapStack={!!sandboxState?.crossChain?.l1UniswapPortal}
       />
+
+      {network === 'testnet' && sandboxState && <WalletPanel state={sandboxState} />}
 
       <section className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_2fr]">
         <NodeStatus network={network} />

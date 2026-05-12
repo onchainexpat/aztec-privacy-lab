@@ -11,7 +11,7 @@ interface Props {
 
 export function Walkthrough({ network, hasSandboxDeployment, hasUniswapStack }: Props) {
   const [dismissed, setDismissed] = useState(false)
-  const [showAzguard, setShowAzguard] = useState(false)
+  const [showLocal, setShowLocal] = useState(false)
 
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
@@ -46,10 +46,11 @@ export function Walkthrough({ network, hasSandboxDeployment, hasUniswapStack }: 
     <section className="mt-6 rounded-2xl border border-black/10 bg-gradient-to-br from-violet-50/40 via-white to-sky-50/40 p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold">Walkthrough</h2>
+          <h2 className="text-lg font-semibold">How to use this playground</h2>
           <p className="mt-1 max-w-prose text-sm text-black/60">
-            Five sections, each demonstrating one Aztec privacy primitive end-to-end. Run them
-            in any order once the sandbox is bootstrapped.
+            Four interactive demos on Aztec Alpha v4 testnet — AMM swap, lending (ld2),
+            anonymous voting, and shield/unshield in the wallet panel below. Each one
+            generates a real ClientIVC proof in your browser. No wallet install required.
           </p>
         </div>
         <button
@@ -64,69 +65,55 @@ export function Walkthrough({ network, hasSandboxDeployment, hasUniswapStack }: 
       <ol className="mt-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-2 lg:grid-cols-3">
         <Step
           n={1}
-          title="Bootstrap the sandbox"
-          done={hasSandboxDeployment}
+          title="Initialize your wallet"
           body={
             <>
-              In a separate shell:
-              <pre className="mt-1 overflow-auto rounded bg-zinc-900 px-2 py-1.5 text-[11px] text-zinc-100">
-{`aztec start --local-network --port 8090 \\
-  --sequencer.minTxsPerBlock 0 \\
-  --sequencer.enforceTimeTable false`}
-              </pre>
-              <p className="mt-1 text-black/60">
-                Both flags are required — without them the L2 proposer stalls around block 30
-                and L1→L2 claims fail.
-              </p>
+              The <strong>Your testnet wallet</strong> panel below generates a fresh Schnorr
+              account in your browser, deploys it to Aztec testnet via the SponsoredFPC
+              paymaster, and persists the credentials to{' '}
+              <code className="font-mono text-xs">localStorage</code>. First-time setup
+              takes 1-2 minutes (account-deploy IVC proof). Reuse across reloads is instant.
             </>
           }
         />
 
         <Step
           n={2}
-          title="Deploy + seed contracts"
-          done={hasSandboxDeployment}
+          title="Get funds"
           body={
             <>
-              <pre className="overflow-auto rounded bg-zinc-900 px-2 py-1.5 text-[11px] text-zinc-100">
-{`npm run sandbox:setup    # token+AMM+lending+voting
-npm run sandbox:seed     # AMM liquidity + sample swap`}
-              </pre>
-              <p className="mt-1 text-black/60">
-                Mints 1 M private azETH + azUSDC and 200 k public azETH to the admin.
-              </p>
+              Click <strong>+10k pub</strong> or <strong>+10k priv</strong> in the wallet
+              panel to mint 10,000 azETH or azUSDC into your account. Public mint is faster
+              (~36 s for block inclusion). Private mint generates an extra IVC proof on the
+              faucet side (~40 s). Rate-limited per address.
             </>
           }
         />
 
         <Step
           n={3}
-          title="Wire the L1 stack (optional)"
-          done={hasUniswapStack}
+          title="Shield / unshield"
           body={
             <>
-              For the cross-chain bridge + Uniswap-from-L2 demos:
-              <pre className="mt-1 overflow-auto rounded bg-zinc-900 px-2 py-1.5 text-[11px] text-zinc-100">
-{`npm run sandbox:l1-portal
-npm run sandbox:mock-router
-npm run sandbox:uniswap`}
-              </pre>
-              <p className="mt-1 text-black/60">
-                Plants a Forge-compiled MockSwapRouter at the V3 mainnet address via{' '}
-                <code className="font-mono">anvil_setCode</code>.
-              </p>
+              The wallet's <strong>shield</strong> button converts your public balance into a
+              private note via <code className="font-mono text-xs">Token.transfer_to_private</code>
+              ; <strong>unshield</strong> does the reverse. Watch the <strong>Generating ZK
+              proof</strong> pill in the header — that's bb.js producing a real proof in your
+              tab, not on a server.
             </>
           }
         />
 
         <Step
           n={4}
-          title="Click into a section"
+          title="Try a demo variant"
           body={
             <>
-              Each section has a privacy matrix. Click a "Try variant ?" button → "Initialize
-              browser PXE" (loads ~10 MB of WASM once) → action button. The first action takes
-              ~10 s; subsequent ones take a few seconds.
+              Scroll to a privacy matrix (AMM, Lending, Voting…) and click the{' '}
+              <strong>Try variant ?</strong> button. Each interactive variant on testnet
+              reuses your wallet — no second initialization. The proof log under the panel
+              streams the SDK events (witness gen, proof, tx submit) so you can see what's
+              happening.
             </>
           }
         />
@@ -139,32 +126,113 @@ npm run sandbox:uniswap`}
               Side-by-side variants in the same section let you compare what's hidden vs
               public. e.g. lending ld1 (private collateral, secret-keyed) vs ld3 (Aave-style
               fully public) use the <em>same contract</em> — only the entrypoints differ.
+              ld2 splits the difference: public deposit, private debt.
             </>
           }
         />
 
         <Step
           n={6}
-          title="Network toggle"
+          title="Optional — connect Azguard"
           body={
             <>
-              The Sandbox / Testnet dropdown in the header is read-only when set to testnet.
-              The node-status tile keeps refreshing live, but the deploy + claim demos still
-              point at sandbox. See Azguard guide →
-              <button
-                onClick={() => setShowAzguard((s) => !s)}
-                className="ml-1 underline-offset-4 hover:underline"
-              >
-                {showAzguard ? 'hide' : 'show'}
-              </button>
-              .
+              <strong>Connect wallet</strong> in the header links your Azguard browser
+              extension. Today this is informational only — the demos still use the per-tab
+              account. Routing transactions through Azguard's RPC (
+              <code className="font-mono text-xs">client.execute(…)</code>) is a planned
+              future addition.
             </>
           }
         />
       </ol>
 
-      {showAzguard && <AzguardGuide currentNetwork={network} />}
+      <p className="mt-4 text-xs text-black/50">
+        Running locally as a dev?{' '}
+        <button
+          onClick={() => setShowLocal((s) => !s)}
+          className="underline-offset-4 hover:underline"
+        >
+          {showLocal ? 'hide' : 'show'} sandbox bootstrap steps
+        </button>
+      </p>
+
+      {showLocal && (
+        <LocalDevSteps
+          hasSandboxDeployment={hasSandboxDeployment}
+          hasUniswapStack={hasUniswapStack}
+          network={network}
+        />
+      )}
     </section>
+  )
+}
+
+function LocalDevSteps({
+  hasSandboxDeployment,
+  hasUniswapStack,
+  network,
+}: {
+  hasSandboxDeployment: boolean
+  hasUniswapStack: boolean
+  network: NetworkId
+}) {
+  return (
+    <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-xs text-zinc-700">
+      <p className="text-zinc-900">
+        The default deploy on Vercel runs against testnet. To iterate against a local
+        sandbox (faster block times, no faucet, no real proofs by default), clone the repo
+        and:
+      </p>
+      <ol className="mt-2 grid grid-cols-1 gap-3 md:grid-cols-3">
+        <LocalStep
+          n={1}
+          title="Start the sandbox"
+          done={hasSandboxDeployment && network === 'sandbox'}
+          body={
+            <>
+              <pre className="mt-1 overflow-auto rounded bg-zinc-900 px-2 py-1.5 text-[11px] text-zinc-100">
+{`aztec start --local-network --port 8090 \\
+  --sequencer.minTxsPerBlock 0 \\
+  --sequencer.enforceTimeTable false`}
+              </pre>
+              <p className="mt-1 text-zinc-600">
+                Both sequencer flags required — without them the L2 proposer stalls.
+              </p>
+            </>
+          }
+        />
+        <LocalStep
+          n={2}
+          title="Deploy + seed contracts"
+          done={hasSandboxDeployment && network === 'sandbox'}
+          body={
+            <pre className="overflow-auto rounded bg-zinc-900 px-2 py-1.5 text-[11px] text-zinc-100">
+{`npm run sandbox:setup
+npm run sandbox:seed`}
+            </pre>
+          }
+        />
+        <LocalStep
+          n={3}
+          title="Optional — L1 bridge stack"
+          done={hasUniswapStack && network === 'sandbox'}
+          body={
+            <>
+              <pre className="overflow-auto rounded bg-zinc-900 px-2 py-1.5 text-[11px] text-zinc-100">
+{`npm run sandbox:l1-portal
+npm run sandbox:mock-router
+npm run sandbox:uniswap`}
+              </pre>
+              <p className="mt-1 text-zinc-600">For the cross-chain bridge demo.</p>
+            </>
+          }
+        />
+      </ol>
+      <p className="mt-3 text-zinc-600">
+        Then toggle the header to <strong>Sandbox</strong> and the dashboard switches
+        wholesale.
+      </p>
+    </div>
   )
 }
 
@@ -199,90 +267,31 @@ function Step({
   )
 }
 
-function AzguardGuide({ currentNetwork }: { currentNetwork: NetworkId }) {
+function LocalStep({
+  n,
+  title,
+  body,
+  done,
+}: {
+  n: number
+  title: string
+  body: React.ReactNode
+  done?: boolean
+}) {
   return (
-    <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/60 p-4 text-sm text-violet-950">
-      <h3 className="text-sm font-semibold">Run against Aztec testnet with Azguard</h3>
-      <p className="mt-1 text-violet-900/80">
-        The dashboard's "Initialize browser PXE" path uses pre-funded sandbox test accounts and
-        won't work against the public testnet. To take the demos to testnet you need a real
-        wallet:
-      </p>
-      <ol className="mt-2 list-decimal space-y-1 pl-5 text-violet-900">
-        <li>
-          Install Azguard from the{' '}
-          <a
-            href="https://chromewebstore.google.com/detail/azguard-wallet/pliilpflcmabdiapdeihifihkbdfnbmn"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-4"
-          >
-            Chrome Web Store
-          </a>
-          .
-        </li>
-        <li>Open the side panel, create or restore an Aztec account on Alpha v4 testnet.</li>
-        <li>
-          Use the wallet's built-in faucet (or the{' '}
-          <a
-            href="https://aztec-faucet.nethermind.io"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-4"
-          >
-            Nethermind faucet
-          </a>
-          ) to fund the account with testnet azETH / fee juice.
-        </li>
-        <li>
-          Switch this dashboard's network toggle to{' '}
-          <strong>Testnet (Alpha v4)</strong>
-          {currentNetwork === 'testnet' ? ' (already selected)' : ''} — it'll read live state
-          from <code className="font-mono text-xs">https://aztec.drpc.org</code>.
-        </li>
-        <li>
-          To deploy contracts <em>from a Node.js script</em> against testnet:{' '}
-          <code className="font-mono text-xs">npm run testnet:generate-key</code> →{' '}
-          <code className="font-mono text-xs">npm run testnet:setup</code>. Uses the canonical
-          Aztec Labs testnet RPC and pays fees via the protocol's SponsoredFPC paymaster, so
-          no fee-juice claim is needed.
-        </li>
-      </ol>
-      <p className="mt-3 flex flex-wrap gap-3 text-xs text-violet-900/80">
-        <span>
-          Faucet:{' '}
-          <a
-            className="underline underline-offset-4"
-            href="https://aztec-faucet.nethermind.io"
-            target="_blank"
-            rel="noreferrer"
-          >
-            aztec-faucet.nethermind.io
-          </a>
-        </span>
-        <span>
-          Explorer:{' '}
-          <a
-            className="underline underline-offset-4"
-            href="https://testnet.aztecscan.xyz"
-            target="_blank"
-            rel="noreferrer"
-          >
-            testnet.aztecscan.xyz
-          </a>
-        </span>
-        <span>
-          Azguard docs:{' '}
-          <a
-            className="underline underline-offset-4"
-            href="https://azguardwallet.io"
-            target="_blank"
-            rel="noreferrer"
-          >
-            azguardwallet.io
-          </a>
-        </span>
-      </p>
-    </div>
+    <li className="flex gap-3 rounded-lg border border-zinc-200 bg-white p-3">
+      <span
+        className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-mono ${
+          done ? 'bg-emerald-500 text-white' : 'border border-zinc-300 bg-white text-zinc-600'
+        }`}
+        aria-hidden
+      >
+        {done ? '✓' : n}
+      </span>
+      <div className="min-w-0 flex-1">
+        <h4 className="text-xs font-semibold text-zinc-900">{title}</h4>
+        <div className="mt-1 text-[11px] text-zinc-600 [&_pre]:my-1">{body}</div>
+      </div>
+    </li>
   )
 }
