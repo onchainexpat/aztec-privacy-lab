@@ -1,41 +1,78 @@
 // Wallet connection wrapper.
 //
-// Phase 0 ships a stub: detects whether an Azguard-style in-page RPC provider
-// is present on `window.aztec` and surfaces a connect/disconnect API. Real
-// WalletConnect wiring lands when the AMM (Phase 1) needs to actually sign.
+// Uses @azguardwallet/client to talk to the Azguard browser extension via its
+// in-page RPC bridge. The extension exposes `window.azguard.createClient()`
+// asynchronously after content scripts load — `AzguardClient.create()` waits
+// for that with a configurable timeout.
+//
+// What this surfaces today: detect + connect + show address + disconnect.
+// What it does NOT yet do: route the interactive demos' deposit/borrow calls
+// through Azguard's `client.execute([{kind: 'send_transaction', ...}])`. The
+// per-tab Schnorr account path in browser-testnet.ts is still the only way to
+// interact with the contracts. Both can coexist; the Connect button is purely
+// informational for now.
+
+import { AzguardClient } from '@azguardwallet/client'
 
 export interface ConnectedAccount {
+  /** Plain hex address (the part after the chain prefix). */
   address: string
-  source: 'azguard' | 'mock'
+  /** Full CAIP-2 account identifier, e.g. "aztec:4127419662:0x088514…". */
+  caipAccount: string
+  source: 'azguard'
 }
 
-declare global {
-  interface Window {
-    aztec?: {
-      connect: () => Promise<{ address: string } | string>
-      disconnect?: () => Promise<void> | void
-    }
+/** Testnet rollup version (Aztec Alpha v4 on Sepolia). Confirmed via
+ *  node_getNodeInfo against rpc.testnet.aztec-labs.com. CaipChain format is
+ *  `aztec:<rollupVersion>`, see @azguardwallet/types dapp-session.d.ts. */
+const TESTNET_CHAIN = 'aztec:4127419662'
+
+const DAPP_METADATA = {
+  name: 'Aztec Privacy Lab',
+  description: 'Noir privacy-variation playground on Aztec Alpha v4',
+  url: typeof window !== 'undefined' ? window.location.origin : '',
+}
+
+/** Operations the dashboard requests permission for. `call` covers simulate;
+ *  `send_transaction` lets us submit. `register_contract` so we can register
+ *  the testnet AZA / AZB / ld2 instances in the wallet's PXE. */
+const REQUIRED_OPS = ['send_transaction', 'simulate_views', 'register_contract', 'call']
+
+let client: AzguardClient | null = null
+
+async function getClient(): Promise<AzguardClient> {
+  if (client) return client
+  const isInstalled = await AzguardClient.isAzguardInstalled(2000)
+  if (!isInstalled) {
+    throw new Error(
+      'No Aztec wallet detected. Install Azguard from the Chrome Web Store ' +
+        '(pliilpflcmabdiapdeihifihkbdfnbmn) and reload.',
+    )
   }
-}
-
-export function detectInPageWallet(): boolean {
-  return typeof window !== 'undefined' && typeof window.aztec?.connect === 'function'
+  client = await AzguardClient.create()
+  return client
 }
 
 export async function connect(): Promise<ConnectedAccount> {
-  if (detectInPageWallet()) {
-    const res = await window.aztec!.connect()
-    const address = typeof res === 'string' ? res : res.address
-    return { address, source: 'azguard' }
+  const c = await getClient()
+  if (!c.connected) {
+    await c.connect(DAPP_METADATA, [{ chains: [TESTNET_CHAIN], methods: REQUIRED_OPS }])
   }
-  throw new Error(
-    'No Aztec wallet detected. Install Azguard from the Chrome Web Store and reload.',
-  )
+  const caipAccount = c.accounts[0]
+  if (!caipAccount) {
+    throw new Error('Wallet connected but no accounts approved.')
+  }
+  // CAIP account format is `aztec:<rollupVersion>:0x<address>`. Strip prefix.
+  const address = caipAccount.split(':').at(-1) ?? caipAccount
+  return { address, caipAccount, source: 'azguard' }
 }
 
 export async function disconnect(): Promise<void> {
-  if (detectInPageWallet() && typeof window.aztec!.disconnect === 'function') {
-    await window.aztec!.disconnect!()
+  if (!client) return
+  try {
+    await client.disconnect()
+  } catch {
+    // ignore
   }
 }
 

@@ -35,8 +35,15 @@ const STORAGE_KEY = 'aztec-experiments:network'
 
 export function loadNetwork(): NetworkId {
   const v = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-  // Default to testnet — the public Vercel deploy has live contracts there.
-  // Sandbox is for local development only (requires `aztec start --local-network`).
+  // If a public-origin visitor has `sandbox` saved from an earlier visit, the
+  // dashboard would try to reach http://localhost:8090 from a public hostname
+  // and fail. Force testnet in that case; visitors who really want sandbox
+  // can toggle in the header. Local-dev visitors keep their explicit choice.
+  const onPublicOrigin =
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
+  if (v === 'sandbox' && onPublicOrigin) return 'testnet'
   return v === 'testnet' || v === 'sandbox' ? v : 'testnet'
 }
 
