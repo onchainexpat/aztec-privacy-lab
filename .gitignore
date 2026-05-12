@@ -43,3 +43,4 @@ contracts-l1/**/broadcast/
 
 # Vercel / deploy state
 .vercel/
+.vercel

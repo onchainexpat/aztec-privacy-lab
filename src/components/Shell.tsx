@@ -207,7 +207,21 @@ export function Shell() {
             Experimental research dashboard. Not audited. Contracts are demos meant to illustrate
             Aztec's privacy model — do not deposit real funds. Built against{' '}
             <code className="font-mono">@aztec/aztec.js@4.2.0-rc.1</code> + Aztec Alpha v4 testnet
-            (L1 settles to Sepolia).
+            (L1 settles to Sepolia).{' '}
+            <span className="whitespace-nowrap">
+              build{' '}
+              <a
+                href={`https://github.com/onchainexpat/aztec-privacy-lab/commit/${__APP_GIT_SHA__}`}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono underline-offset-4 hover:underline"
+                title={`built ${__APP_BUILD_TIME__}`}
+              >
+                {__APP_GIT_SHA__}
+              </a>
+              {' · '}
+              {formatBuildAge(__APP_BUILD_TIME__)}
+            </span>
           </p>
           <div className="flex gap-4">
             <a
@@ -239,4 +253,21 @@ export function Shell() {
       </footer>
     </div>
   )
+}
+
+function formatBuildAge(iso: string): string {
+  try {
+    const ms = Date.now() - new Date(iso).getTime()
+    if (ms < 0) return iso
+    const s = Math.round(ms / 1000)
+    if (s < 60) return `${s} s ago`
+    const m = Math.round(s / 60)
+    if (m < 60) return `${m} min ago`
+    const h = Math.round(m / 60)
+    if (h < 48) return `${h} h ago`
+    const d = Math.round(h / 24)
+    return `${d} d ago`
+  } catch {
+    return 'unknown'
+  }
 }
