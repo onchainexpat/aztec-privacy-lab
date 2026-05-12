@@ -45,24 +45,42 @@ export function subscribeProofEvents(listener: ProofEventSink): () => void {
 
 function matchAndEmit(_method: string, args: unknown[]): void {
   if (activeSink === null && globalListeners.size === 0) return
-  const text = args
-    .map((a) => {
-      if (typeof a === 'string') return a
-      try {
-        return JSON.stringify(a)
-      } catch {
-        return String(a)
-      }
-    })
-    .join(' ')
+
+  // pino-browser with asObject:false calls
+  //   console.info(bindings?, data?, msg, ...rest)
+  // For child loggers, bindings is prepended (object with .module etc).
+  // The actual human-readable line is the last string arg.
+  let moduleName = ''
+  let extraDuration: number | null = null
+  for (const a of args) {
+    if (!a || typeof a !== 'object') continue
+    const obj = a as Record<string, unknown>
+    if (typeof obj.module === 'string') moduleName = obj.module
+    if (typeof obj.duration === 'number') extraDuration = obj.duration
+  }
+
+  let message = ''
+  for (let i = args.length - 1; i >= 0; i--) {
+    if (typeof args[i] === 'string') {
+      message = args[i] as string
+      break
+    }
+  }
+  if (!message) return
+
+  const haystack = moduleName + ' ' + message
   for (const { match, source } of INTERESTING_PATTERNS) {
-    const m = text.match(match)
+    const m = haystack.match(match)
     if (!m) continue
+    const displayMessage =
+      extraDuration !== null && /Generated ClientIVC proof/i.test(message)
+        ? `${message} (${(extraDuration / 1000).toFixed(2)} s, 4.7 KB proof)`
+        : trimMessage(message)
     const ev: ProofEvent = {
       ts: Date.now(),
       kind: 'info',
       source: source(m[0]),
-      message: trimMessage(text),
+      message: displayMessage,
     }
     if (activeSink) activeSink(ev)
     for (const listener of globalListeners) listener(ev)
@@ -71,10 +89,7 @@ function matchAndEmit(_method: string, args: unknown[]): void {
 }
 
 function trimMessage(text: string): string {
-  return text
-    .replace(/^\[\d{2}:\d{2}:\d{2}\.\d{3}\]\s+(INFO|DEBUG|TRACE|WARN|ERROR):\s+/, '')
-    .replace(/\s+\{[^{}]*\}\s*$/, '')
-    .slice(0, 240)
+  return text.slice(0, 240)
 }
 
 interface ProofConsoleQueueEntry {
