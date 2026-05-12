@@ -6,7 +6,13 @@ import { faucetMint, isFaucetConfigured } from '../lib/faucet'
 import { captureProofLog, type ProofEvent } from '../lib/proof-log'
 import { useProofTimer } from '../lib/proof-timer'
 import { ProofTimer } from './ui/ProofTimer'
-import { formatUSD } from '../lib/prices'
+import {
+  spotPrice,
+  effectivePrice,
+  priceImpact,
+  formatPrice,
+  formatPct,
+} from '../lib/amm-math'
 import type { ConnectedAccount } from '../lib/wallet'
 
 interface Props {
@@ -295,25 +301,53 @@ export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
           )}
 
           <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 text-xs text-emerald-900">
-            <p className="font-medium">Pool reserves (public state)</p>
-            <p className="mt-1 font-mono">
-              {reserves ? (
-                <>
-                  {fmt(reserves.aza)} {t0sym}{' '}
-                  <span className="text-emerald-700/70">({formatUSD(reserves.aza, t0sym)})</span>{' '}
-                  · {fmt(reserves.azb)} {t1sym}{' '}
-                  <span className="text-emerald-700/70">({formatUSD(reserves.azb, t1sym)})</span>
-                </>
-              ) : (
-                'loading…'
-              )}
-              {quote !== null && (
-                <span className="ml-3 text-emerald-700">
-                  quote: {SWAP_IN} {t0sym} → {fmt(quote)} {t1sym} (
-                  {formatUSD(SWAP_IN, t0sym)} → {formatUSD(quote, t1sym)})
-                </span>
-              )}
-            </p>
+            <p className="font-medium">Pool state (public)</p>
+            {reserves ? (
+              <>
+                <p className="mt-1 font-mono">
+                  reserves: {fmt(reserves.aza)} {t0sym} · {fmt(reserves.azb)} {t1sym}
+                </p>
+                <p className="mt-1 text-emerald-800/80">
+                  AMM spot price: 1 {t0sym} ≈{' '}
+                  <span className="font-mono">{formatPrice(spotPrice(reserves.aza, reserves.azb))}</span>{' '}
+                  {t1sym}{' '}
+                  <span className="text-emerald-700/60">
+                    (≠ the wallet's reference price — see note below)
+                  </span>
+                </p>
+                {quote !== null && (
+                  <div className="mt-2 grid grid-cols-1 gap-1 rounded-lg border border-emerald-200 bg-white/60 p-2 sm:grid-cols-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide text-emerald-900/50">
+                        you send
+                      </p>
+                      <p className="font-mono">{fmt(SWAP_IN)} {t0sym}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide text-emerald-900/50">
+                        you receive
+                      </p>
+                      <p className="font-mono">~{fmt(quote)} {t1sym}</p>
+                      <p className="text-[10px] text-emerald-700/70">
+                        effective rate{' '}
+                        {formatPrice(effectivePrice(SWAP_IN, quote))} {t1sym}/{t0sym}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide text-emerald-900/50">
+                        price impact
+                      </p>
+                      <p className="font-mono">
+                        {formatPct(priceImpact(SWAP_IN, reserves.aza, reserves.azb))}
+                      </p>
+                      <p className="text-[10px] text-emerald-700/70">0.3% pool fee included</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="mt-1 font-mono">loading…</p>
+            )}
             {!haveReserves && reserves !== null && (
               <p className="mt-1 text-amber-900">
                 Pool is empty — waiting on admin to seed initial liquidity. The swap demo
@@ -322,6 +356,15 @@ export function SwapPanelTestnet({ state, azguardAccount, onClose }: Props) {
               </p>
             )}
           </div>
+
+          <p className="mt-2 text-[11px] text-black/50">
+            Heads-up on the prices: the demo pool was seeded at a 1:2 ratio (50 k {t0sym} +
+            100 k {t1sym}), so the AMM's implied {t0sym} price is ~2 {t1sym}, not the wallet
+            panel's $2,500 reference. They're different prices — the wallet $-figure is a
+            global label, the AMM price is whatever the pool's reserves dictate. A real
+            arbitrageur would close this gap; on testnet there's nobody to do it. Slippage +
+            price impact above ARE accurate constant-product math (0.3% fee).
+          </p>
 
           <ProofTimer state={proofTimer} label={proofTimer.proving ? 'swap' : 'last swap proof'} />
 
