@@ -22,7 +22,9 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
   testnet: {
     id: 'testnet',
     label: 'Testnet (Alpha v4)',
-    nodeUrl: 'https://aztec.drpc.org',
+    // Canonical testnet RPC — L1 settles to Sepolia (chainId 11155111).
+    // NOT aztec.drpc.org, which is the mainnet Aztec rollup (L1 chainId 1).
+    nodeUrl: 'https://rpc.testnet.aztec-labs.com',
     explorerUrl: 'https://testnet.aztecscan.xyz',
     faucetUrl: 'https://aztec-faucet.nethermind.io',
     enabled: true,

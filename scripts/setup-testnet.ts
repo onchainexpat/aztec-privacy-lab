@@ -1,20 +1,21 @@
 /**
- * EXPERIMENTAL — currently blocked on RPC availability.
- *
- * The aztec.drpc.org Aztec endpoint is a pruned full node: it serves recent
- * blocks but NOT genesis state. EmbeddedWallet's PXE startup hard-requires
- * `node_getBlockHeader(0)` (see block_synchronizer.js — flagged for refactor
- * upstream). So this script fails as soon as the first .send() triggers a
- * sync, with `Unknown state. First available state is 1`. The structure is
- * preserved here for the day an archive RPC for Alpha v4 appears.
+ * Testnet bootstrap: deploys a minimal contract set to Aztec Alpha v4 testnet
+ * (L1 settles to Sepolia) using the canonical SponsoredFPC paymaster so the
+ * deployer doesn't need fee juice. Writes to public/testnet-state.json so
+ * the dashboard can switch over.
  *
  *   TESTNET_SECRET=0x... TESTNET_SALT=0x... TESTNET_SIGNING=0x... npm run testnet:setup
  *
- * Real-world path: use Azguard's PXE in the browser instead.
+ * CURRENT BLOCKER (May 2026): testnet runs nodeVersion `4.2.0-rc.1` while the
+ * `@aztec/*` packages in this repo are `4.2.1`. The deploy reaches submission
+ * cleanly (PXE synced, simulation OK, SponsoredFPC fee accepted) but the
+ * sequencer rejects with `Invalid proof` — circuit / VK mismatch. Either pin
+ * the SDK to `4.2.0-rc.1` (breaks sandbox) or wait for testnet to upgrade.
  *
- * The minimal set this would deploy: Tokens AZA + AZB + AZLP, AMM, the custom
- * PublicCollateralPrivateDebt (ld2), and PrivateVoting. SponsoredFPC pays the
- * fees, so the deployer doesn't need fee juice.
+ * Override TESTNET_URL to use a different RPC (e.g. a local synced node).
+ *
+ * Deploys: Tokens AZA + AZB + AZLP, AMM, custom PublicCollateralPrivateDebt
+ * (ld2), and PrivateVoting. SponsoredFPC pays all fees.
  */
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -22,6 +23,7 @@ import { fileURLToPath } from 'node:url'
 
 import { EmbeddedWallet } from '@aztec/wallets/embedded'
 import { createAztecNodeClient } from '@aztec/aztec.js/node'
+import { NO_FROM } from '@aztec/aztec.js/account'
 import { Fr, Fq } from '@aztec/aztec.js/fields'
 import { TokenContract } from '@aztec/noir-contracts.js/Token'
 import { AMMContract } from '@aztec/noir-contracts.js/AMM'
@@ -33,7 +35,7 @@ import { getContractInstanceFromInstantiationParams } from '@aztec/aztec.js/cont
 import { SPONSORED_FPC_SALT } from '@aztec/constants'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://aztec.drpc.org'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
@@ -92,7 +94,7 @@ async function main() {
 
   log('deploying account contract (fee paid via SponsoredFPC)…')
   const deployAccount = await accountManager.getDeployMethod()
-  await deployAccount.send({ from: admin, fee: feeOpts })
+  await deployAccount.send({ from: NO_FROM, fee: feeOpts })
   log('account deployed')
 
   async function deployToken(name: string, symbol: string) {

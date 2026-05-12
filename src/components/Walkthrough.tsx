@@ -241,13 +241,11 @@ function AzguardGuide({ currentNetwork }: { currentNetwork: NetworkId }) {
           from <code className="font-mono text-xs">https://aztec.drpc.org</code>.
         </li>
         <li>
-          To deploy contracts <em>from a Node.js script</em> against testnet you'd need an
-          archive RPC that serves genesis state — none of the public Alpha v4 RPCs do today
-          (drpc.org is a pruned full node). The path that actually works is Azguard's PXE:
-          install the wallet, connect via this dashboard's "Connect wallet" button, and use
-          Azguard's UI for deploys + interactions. Tracked in{' '}
-          <code className="font-mono text-xs">scripts/setup-testnet.ts</code> for when an
-          archive RPC appears.
+          To deploy contracts <em>from a Node.js script</em> against testnet:{' '}
+          <code className="font-mono text-xs">npm run testnet:generate-key</code> →{' '}
+          <code className="font-mono text-xs">npm run testnet:setup</code>. Uses the canonical
+          Aztec Labs testnet RPC and pays fees via the protocol's SponsoredFPC paymaster, so
+          no fee-juice claim is needed.
         </li>
       </ol>
       <p className="mt-3 flex flex-wrap gap-3 text-xs text-violet-900/80">
