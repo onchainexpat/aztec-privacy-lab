@@ -22,10 +22,19 @@ export interface ConnectedAccount {
   source: 'azguard'
 }
 
-/** Testnet rollup version (Aztec Alpha v4 on Sepolia). Confirmed via
- *  node_getNodeInfo against rpc.testnet.aztec-labs.com. CaipChain format is
- *  `aztec:<rollupVersion>`, see @azguardwallet/types dapp-session.d.ts. */
-const TESTNET_CHAIN = 'aztec:4127419662'
+/** Chain ID Azguard hardcodes for testnet. From their aztec-wallet repo:
+ *
+ *    if (!chain || chain === "testnet") { chain = "aztec:4138294185"; }
+ *
+ *  Note this currently DIFFERS from the rollup version that
+ *  rpc.testnet.aztec-labs.com reports via node_getNodeInfo (4127419662). One
+ *  side is stale — Azguard's hardcoded constant or the canonical RPC's
+ *  rollup. Either way, the Azguard "Approve" button only enables when the
+ *  permission request matches what the wallet considers its current chain,
+ *  so we use Azguard's number here. If Azguard rejects operations later
+ *  because contracts live on the other rollup, we'll need to either redeploy
+ *  the contracts or wait for the two to converge. */
+const TESTNET_CHAIN = 'aztec:4138294185'
 
 const DAPP_METADATA = {
   name: 'Aztec Privacy Lab',
