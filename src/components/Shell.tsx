@@ -23,7 +23,13 @@ import type { LaunchpadVariation } from '../data/launchpad'
 import type { LendingVariation } from '../data/lending'
 
 export function Shell() {
-  const [network, setNetwork] = useState<NetworkId>('sandbox')
+  // Lazy initializer so the first render already has the correct network. If
+  // we instead used `useState('sandbox')` + a useEffect to call loadNetwork(),
+  // there's a 1-render window where network='sandbox' + the state-load
+  // useEffect fires → a stale sandbox fetch races against the subsequent
+  // testnet fetch and sometimes wins, leaving sandboxState pointing at
+  // localhost:8090. Initializing synchronously avoids the race entirely.
+  const [network, setNetwork] = useState<NetworkId>(() => loadNetwork())
   const [account, setAccount] = useState<ConnectedAccount | null>(null)
   const [activeVariant, setActiveVariant] = useState<Variation['id'] | null>(null)
   const [activeLaunchpad, setActiveLaunchpad] = useState<LaunchpadVariation['id'] | null>(null)
@@ -33,12 +39,14 @@ export function Shell() {
   const [sandboxState, setSandboxState] = useState<SandboxState | null>(null)
 
   useEffect(() => {
-    setNetwork(loadNetwork())
-  }, [])
-
-  useEffect(() => {
+    let cancelled = false
     setSandboxState(null)
-    loadDeployState(network).then(setSandboxState)
+    loadDeployState(network).then((s) => {
+      if (!cancelled) setSandboxState(s)
+    })
+    return () => {
+      cancelled = true
+    }
   }, [network])
 
   function changeNetwork(id: NetworkId) {
