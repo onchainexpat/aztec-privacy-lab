@@ -3,6 +3,7 @@ import { initTestnetClient, resetTestnetAccount, type TestnetClient } from '../l
 import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
 import { faucetMint, isFaucetConfigured, FAUCET_URL } from '../lib/faucet'
+import { captureProofLog, type ProofEvent } from '../lib/proof-log'
 
 interface Props {
   state: SandboxState
@@ -33,7 +34,27 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
   const [balances, setBalances] = useState<Balances | null>(null)
   const [position, setPosition] = useState<Position | null>(null)
   const [pendingMint, setPendingMint] = useState<{ token: string; txHash: string } | null>(null)
+  const [proofLog, setProofLog] = useState<ProofEvent[]>([])
   const pollRef = useRef<number | null>(null)
+  const logScrollRef = useRef<HTMLDivElement | null>(null)
+
+  function pushProofEvent(ev: ProofEvent) {
+    setProofLog((prev) => {
+      const next = prev.concat(ev)
+      // Cap at last 100 to keep the UI snappy.
+      return next.length > 100 ? next.slice(next.length - 100) : next
+    })
+  }
+
+  function pushNote(message: string) {
+    pushProofEvent({ ts: Date.now(), kind: 'note', source: 'dashboard', message })
+  }
+
+  useEffect(() => {
+    // Autoscroll to the latest log entry on every push.
+    const el = logScrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [proofLog])
 
   const cfg = NETWORKS.testnet
   const ld2 = state.publicCollateralPrivateDebt
@@ -104,8 +125,13 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
   async function handleInit() {
     setError(null)
     setBusy(true)
+    setProofLog([])
+    const stopCapture = captureProofLog(pushProofEvent)
     try {
-      const c = await initTestnetClient(state, setProgress)
+      const c = await initTestnetClient(state, (msg) => {
+        setProgress(msg)
+        pushNote(msg)
+      })
       setClient(c)
       if (c.freshAccount) {
         setResult(
@@ -115,6 +141,7 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
     } catch (e) {
       setError(formatError(e))
     } finally {
+      stopCapture()
       setBusy(false)
     }
   }
@@ -133,9 +160,11 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
     setError(null)
     setBusy(true)
     setResult(null)
+    pushNote('requesting 10k AZA from faucet…')
     try {
       const resp = await faucetMint(client.address.toString(), 'AZA')
       setPendingMint({ token: 'AZA', txHash: resp.txHash })
+      pushNote(`faucet tx submitted: ${shortHex(resp.txHash)}`)
       setResult(
         `Faucet mint submitted: ${resp.amount} AZA → your address. tx ${shortHex(resp.txHash)}. ` +
           `Block inclusion takes ~36 s on testnet; the balance below will update once it lands.`,
@@ -152,6 +181,8 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
     setError(null)
     setBusy(true)
     setResult(null)
+    pushNote('deposit_public — building authwit + tx…')
+    const stopCapture = captureProofLog(pushProofEvent)
     try {
       const { Fr } = await import('@aztec/aztec.js/fields')
       const { SetPublicAuthwitContractInteraction } = await import('@aztec/aztec.js/authorization')
@@ -182,6 +213,7 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
     } catch (e) {
       setError(formatError(e))
     } finally {
+      stopCapture()
       setBusy(false)
     }
   }
@@ -191,6 +223,8 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
     setError(null)
     setBusy(true)
     setResult(null)
+    pushNote('borrow_private — generating IVC proof (~1-2 min)…')
+    const stopCapture = captureProofLog(pushProofEvent)
     try {
       const { Fr } = await import('@aztec/aztec.js/fields')
       const secret = Fr.fromString(client.accountSecretHex)
@@ -204,6 +238,7 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
     } catch (e) {
       setError(formatError(e))
     } finally {
+      stopCapture()
       setBusy(false)
     }
   }
@@ -382,6 +417,32 @@ export function LendingPanelTestnet({ state, onClose }: Props) {
             </p>
           )}
         </>
+      )}
+
+      {proofLog.length > 0 && (
+        <details className="mt-4" open>
+          <summary className="cursor-pointer text-xs text-black/60 hover:underline">
+            proof log ({proofLog.length} events)
+          </summary>
+          <div
+            ref={logScrollRef}
+            className="mt-2 max-h-56 overflow-auto rounded-lg border border-black/10 bg-zinc-950 p-3 font-mono text-[11px] leading-relaxed text-zinc-100"
+          >
+            {proofLog.map((ev, i) => (
+              <div key={i} className="flex gap-3">
+                <span className="shrink-0 text-zinc-500">
+                  {new Date(ev.ts).toLocaleTimeString('en-US', { hour12: false })}
+                </span>
+                <span
+                  className={`shrink-0 ${ev.kind === 'note' ? 'text-amber-300' : 'text-sky-300'}`}
+                >
+                  {ev.source}
+                </span>
+                <span className="text-zinc-100">{ev.message}</span>
+              </div>
+            ))}
+          </div>
+        </details>
       )}
 
       {result && (
