@@ -11,8 +11,7 @@ import { Walkthrough } from './Walkthrough'
 import { WalletPanel } from './WalletPanel'
 import { PrivacyMatrix } from './PrivacyMatrix'
 import { SwapPanel } from './SwapPanel'
-import { SwapPanelTestnet } from './SwapPanelTestnet'
-import { LPPanelTestnet } from './LPPanelTestnet'
+import { AMMPanelTestnet } from './AMMPanelTestnet'
 import { LaunchpadMatrix } from './LaunchpadMatrix'
 import { LaunchpadPanel } from './LaunchpadPanel'
 import { LendingMatrix } from './LendingMatrix'
@@ -120,20 +119,15 @@ export function Shell() {
       <main className="mt-10 flex-1">
         <PrivacyMatrix onTry={(id) => setActiveVariant(id)} />
 
-        {activeVariant === 'a' && sandboxState && network === 'testnet' && (
-          <SwapPanelTestnet
-            state={sandboxState}
-            azguardAccount={account}
-            onClose={() => setActiveVariant(null)}
-          />
-        )}
-        {activeVariant === 'f' && sandboxState && network === 'testnet' && (
-          <LPPanelTestnet
-            state={sandboxState}
-            azguardAccount={account}
-            onClose={() => setActiveVariant(null)}
-          />
-        )}
+        {(activeVariant === 'a' || activeVariant === 'f') &&
+          sandboxState &&
+          network === 'testnet' && (
+            <AMMPanelTestnet
+              state={sandboxState}
+              initialFocus={activeVariant === 'f' ? 'lp' : 'swap'}
+              onClose={() => setActiveVariant(null)}
+            />
+          )}
         {activeVariant &&
           sandboxState &&
           network === 'sandbox' &&

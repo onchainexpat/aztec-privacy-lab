@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { initTestnetClient, type TestnetClient } from '../lib/browser-testnet'
+import {
+  getResolvedTestnetClient,
+  subscribeTestnetClient,
+  type TestnetClient,
+} from '../lib/browser-testnet'
 import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
 import { captureProofLog, type ProofEvent } from '../lib/proof-log'
@@ -14,8 +18,7 @@ interface Props {
 }
 
 export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
-  const [progress, setProgress] = useState<string | null>(null)
-  const [client, setClient] = useState<TestnetClient | null>(null)
+  const [client, setClient] = useState<TestnetClient | null>(getResolvedTestnetClient())
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -44,6 +47,8 @@ export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
     if (el) el.scrollTop = el.scrollHeight
   }, [proofLog])
 
+  useEffect(() => subscribeTestnetClient(setClient), [])
+
   useEffect(() => {
     if (!client) return
     void refreshTallies(client)
@@ -64,30 +69,7 @@ export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
     }
   }
 
-  async function handleInit() {
-    setError(null)
-    setBusy(true)
-    setProofLog([])
-    const stopCapture = captureProofLog(pushProofEvent)
-    try {
-      const c = await initTestnetClient(state, (msg) => {
-        setProgress(msg)
-        pushNote(msg)
-      })
-      if (!c.voting) throw new Error('PrivateVoting not in testnet-state.json')
-      setClient(c)
-      if (c.freshAccount) {
-        setResult(
-          `Account deployed at ${shortAddr(c.address.toString())}. Saved to localStorage for next visit.`,
-        )
-      }
-    } catch (e) {
-      setError(formatError(e))
-    } finally {
-      stopCapture()
-      setBusy(false)
-    }
-  }
+  // Wallet init owned by the WalletPanel; we subscribe via subscribeTestnetClient.
 
   async function cast(choice: 'YES' | 'NO') {
     if (!client?.voting) return
@@ -154,18 +136,12 @@ export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
       )}
 
       {!client ? (
-        <div className="mt-5">
-          <button
-            onClick={handleInit}
-            disabled={busy}
-            className="rounded-full bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-[var(--color-paper)] hover:opacity-90 disabled:opacity-50"
-          >
-            {busy ? 'Initializing…' : 'Initialize browser PXE + account on testnet'}
-          </button>
-          {progress && busy && <p className="mt-2 text-xs text-black/50">{progress}</p>}
-          <p className="mt-3 max-w-prose text-xs text-black/50">
-            Same per-tab account flow as the lending demo. First click is the slow one
-            (~1-2 min for the account-deploy IVC proof). Subsequent clicks just sync.
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-4 text-sm text-amber-900">
+          <p className="font-medium">Wallet not initialized yet</p>
+          <p className="mt-1 text-amber-900/80">
+            Scroll up to <strong>Your testnet wallet</strong> and click{' '}
+            <strong>Initialize wallet</strong>. This panel will sync automatically once
+            your per-tab account is deployed.
           </p>
         </div>
       ) : (
@@ -213,7 +189,6 @@ export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
             >
               Vote NO (private)
             </button>
-            {busy && progress && <span className="text-xs text-black/50">{progress}</span>}
           </div>
 
           <p className="mt-3 text-xs text-black/50">

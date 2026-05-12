@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { initTestnetClient, resetTestnetAccount, type TestnetClient } from '../lib/browser-testnet'
+import {
+  getResolvedTestnetClient,
+  subscribeTestnetClient,
+  type TestnetClient,
+} from '../lib/browser-testnet'
 import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
 import { faucetMint, isFaucetConfigured, FAUCET_URL } from '../lib/faucet'
@@ -30,8 +34,7 @@ const DEPOSIT_AMOUNT = 5_000n
 const BORROW_AMOUNT = 1_000n
 
 export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
-  const [progress, setProgress] = useState<string | null>(null)
-  const [client, setClient] = useState<TestnetClient | null>(null)
+  const [client, setClient] = useState<TestnetClient | null>(getResolvedTestnetClient())
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -59,6 +62,8 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
     const el = logScrollRef.current
     if (el) el.scrollTop = el.scrollHeight
   }, [proofLog])
+
+  useEffect(() => subscribeTestnetClient(setClient), [])
 
   const cfg = NETWORKS.testnet
   const ld2 = state.publicCollateralPrivateDebt
@@ -129,38 +134,8 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
     }
   }
 
-  async function handleInit() {
-    setError(null)
-    setBusy(true)
-    setProofLog([])
-    const stopCapture = captureProofLog(pushProofEvent)
-    try {
-      const c = await initTestnetClient(state, (msg) => {
-        setProgress(msg)
-        pushNote(msg)
-      })
-      setClient(c)
-      if (c.freshAccount) {
-        setResult(
-          `Your testnet account deployed at ${shortAddr(c.address.toString())} — fees paid by the canonical SponsoredFPC paymaster. Saved to localStorage so it persists across reloads.`,
-        )
-      }
-    } catch (e) {
-      setError(formatError(e))
-    } finally {
-      stopCapture()
-      setBusy(false)
-    }
-  }
-
-  async function handleResetAccount() {
-    resetTestnetAccount()
-    setClient(null)
-    setBalances(null)
-    setPosition(null)
-    setPendingMint(null)
-    setResult('Local account credentials cleared. Click "Initialize" to generate a new one.')
-  }
+  // Wallet init + reset are owned by the top-level WalletPanel now. This
+  // panel subscribes to subscribeTestnetClient() to auto-pick up that client.
 
   async function handleFaucet() {
     if (!client) return
@@ -291,21 +266,12 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
       )}
 
       {!client ? (
-        <div className="mt-5">
-          <button
-            onClick={handleInit}
-            disabled={busy}
-            className="rounded-full bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-[var(--color-paper)] hover:opacity-90 disabled:opacity-50"
-          >
-            {busy ? 'Initializing…' : 'Initialize browser PXE + account on testnet'}
-          </button>
-          {progress && busy && <p className="mt-2 text-xs text-black/50">{progress}</p>}
-          <p className="mt-3 max-w-prose text-xs text-black/50">
-            First click is slow (~1-2 minutes): loads ~10 MB of WASM, syncs the PXE against
-            the canonical testnet RPC, generates a fresh Schnorr account, and proves the
-            account-deploy circuit before sending the tx. The account contract bytes live in
-            <code className="font-mono"> localStorage</code> after that, so subsequent visits
-            skip the deploy and just sync.
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-4 text-sm text-amber-900">
+          <p className="font-medium">Wallet not initialized yet</p>
+          <p className="mt-1 text-amber-900/80">
+            Scroll up to <strong>Your testnet wallet</strong> and click{' '}
+            <strong>Initialize wallet</strong>. This panel will sync automatically once
+            your per-tab account is deployed — no separate init per demo.
           </p>
         </div>
       ) : (
@@ -341,12 +307,6 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
                   Aztecscan ↗
                 </a>
               )}
-              <button
-                onClick={handleResetAccount}
-                className="ml-auto text-xs text-black/40 underline-offset-4 hover:text-black/70 hover:underline"
-              >
-                reset local account
-              </button>
             </div>
           </div>
 
@@ -399,9 +359,6 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
             >
               {`Borrow ${BORROW_AMOUNT} ${t1sym} privately`}
             </button>
-            {busy && progress && (
-              <span className="text-xs text-black/50">{progress}</span>
-            )}
           </div>
 
           {position && (
