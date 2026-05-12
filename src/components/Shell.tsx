@@ -13,6 +13,7 @@ import { LaunchpadMatrix } from './LaunchpadMatrix'
 import { LaunchpadPanel } from './LaunchpadPanel'
 import { LendingMatrix } from './LendingMatrix'
 import { LendingPanel } from './LendingPanel'
+import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
 import { VotingPanel } from './VotingPanel'
 import { BridgePanel } from './BridgePanel'
@@ -137,8 +138,15 @@ export function Shell() {
           <LendingMatrix onTry={(id) => setActiveLending(id)} />
         </div>
 
+        {activeLending === 'ld2' && sandboxState && network === 'testnet' && (
+          <LendingPanelTestnet
+            state={sandboxState}
+            onClose={() => setActiveLending(null)}
+          />
+        )}
         {(activeLending === 'ld1' || activeLending === 'ld2' || activeLending === 'ld3') &&
-          sandboxState && (
+          sandboxState &&
+          network === 'sandbox' && (
             <LendingPanel
               variant={activeLending}
               state={sandboxState}
