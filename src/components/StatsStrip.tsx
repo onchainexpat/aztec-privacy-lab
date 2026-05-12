@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NETWORKS, type NetworkId } from '../lib/network'
-import { getBlockNumber } from '../lib/aztec'
+import { getBlockNumber, isCrossPrivateBoundary } from '../lib/aztec'
 import { loadSandboxState, type SandboxState } from '../lib/sandbox-state'
 
 interface Props {
@@ -61,10 +61,13 @@ export function StatsStrip({ network }: Props) {
     }
   }, [])
 
+  const unreachable = isCrossPrivateBoundary(cfg.nodeUrl)
+
   useEffect(() => {
-    let cancelled = false
     setBlock(null)
     setStale(false)
+    if (unreachable) return
+    let cancelled = false
     let last = -1
     let stallCount = 0
     const tick = async () => {
@@ -90,7 +93,7 @@ export function StatsStrip({ network }: Props) {
       cancelled = true
       clearInterval(id)
     }
-  }, [cfg])
+  }, [cfg, unreachable])
 
   return (
     <div className="grid grid-cols-2 gap-2 rounded-2xl border border-black/10 bg-white p-3 text-sm md:grid-cols-5">
@@ -108,7 +111,13 @@ export function StatsStrip({ network }: Props) {
       <Tile
         label={`L2 block (${cfg.label.split(' ')[0].toLowerCase()})`}
         value={block === null ? '—' : block.toLocaleString('en-US')}
-        hint={stale ? 'Proposer idle — try clicking a "Try variant" button to poke it' : 'Updated every 5 s'}
+        hint={
+          unreachable
+            ? 'Local sandbox URL — clone + run locally for live readings'
+            : stale
+              ? 'Proposer idle — try clicking a "Try variant" button to poke it'
+              : 'Updated every 5 s'
+        }
         tone={stale ? 'amber' : 'default'}
       />
       <Tile

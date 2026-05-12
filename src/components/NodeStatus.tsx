@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getBlockNumber, getNodeInfo } from '../lib/aztec'
+import { getBlockNumber, getNodeInfo, isCrossPrivateBoundary } from '../lib/aztec'
 import { NETWORKS, type NetworkId } from '../lib/network'
 
 interface Props {
@@ -16,8 +16,10 @@ export function NodeStatus({ network }: Props) {
   const [status, setStatus] = useState<Status | null>(null)
   const [error, setError] = useState<string | null>(null)
   const cfg = NETWORKS[network]
+  const unreachableFromPublic = isCrossPrivateBoundary(cfg.nodeUrl)
 
   useEffect(() => {
+    if (unreachableFromPublic) return
     let cancelled = false
     setStatus(null)
     setError(null)
@@ -38,7 +40,23 @@ export function NodeStatus({ network }: Props) {
     return () => {
       cancelled = true
     }
-  }, [network, cfg])
+  }, [network, cfg, unreachableFromPublic])
+
+  if (unreachableFromPublic) {
+    return (
+      <div className="rounded-lg border border-black/10 bg-zinc-50 p-3 font-mono text-xs">
+        <p className="mb-1 font-sans font-semibold text-black/80">
+          {cfg.label} runs locally — not reachable from this site
+        </p>
+        <p className="text-black/60">{cfg.nodeUrl}</p>
+        <p className="mt-2 font-sans text-black/70">
+          To get live block numbers and the interactive demos, clone the repo and run{' '}
+          <code className="rounded bg-black/5 px-1">npm run dev</code> against your own
+          sandbox. See the README for the bootstrap sequence.
+        </p>
+      </div>
+    )
+  }
 
   if (error) {
     return (

@@ -21,6 +21,7 @@ import type { PrivateVotingContract } from '@aztec/noir-contracts.js/PrivateVoti
 import type { TokenBridgeContract } from '@aztec/noir-contracts.js/TokenBridge'
 import type { UniswapContract } from '@aztec/noir-contracts.js/Uniswap'
 import type { SandboxState } from './sandbox-state'
+import { isCrossPrivateBoundary, PrivateNetworkUnreachableError } from './aztec'
 
 export interface BrowserSandbox {
   wallet: Wallet
@@ -48,6 +49,9 @@ export function initBrowserSandbox(
   onProgress?: (msg: string) => void,
 ): Promise<BrowserSandbox> {
   if (cached) return cached
+  if (isCrossPrivateBoundary(state.sandboxUrl)) {
+    return Promise.reject(new PrivateNetworkUnreachableError(state.sandboxUrl))
+  }
   const promise = (async (): Promise<BrowserSandbox> => {
     onProgress?.('loading aztec.js…')
     const [
