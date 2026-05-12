@@ -1,6 +1,9 @@
 import { createPublicClient, http, parseAbi, getContract } from 'viem'
 import { readFileSync } from 'node:fs'
-const state = JSON.parse(readFileSync('/home/fervor/projects/aztec-experiments/public/sandbox-state.json', 'utf8'))
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+const here = dirname(fileURLToPath(import.meta.url))
+const state = JSON.parse(readFileSync(resolve(here, '..', 'public', 'sandbox-state.json'), 'utf8'))
 const c = createPublicClient({ transport: http(state.crossChain.l1Rpc) })
 const erc20 = getContract({
   abi: parseAbi(['function balanceOf(address) view returns (uint256)']),

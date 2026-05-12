@@ -122,7 +122,7 @@ Phase 1 uses pre-built Noir contracts from `@aztec/noir-contracts.js` instead of
 
 ## Roadmap
 
-See `/home/fervor/.claude/plans/i-want-to-experiment-greedy-conway.md`. Phases:
+Phased rollout, in order:
 
 0. **Foundations** — done.
 1. **Pure-Aztec AMM** — done (read-only display). Token + AMM deployed, privacy matrix live, deploy script reproducible.
