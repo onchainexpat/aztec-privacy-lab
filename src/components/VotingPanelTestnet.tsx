@@ -3,6 +3,8 @@ import { initTestnetClient, type TestnetClient } from '../lib/browser-testnet'
 import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
 import { captureProofLog, type ProofEvent } from '../lib/proof-log'
+import { useProofTimer } from '../lib/proof-timer'
+import { ProofTimer } from './ui/ProofTimer'
 import type { ConnectedAccount } from '../lib/wallet'
 
 interface Props {
@@ -25,6 +27,7 @@ export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
   const cfg = NETWORKS.testnet
   const voting = state.voting
   const electionIdStr = voting?.electionId ?? '1'
+  const proofTimer = useProofTimer(proofLog)
 
   function pushProofEvent(ev: ProofEvent) {
     setProofLog((prev) => {
@@ -192,6 +195,8 @@ export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
             <Tally label="YES" count={yesCount} accent="emerald" />
             <Tally label="NO" count={noCount} accent="rose" />
           </div>
+
+          <ProofTimer state={proofTimer} label={proofTimer.proving ? 'cast_vote' : 'last cast_vote'} />
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button

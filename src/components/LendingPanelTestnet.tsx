@@ -4,6 +4,8 @@ import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
 import { faucetMint, isFaucetConfigured, FAUCET_URL } from '../lib/faucet'
 import { captureProofLog, type ProofEvent } from '../lib/proof-log'
+import { useProofTimer } from '../lib/proof-timer'
+import { ProofTimer } from './ui/ProofTimer'
 import type { ConnectedAccount } from '../lib/wallet'
 
 interface Props {
@@ -61,6 +63,9 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
   const cfg = NETWORKS.testnet
   const ld2 = state.publicCollateralPrivateDebt
   const faucetReady = isFaucetConfigured()
+  const proofTimer = useProofTimer(proofLog)
+  const t0sym = state.token0.symbol
+  const t1sym = state.token1.symbol
 
   useEffect(() => {
     if (!client) return
@@ -168,7 +173,7 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
       setPendingMint({ token: 'AZA', txHash: resp.txHash })
       pushNote(`faucet tx submitted: ${shortHex(resp.txHash)}`)
       setResult(
-        `Faucet mint submitted: ${resp.amount} AZA → your address. tx ${shortHex(resp.txHash)}. ` +
+        `Faucet mint submitted: ${resp.amount} ${t0sym} → your address. tx ${shortHex(resp.txHash)}. ` +
           `Block inclusion takes ~36 s on testnet; the balance below will update once it lands.`,
       )
     } catch (e) {
@@ -207,7 +212,7 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
         .deposit_public(DEPOSIT_AMOUNT, client.ld2Commitment, nonce)
         .send({ from: client.address, fee: client.feeOpts })
       setResult(
-        `Deposited ${DEPOSIT_AMOUNT} AZA publicly into commitment ${shortHex(
+        `Deposited ${DEPOSIT_AMOUNT} ${t0sym} publicly into commitment ${shortHex(
           '0x' + client.ld2Commitment.toString(16),
         )} on ld2.`,
       )
@@ -234,7 +239,7 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
         .borrow_private(secret, client.address, BORROW_AMOUNT)
         .send({ from: client.address, fee: client.feeOpts })
       setResult(
-        `Borrowed ${BORROW_AMOUNT} AZB as a PRIVATE note. Public LTV check enforced against the commitment — the contract sees the commitment + new debt total, not your address.`,
+        `Borrowed ${BORROW_AMOUNT} ${t1sym} as a PRIVATE note. Public LTV check enforced against the commitment — the contract sees the commitment + new debt total, not your address.`,
       )
       await refreshAll(client)
     } catch (e) {
@@ -347,10 +352,12 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
 
           {balances && (
             <div className="mt-3 grid grid-cols-1 gap-3 rounded-xl border border-black/10 bg-zinc-50 p-3 text-sm md:grid-cols-2">
-              <Stat label="AZA balance" privAmt={balances.privateAZA} pubAmt={balances.publicAZA} />
-              <Stat label="AZB balance" privAmt={balances.privateAZB} pubAmt={balances.publicAZB} />
+              <Stat label={`${t0sym} balance`} privAmt={balances.privateAZA} pubAmt={balances.publicAZA} />
+              <Stat label={`${t1sym} balance`} privAmt={balances.privateAZB} pubAmt={balances.publicAZB} />
             </div>
           )}
+
+          <ProofTimer state={proofTimer} label={proofTimer.proving ? 'private call' : 'last private call'} />
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
@@ -362,7 +369,7 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
               {pendingMint
                 ? 'Faucet mint pending…'
                 : faucetReady
-                  ? 'Request 10k AZA from faucet'
+                  ? `Request 10k ${t0sym} from faucet`
                   : 'Faucet not configured'}
             </button>
             <button
@@ -370,7 +377,7 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
               disabled={busy || !balances || balances.publicAZA < DEPOSIT_AMOUNT}
               className="rounded-full bg-[var(--color-public)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
             >
-              {`Deposit ${DEPOSIT_AMOUNT} AZA publicly (to commitment)`}
+              {`Deposit ${DEPOSIT_AMOUNT} ${t0sym} publicly (to commitment)`}
             </button>
             <button
               onClick={handleBorrow}
@@ -378,11 +385,11 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
               className="rounded-full border border-[var(--color-private)] bg-[var(--color-private)]/5 px-4 py-2 text-sm font-medium text-[var(--color-private)] hover:bg-[var(--color-private)]/10 disabled:opacity-50"
               title={
                 !position || position.collateral === 0n
-                  ? 'Need collateral against your commitment first — deposit AZA'
+                  ? `Need collateral against your commitment first — deposit ${t0sym}`
                   : ''
               }
             >
-              {`Borrow ${BORROW_AMOUNT} AZB privately`}
+              {`Borrow ${BORROW_AMOUNT} ${t1sym} privately`}
             </button>
             {busy && progress && (
               <span className="text-xs text-black/50">{progress}</span>
@@ -400,9 +407,9 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
                   {shortHex('0x' + client.ld2Commitment.toString(16))}
                 </dd>
                 <dt className="text-amber-900/60">collateral</dt>
-                <dd className="font-mono">{fmt(position.collateral)} {ld2?.collateralAsset ?? 'AZA'}</dd>
+                <dd className="font-mono">{fmt(position.collateral)} {ld2?.collateralAsset ?? t0sym}</dd>
                 <dt className="text-amber-900/60">debt</dt>
-                <dd className="font-mono">{fmt(position.debt)} {ld2?.debtAsset ?? 'AZB'}</dd>
+                <dd className="font-mono">{fmt(position.debt)} {ld2?.debtAsset ?? t1sym}</dd>
               </dl>
               <p className="mt-2 text-amber-900/70">
                 Debt is enforced in public state for the LTV check — but the borrower's

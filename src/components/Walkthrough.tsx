@@ -93,7 +93,7 @@ export function Walkthrough({ network, hasSandboxDeployment, hasUniswapStack }: 
 npm run sandbox:seed     # AMM liquidity + sample swap`}
               </pre>
               <p className="mt-1 text-black/60">
-                Mints 1 M private AZA + AZB and 200 k public AZA to the admin.
+                Mints 1 M private azETH + azUSDC and 200 k public azETH to the admin.
               </p>
             </>
           }
@@ -232,7 +232,7 @@ function AzguardGuide({ currentNetwork }: { currentNetwork: NetworkId }) {
           >
             Nethermind faucet
           </a>
-          ) to fund the account with testnet AZA / fee juice.
+          ) to fund the account with testnet azETH / fee juice.
         </li>
         <li>
           Switch this dashboard's network toggle to{' '}

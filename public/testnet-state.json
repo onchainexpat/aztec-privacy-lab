@@ -4,8 +4,8 @@
   "sponsoredFpc": "0x254082b62f9108d044b8998f212bb145619d91bfcd049461d74babb840181257",
   "token0": {
     "address": "0x00bdaee3ec4314eb01f4797aef5d623177c16ac9b7df72b02e0344e79b334a8d",
-    "name": "AztecA",
-    "symbol": "AZA",
+    "name": "Aztec Ether",
+    "symbol": "azETH",
     "instance": {
       "version": 1,
       "salt": "0x133076b0a8015f92084947c68c723894eb190e419cb06393a96a58235bf0658b",
@@ -24,8 +24,8 @@
   },
   "token1": {
     "address": "0x24789a1d54893c462f26863f002d2740bdf2445cb7a509b35a036dc2351aea34",
-    "name": "AztecB",
-    "symbol": "AZB",
+    "name": "Aztec USDC",
+    "symbol": "azUSDC",
     "instance": {
       "version": 1,
       "salt": "0x09493698e215bd4d76fa331291a101e74edcf795b25f958eae940a49014d97f5",
@@ -97,8 +97,8 @@
       },
       "address": "0x1b9d46ac891d20a7bef4efb847892fce56f8a8db3cf599da9dddba96d01bc5b7"
     },
-    "collateralAsset": "AZA",
-    "debtAsset": "AZB",
+    "collateralAsset": "azETH",
+    "debtAsset": "azUSDC",
     "ltvNumerator": "50",
     "ltvDenominator": "100"
   },

@@ -3,8 +3,8 @@
   "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
   "token0": {
     "address": "0x1dc387565a80696912d6dca9baa7ca68ede9929c4a7c1936f9634d0f7a5185d4",
-    "name": "AztecA",
-    "symbol": "AZA",
+    "name": "Aztec Ether",
+    "symbol": "azETH",
     "instance": {
       "version": 1,
       "salt": "0x0fd2ceb0ec71cb4605ccdd1f486fb89be4e1c53d73b4325b2b9f89742b1a1c5a",
@@ -23,8 +23,8 @@
   },
   "token1": {
     "address": "0x1c77f53a64f924a8c5496c9fd3afb031e97c55f3de2e0e6f4476dfefbcacaed3",
-    "name": "AztecB",
-    "symbol": "AZB",
+    "name": "Aztec USDC",
+    "symbol": "azUSDC",
     "instance": {
       "version": 1,
       "salt": "0x08e09d8bd9f413a618868468c6618a08f32ebde0d403526a4e2e68cb1bce23fa",
@@ -154,8 +154,8 @@
       },
       "address": "0x272fef5c851b2868f4c68e72ad3378749169c207205ff690e3f6cf04a611d738"
     },
-    "collateralAsset": "AZA",
-    "debtAsset": "AZB",
+    "collateralAsset": "azETH",
+    "debtAsset": "azUSDC",
     "ltvNumerator": "50",
     "ltvDenominator": "100"
   },
