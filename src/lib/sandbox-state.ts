@@ -22,6 +22,9 @@ export interface SandboxState {
     ltvNumerator: string
     ltvDenominator: string
   }
+  /** Canonical SponsoredFPC paymaster — present on testnet, absent on sandbox. */
+  sponsoredFpc?: string
+  network?: 'sandbox' | 'testnet'
   crowdfunding?: {
     address: string
     instance: unknown

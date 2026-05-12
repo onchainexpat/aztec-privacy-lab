@@ -97,30 +97,7 @@ export function Shell() {
 
       <section className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_2fr]">
         <NodeStatus network={network} />
-        {network === 'sandbox' ? (
-          <SandboxStatePanel />
-        ) : (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50/40 p-5 text-sm">
-            <h3 className="text-sm font-semibold text-amber-900">
-              Testnet — read-only via public RPC
-            </h3>
-            <p className="mt-1 text-amber-900/80">
-              The node status above is live against{' '}
-              <code className="font-mono text-xs">{cfg.nodeUrl}</code> — but the public RPC is
-              a pruned full node. It serves the latest tip and recent blocks, not genesis
-              state, so a Node.js-side PXE (and therefore <code>npm run testnet:setup</code>)
-              cannot sync from it.
-            </p>
-            <p className="mt-2 text-amber-900/70">
-              To take the interactive demos to testnet you need Azguard's PXE (it maintains
-              state independently of any public RPC). Install Azguard, fund the account via
-              the <a className="underline" href={cfg.faucetUrl ?? '#'} target="_blank" rel="noreferrer">faucet</a>, and use the
-              wallet's UI directly to deploy + interact — this dashboard's "Try variant"
-              buttons remain sandbox-only for now. Tracked in the walkthrough's Azguard
-              guide.
-            </p>
-          </div>
-        )}
+        <SandboxStatePanel state={sandboxState} network={network} />
       </section>
 
       <main className="mt-10 flex-1">
@@ -195,23 +172,25 @@ export function Shell() {
           <VotingPanel state={sandboxState} onClose={() => setVotingOpen(false)} />
         )}
 
-        <div className="mt-16">
-          <CrossChainCard />
-          {sandboxState?.crossChain?.l1Portal && (
-            <div className="mt-4">
-              {!bridgeOpen ? (
-                <button
-                  onClick={() => setBridgeOpen(true)}
-                  className="rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:opacity-90"
-                >
-                  Try L1 → L2 bridge →
-                </button>
-              ) : (
-                <BridgePanel state={sandboxState} onClose={() => setBridgeOpen(false)} />
-              )}
-            </div>
-          )}
-        </div>
+        {network === 'sandbox' && (
+          <div className="mt-16">
+            <CrossChainCard />
+            {sandboxState?.crossChain?.l1Portal && (
+              <div className="mt-4">
+                {!bridgeOpen ? (
+                  <button
+                    onClick={() => setBridgeOpen(true)}
+                    className="rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:opacity-90"
+                  >
+                    Try L1 → L2 bridge →
+                  </button>
+                ) : (
+                  <BridgePanel state={sandboxState} onClose={() => setBridgeOpen(false)} />
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       <footer className="mt-16 border-t border-black/10 pt-6 pb-4 text-xs text-black/50">
@@ -219,7 +198,8 @@ export function Shell() {
           <p className="max-w-prose">
             Experimental research dashboard. Not audited. Contracts are demos meant to illustrate
             Aztec's privacy model — do not deposit real funds. Built against{' '}
-            <code className="font-mono">@aztec/aztec.js@4.2.1</code> + Aztec Alpha v4 testnet.
+            <code className="font-mono">@aztec/aztec.js@4.2.0-rc.1</code> + Aztec Alpha v4 testnet
+            (L1 settles to Sepolia).
           </p>
           <div className="flex gap-4">
             <a

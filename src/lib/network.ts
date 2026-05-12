@@ -35,7 +35,9 @@ const STORAGE_KEY = 'aztec-experiments:network'
 
 export function loadNetwork(): NetworkId {
   const v = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-  return v === 'testnet' || v === 'sandbox' ? v : 'sandbox'
+  // Default to testnet — the public Vercel deploy has live contracts there.
+  // Sandbox is for local development only (requires `aztec start --local-network`).
+  return v === 'testnet' || v === 'sandbox' ? v : 'testnet'
 }
 
 export function saveNetwork(id: NetworkId): void {

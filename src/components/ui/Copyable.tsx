@@ -5,7 +5,7 @@ interface Props {
   /** How many characters to keep on each side when truncating. Default 4. */
   truncate?: number
   /** Tone affects hover styling. */
-  tone?: 'default' | 'emerald'
+  tone?: 'default' | 'emerald' | 'sky'
   /** Show the value at full length without truncation. */
   full?: boolean
 }
@@ -20,7 +20,9 @@ export function Copyable({ value, truncate = 4, tone = 'default', full = false }
   const toneClasses =
     tone === 'emerald'
       ? 'text-emerald-900 hover:bg-emerald-100/60'
-      : 'text-black/80 hover:bg-black/5'
+      : tone === 'sky'
+        ? 'text-sky-900 hover:bg-sky-100/60'
+        : 'text-black/80 hover:bg-black/5'
 
   async function copy() {
     try {

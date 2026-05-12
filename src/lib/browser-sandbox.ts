@@ -44,6 +44,20 @@ export interface BrowserSandbox {
 
 let cached: Promise<BrowserSandbox> | null = null
 
+export class TestnetInteractiveNotYetSupportedError extends Error {
+  constructor() {
+    super(
+      'Interactive demos on testnet are not wired yet. The current `initBrowserSandbox` ' +
+        'uses the sandbox pre-funded test accounts via `getInitialTestAccountsData()`, ' +
+        'which only exist on `aztec start --local-network`. The testnet path needs a ' +
+        'per-tab Schnorr account deployed via SponsoredFPC + `proverEnabled: true`. ' +
+        'For now: view the deployed contracts on Aztecscan via the links in the panel ' +
+        'above, or clone the repo and run the dev server against a local sandbox.',
+    )
+    this.name = 'TestnetInteractiveNotYetSupportedError'
+  }
+}
+
 export function initBrowserSandbox(
   state: SandboxState,
   onProgress?: (msg: string) => void,
@@ -51,6 +65,9 @@ export function initBrowserSandbox(
   if (cached) return cached
   if (isCrossPrivateBoundary(state.sandboxUrl)) {
     return Promise.reject(new PrivateNetworkUnreachableError(state.sandboxUrl))
+  }
+  if (state.network === 'testnet') {
+    return Promise.reject(new TestnetInteractiveNotYetSupportedError())
   }
   const promise = (async (): Promise<BrowserSandbox> => {
     onProgress?.('loading aztec.js…')
