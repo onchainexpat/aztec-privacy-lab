@@ -129,6 +129,51 @@ export function Shell() {
               onClose={() => setActiveVariant(null)}
             />
           )}
+        {activeVariant === 'h' && (
+          <section className="mt-10 rounded-2xl border border-violet-200 bg-violet-50/50 p-6 text-sm text-violet-900">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-violet-950">
+                Variant h — tornado-style mixer swap (in build)
+              </h3>
+              <button
+                onClick={() => setActiveVariant(null)}
+                className="text-sm text-violet-900/60 underline-offset-4 hover:underline"
+              >
+                Close
+              </button>
+            </div>
+            <p className="mt-2">
+              Trustless construction. Noir contract design:
+            </p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-violet-900/90">
+              <li>
+                Deposit: user burns a fixed-denomination note (e.g. 1k azETH) and writes a
+                commitment <code className="font-mono text-xs">pedersen(secret, nullifier)</code>{' '}
+                into a public Merkle tree.
+              </li>
+              <li>
+                Swap-and-withdraw: a fresh address proves knowledge of one commitment in the tree
+                via a ZK Merkle inclusion proof, emits the nullifier, and atomically swaps the
+                fixed amount through the AMM. Output goes to the fresh address.
+              </li>
+              <li>
+                Privacy: observers see N deposits from{' '}
+                <code className="font-mono text-xs">{'{A_1..A_N}'}</code> and M
+                swap-and-withdraws to{' '}
+                <code className="font-mono text-xs">{'{B_1..B_M}'}</code>, but cannot tell which
+                A_i funded which B_j once the pending set is non-trivial. No operator, no MPC.
+              </li>
+              <li>
+                Limit: amounts are public per swap (the price is on a public AMM). Privacy is in
+                the broken submit→settle linkage, not in amount-hiding.
+              </li>
+            </ul>
+            <p className="mt-3 text-violet-900/80">
+              Contract + UI ship next session. Filed under{' '}
+              <code className="font-mono text-xs">contracts/mixer_swap/</code>.
+            </p>
+          </section>
+        )}
         {activeVariant &&
           sandboxState &&
           network === 'sandbox' &&
