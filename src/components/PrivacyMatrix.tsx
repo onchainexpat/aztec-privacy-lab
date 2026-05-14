@@ -11,7 +11,7 @@ export function PrivacyMatrix({ onTry }: Props) {
     <section>
       <MatrixHeader
         title="Uniswap V2 in Noir — privacy matrix"
-        subtitle="Eight design points along the public/private axis. Three ship on testnet today (a, f, lp1); one is in build (h, tornado-style mixer); the rest are blocked or research-grade, each with the technical reason spelled out."
+        subtitle="Eight design points along the public/private axis. Three ship on testnet today (a, f, lp1); one ships on sandbox today (h — cross-chain Uniswap via L1 portal, private endpoints); the rest are blocked or research-grade, each with the technical reason spelled out."
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {AMM_VARIATIONS.map((v) => (

@@ -130,48 +130,95 @@ export function Shell() {
             />
           )}
         {activeVariant === 'h' && (
-          <section className="mt-10 rounded-2xl border border-violet-200 bg-violet-50/50 p-6 text-sm text-violet-900">
+          <section className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 text-sm text-emerald-900">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-violet-950">
-                Variant h — tornado-style mixer swap (in build)
+              <h3 className="text-lg font-semibold text-emerald-950">
+                Variant h — L2 private deposit → L1 Uniswap → L2 private receiver
               </h3>
               <button
                 onClick={() => setActiveVariant(null)}
-                className="text-sm text-violet-900/60 underline-offset-4 hover:underline"
+                className="text-sm text-emerald-900/60 underline-offset-4 hover:underline"
               >
                 Close
               </button>
             </div>
-            <p className="mt-2">
-              Trustless construction. Noir contract design:
-            </p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-violet-900/90">
-              <li>
-                Deposit: user burns a fixed-denomination note (e.g. 1k azETH) and writes a
-                commitment <code className="font-mono text-xs">pedersen(secret, nullifier)</code>{' '}
-                into a public Merkle tree.
-              </li>
-              <li>
-                Swap-and-withdraw: a fresh address proves knowledge of one commitment in the tree
-                via a ZK Merkle inclusion proof, emits the nullifier, and atomically swaps the
-                fixed amount through the AMM. Output goes to the fresh address.
-              </li>
-              <li>
-                Privacy: observers see N deposits from{' '}
-                <code className="font-mono text-xs">{'{A_1..A_N}'}</code> and M
-                swap-and-withdraws to{' '}
-                <code className="font-mono text-xs">{'{B_1..B_M}'}</code>, but cannot tell which
-                A_i funded which B_j once the pending set is non-trivial. No operator, no MPC.
-              </li>
-              <li>
-                Limit: amounts are public per swap (the price is on a public AMM). Privacy is in
-                the broken submit→settle linkage, not in amount-hiding.
-              </li>
-            </ul>
-            <p className="mt-3 text-violet-900/80">
-              Contract + UI ship next session. Filed under{' '}
-              <code className="font-mono text-xs">contracts/mixer_swap/</code>.
-            </p>
+            {network === 'sandbox' ? (
+              <>
+                <p className="mt-2">
+                  This variant runs end-to-end on the local sandbox using Aztec's bundled{' '}
+                  <code className="font-mono text-xs">UniswapContract</code> +{' '}
+                  <code className="font-mono text-xs">UniswapPortal</code>. Scroll to the{' '}
+                  <strong>Cross-chain L1 bridge</strong> card below, open it, and look for the
+                  green <strong>Private flow</strong> sub-panel.
+                </p>
+                <ul className="mt-3 list-disc space-y-1 pl-5 text-emerald-900/90">
+                  <li>
+                    <strong>swap_private</strong> on L2: depositor's L2 identity never enters
+                    public state — only the Uniswap contract's public balance moves.
+                  </li>
+                  <li>
+                    <strong>swapPrivate</strong> on L1: portal consumes the two L2→L1 messages and
+                    queues an L1→L2 mint keyed by the claim secret (no recipient bound to the
+                    deposit).
+                  </li>
+                  <li>
+                    <strong>claim_private</strong> on L2: any L2 address holding the secret can
+                    redeem the AZB as private notes — observers cannot link claim recipient back
+                    to depositor.
+                  </li>
+                </ul>
+                <div className="mt-3 space-y-2 text-emerald-900/80">
+                  <p>
+                    <strong>Mock L1 (default):</strong>{' '}
+                    <code className="font-mono text-xs">
+                      sandbox:setup &amp;&amp; sandbox:seed &amp;&amp; sandbox:l1-portal &amp;&amp;
+                      sandbox:mock-router &amp;&amp; sandbox:uniswap
+                    </code>{' '}
+                    →{' '}
+                    <code className="font-mono text-xs">npm run sandbox:swap-l1-private</code>. 1:1
+                    swap math via a stubbed router planted at the V3 SwapRouter address.
+                  </p>
+                  <p>
+                    <strong>Real Uniswap V3 via mainnet-forked Anvil:</strong> in one terminal run{' '}
+                    <code className="font-mono text-xs">./scripts/start-fork-anvil.sh</code> (port
+                    8546). In another start the Aztec sandbox pointing at it:{' '}
+                    <code className="font-mono text-xs">
+                      ETHEREUM_HOSTS=http://localhost:8546 aztec start --local-network --port 8090
+                    </code>
+                    . Then{' '}
+                    <code className="font-mono text-xs">
+                      sandbox:setup &amp;&amp; sandbox:seed &amp;&amp; sandbox:fork-uniswap
+                    </code>{' '}
+                    →{' '}
+                    <code className="font-mono text-xs">
+                      npm run sandbox:swap-l1-private-forked
+                    </code>{' '}
+                    (or the UI button). WETH → USDC at real pool prices.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setBridgeOpen(true)
+                    setActiveVariant(null)
+                    requestAnimationFrame(() => {
+                      document
+                        .querySelector('[data-cross-chain-card]')
+                        ?.scrollIntoView({ behavior: 'smooth' })
+                    })
+                  }}
+                  className="mt-4 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Open bridge panel ↓
+                </button>
+              </>
+            ) : (
+              <p className="mt-2">
+                The L1 leg currently runs against a local anvil chain bundled with the Aztec
+                sandbox. Switch the network toggle (top-right) to <strong>Sandbox</strong> and
+                follow the setup steps to try it. Testnet support waits on deploying the portals
+                to Sepolia — tracked separately.
+              </p>
+            )}
           </section>
         )}
         {activeVariant &&
@@ -284,7 +331,7 @@ export function Shell() {
         )}
 
         {network === 'sandbox' && (
-          <div className="mt-16">
+          <div className="mt-16" data-cross-chain-card>
             <CrossChainCard />
             {sandboxState?.crossChain?.l1Portal && (
               <div className="mt-4">

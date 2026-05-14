@@ -70,6 +70,13 @@ export interface SandboxState {
     l2BridgeB?: string
     l2BridgeBInstance?: unknown
     l2UniswapInstance?: unknown
+    /** Mainnet-forked Anvil mode (populated by `npm run sandbox:fork-uniswap`). */
+    realUniswapForked?: boolean
+    l1Router?: string
+    forkedSwapAmountInWei?: string
+    forkedSwapFeeTier?: number
+    forkedSwapMinOut?: string
+    registryAddress?: string
   }
   initialPrivateBalances: { AZA: string; AZB: string }
   reserves?: { AZA: string; AZB: string }

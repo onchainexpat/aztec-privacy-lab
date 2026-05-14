@@ -115,22 +115,23 @@ export const AMM_VARIATIONS: Variation[] = [
   },
   {
     id: 'h',
-    title: 'Tornado-style swap · fixed denomination · unlinked sender → receiver',
+    title: 'L2 private deposit → L1 Uniswap swap → L2 private receiver',
     one_liner:
-      'Mixer pool with fixed-size deposits; swap output goes to a fresh address that observers cannot link back to the depositor.',
+      'Cross-chain swap: Aztec L2 funds the L1 leg through a portal; the L2 endpoints are private and decoupled by a claim secret.',
     verdict: 'buildable',
     axes: [
-      { label: 'Pool reserves', value: 'public' },
-      { label: 'Swap denomination', value: 'public' },
-      { label: 'Depositor address', value: 'public' },
-      { label: 'Output recipient address', value: 'public' },
+      { label: 'L2 depositor', value: 'private' },
+      { label: 'L1 swap amount', value: 'public' },
+      { label: 'L1 router & tokens', value: 'public' },
+      { label: 'L2 recipient', value: 'private' },
       { label: 'Link depositor → recipient', value: 'private' },
     ],
-    what_l1_sees: 'N/A',
+    what_l1_sees:
+      'An L2→L1 message consumption: portal calls Uniswap with a known amountIn, fee tier, and output portal address. The output portal address is the same for everyone, so the L1 leg is uniform — only the amount differs.',
     what_observer_sees_on_l2:
-      'A deposit tx from Alice (commitment leaf added). Some blocks later, a withdraw-and-swap tx to Bob (nullifier consumed) that updates pool reserves by the fixed denomination. Observers see both endpoints but cannot tell which deposit funded which swap once the anonymity set is non-trivial.',
+      'A swap_private tx (caller hidden in private kernel — only the L2 Uniswap public balance moved). Later, a claim_private tx to some recipient address with the secret. The two halves share no on-chain link; only the secret holder can claim.',
     reason:
-      'Trustless construction: fixed-denomination deposits keep amounts uniform across the anonymity set; a Noir Merkle proof of inclusion lets the recipient prove "I funded one of the N pending deposits" without revealing which one; a nullifier prevents double-spend. No operator, no MPC. The privacy boundary is the size of the anonymity set — small pools leak via timing correlation.',
+      'Built today on sandbox using the bundled Uniswap + TokenPortal contracts. swap_private burns the depositor\'s private notes via transfer_to_public (no public_authwit, no public sender); the L1 portal\'s swapPrivate consumes the L2→L1 messages and queues an L1→L2 mint addressed by claim secret, not recipient; claim_private redeems to any L2 address. Limitation: the L1 leg is fully public (this is a privacy-of-L2-endpoints variant, not an L1-side mixer). Open the Cross-chain bridge panel and click "Swap (private) → AZB via L1" to try it.',
   },
   {
     id: 'g',

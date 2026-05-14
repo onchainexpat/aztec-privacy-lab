@@ -34,6 +34,21 @@ interface PendingSwap {
   outputLeafIndex?: string
 }
 
+interface PendingPrivateSwap {
+  txHash: string
+  amountIn: bigint
+  claimSecret: string
+  claimSecretHash: string
+  feeTier: bigint
+  minOut: bigint
+  l1RelayTxHash?: string
+  outputLeafIndex?: string
+  /** Actual output amount returned by the L1 swap (delta on output portal). For
+   *  the mock router this equals amountIn; for real V3 it's whatever the pool
+   *  paid out. claim_private must use this exact value. */
+  claimAmount?: bigint
+}
+
 const ANVIL_MNEMONIC = 'test test test test test test test test test test test junk'
 
 export function BridgePanel({ state, onClose }: Props) {
@@ -48,6 +63,8 @@ export function BridgePanel({ state, onClose }: Props) {
   const [pendingClaim, setPendingClaim] = useState<PendingClaim | null>(null)
   const [pendingWithdraw, setPendingWithdraw] = useState<PendingWithdraw | null>(null)
   const [pendingSwap, setPendingSwap] = useState<PendingSwap | null>(null)
+  const [pendingPrivateSwap, setPendingPrivateSwap] = useState<PendingPrivateSwap | null>(null)
+  const [privateAza, setPrivateAza] = useState<bigint | null>(null)
 
   const cc = state.crossChain
   const portalReady = !!cc?.l1Portal && !!cc?.l1Token
@@ -73,6 +90,14 @@ export function BridgePanel({ state, onClose }: Props) {
       .balance_of_public(sb.admin)
       .simulate({ from: sb.admin })
     setL2PublicBalance(pubBal as bigint)
+    try {
+      const { result: privBal } = await sb.token0.methods
+        .balance_of_private(sb.admin)
+        .simulate({ from: sb.admin })
+      setPrivateAza(privBal as bigint)
+    } catch {
+      // transient — leave previous value
+    }
   }
 
   async function handleInit() {
@@ -515,6 +540,291 @@ export function BridgePanel({ state, onClose }: Props) {
     }
   }
 
+  async function handleSwapPrivateOnL1() {
+    if (!sandbox?.l2Uniswap || !sandbox?.l2Bridge || !sandbox?.l2BridgeB) {
+      setError('Uniswap stack not wired in sandbox state — run npm run sandbox:uniswap.')
+      return
+    }
+    setBusy(true)
+    setError(null)
+    setResult(null)
+    try {
+      const { Fr } = await import('@aztec/aztec.js/fields')
+      const { EthAddress } = await import('@aztec/aztec.js/addresses')
+      const { computeSecretHash } = await import('@aztec/stdlib/hash')
+
+      const forked = !!cc?.realUniswapForked
+      const AMOUNT_IN = forked && cc?.forkedSwapAmountInWei ? BigInt(cc.forkedSwapAmountInWei) : 500n
+      const FEE_TIER = forked && cc?.forkedSwapFeeTier ? BigInt(cc.forkedSwapFeeTier) : 3000n
+      const MIN_OUT = forked && cc?.forkedSwapMinOut ? BigInt(cc.forkedSwapMinOut) : 1n
+      const { admin, token0, l2Bridge, l2BridgeB, l2Uniswap } = sandbox
+
+      // For real V3 swaps we need 1e16-scale balances. Top up the depositor's
+      // private notes on demand — same wallet is both caller and approver, so
+      // mint_to_private works.
+      if (privateAza !== null && privateAza < AMOUNT_IN) {
+        setResult(`topping up private AZA: minting ${AMOUNT_IN * 10n}…`)
+        await token0.methods.mint_to_private(admin, AMOUNT_IN * 10n).send({ from: admin })
+      }
+
+      const transferNonce = Fr.random()
+      const claimSecret = Fr.random()
+      const claimSecretHash = await computeSecretHash(claimSecret)
+
+      // No public authwit — swap_private uses transfer_to_public on private notes
+      // and the embedded wallet auto-injects the inner private authwit because
+      // admin is both the caller and the approver.
+      const sendResult = await l2Uniswap.methods
+        .swap_private(
+          token0.address,
+          l2Bridge.address,
+          AMOUNT_IN,
+          l2BridgeB.address,
+          transferNonce,
+          new Fr(FEE_TIER),
+          MIN_OUT,
+          claimSecretHash,
+          EthAddress.ZERO,
+        )
+        .send({ from: admin })
+      const txHash = (sendResult as unknown as { receipt: { txHash: { toString(): string } } })
+        .receipt.txHash.toString()
+      setPendingPrivateSwap({
+        txHash,
+        amountIn: AMOUNT_IN,
+        claimSecret: claimSecret.toString(),
+        claimSecretHash: claimSecretHash.toString(),
+        feeTier: FEE_TIER,
+        minOut: MIN_OUT,
+      })
+      setResult(
+        `L2 swap_private mined. Depositor identity stays in private state; only the L2 Uniswap public balance moved. ` +
+          `Two L2→L1 messages queued — relay on L1 next.`,
+      )
+      await refresh(sandbox)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleRelayPrivateSwap() {
+    if (!sandbox?.l2Uniswap || !pendingPrivateSwap || !cc?.l1UniswapPortal) return
+    setBusy(true)
+    setError(null)
+    setResult(null)
+    try {
+      const { Fr } = await import('@aztec/aztec.js/fields')
+      const { TxHash } = await import('@aztec/stdlib/tx')
+      const { computeL2ToL1MembershipWitness } = await import('@aztec/stdlib/messaging')
+      const { createAztecNodeClient } = await import('@aztec/aztec.js/node')
+      const { createExtendedL1Client } = await import('@aztec/ethereum/client')
+      const { UniswapPortalAbi } = await import('@aztec/l1-artifacts/UniswapPortalAbi')
+      const { InboxAbi } = await import('@aztec/l1-artifacts/InboxAbi')
+      const { foundry } = await import('viem/chains')
+      const { getContract, decodeEventLog } = await import('viem')
+
+      const node = createAztecNodeClient(state.sandboxUrl)
+      const txhash = TxHash.fromString(pendingPrivateSwap.txHash)
+      setResult('reading L2→L1 messages from the private swap tx effect…')
+      let effect: Awaited<ReturnType<typeof node.getTxEffect>>
+      for (let i = 0; i < 30; i++) {
+        effect = await node.getTxEffect(txhash)
+        if (effect?.data.l2ToL1Msgs.length === 2) break
+        await new Promise((r) => setTimeout(r, 2000))
+      }
+      if (!effect || effect.data.l2ToL1Msgs.length !== 2)
+        throw new Error('expected 2 L2→L1 msgs, got ' + (effect?.data.l2ToL1Msgs.length ?? 0))
+
+      setResult('computing membership witnesses (waits for outbox to advance)…')
+      const witnesses: { epochNumber: number; leafIndex: bigint; siblingPath: unknown }[] = []
+      for (const msg of effect.data.l2ToL1Msgs) {
+        let w: Awaited<ReturnType<typeof computeL2ToL1MembershipWitness>>
+        for (let i = 0; i < 30; i++) {
+          w = await computeL2ToL1MembershipWitness(node, msg, txhash)
+          if (w) break
+          await new Promise((r) => setTimeout(r, 3000))
+        }
+        if (!w) throw new Error(`no witness for message ${msg.toString()}`)
+        witnesses.push({
+          epochNumber: w.epochNumber,
+          leafIndex: w.leafIndex,
+          siblingPath: w.siblingPath,
+        })
+      }
+      // swap_private emits the SWAP msg from the private context and the
+      // WITHDRAW msg from an enqueued public function. The tx effect array
+      // has [swap, withdraw], but L1 swapPrivate expects [withdraw, swap] —
+      // metadata[0] is consumed by TokenPortal.withdraw, metadata[1] by
+      // UniswapPortal's outbox.consume of the swap leaf. Swap them.
+      const [swapWitness, withdrawWitness] = witnesses
+      const orderedWitnesses = [withdrawWitness, swapWitness]
+
+      setResult(
+        `calling UniswapPortal.swapPrivate on L1 (witnesses at epoch ${witnesses[0].epochNumber})…`,
+      )
+      const l1Client = createExtendedL1Client(
+        [cc.l1Rpc ?? 'http://localhost:8545'],
+        ANVIL_MNEMONIC,
+        foundry,
+      )
+      const portal = getContract({
+        abi: UniswapPortalAbi,
+        address: cc.l1UniswapPortal as `0x${string}`,
+        client: l1Client,
+      })
+      const viem = await import('viem')
+      const outputTokenAbi = viem.parseAbi(['function balanceOf(address) view returns (uint256)'])
+      const outputToken = cc.l1TokenB
+        ? viem.getContract({
+            abi: outputTokenAbi,
+            address: cc.l1TokenB as `0x${string}`,
+            client: l1Client,
+          })
+        : null
+      const outputBefore = outputToken
+        ? ((await outputToken.read.balanceOf([cc.l1OutputPortal as `0x${string}`])) as bigint)
+        : 0n
+      const metadataArr = orderedWitnesses.map((w) => {
+        type SibPath = { toBufferArray: () => Buffer[] }
+        const sp = (w.siblingPath as unknown as SibPath).toBufferArray()
+        return {
+          _epoch: BigInt(w.epochNumber),
+          _leafIndex: w.leafIndex,
+          _path: sp.map((b) => `0x${b.toString('hex')}` as `0x${string}`),
+        }
+      })
+      const swapArgs = [
+        cc.l1Portal as `0x${string}`,
+        pendingPrivateSwap.amountIn,
+        Number(pendingPrivateSwap.feeTier),
+        cc.l1OutputPortal as `0x${string}`,
+        pendingPrivateSwap.minOut,
+        pendingPrivateSwap.claimSecretHash as `0x${string}`,
+        false,
+        [metadataArr[0], metadataArr[1]],
+      ] as const
+
+      let relayTx: `0x${string}` | undefined
+      for (let i = 0; i < 30; i++) {
+        try {
+          relayTx = await portal.write.swapPrivate(swapArgs)
+          break
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e)
+          if (msg.includes('reverted')) {
+            setResult(`outbox not at epoch ${witnesses[0].epochNumber} yet, retry ${i}/30…`)
+            await new Promise((r) => setTimeout(r, 12_000))
+          } else {
+            throw e
+          }
+        }
+      }
+      if (!relayTx) throw new Error('UniswapPortal.swapPrivate still reverts — outbox cadence too slow')
+
+      const receipt = await l1Client.waitForTransactionReceipt({ hash: relayTx })
+      const inboxAddr = (await node.getNodeInfo()).l1ContractAddresses.inboxAddress
+        .toString()
+        .toLowerCase()
+      const inboxLog = receipt.logs.find((l) => l.address.toLowerCase() === inboxAddr)
+      if (!inboxLog) throw new Error('no Inbox log in L1 swap receipt')
+      const decoded = decodeEventLog({ abi: InboxAbi, data: inboxLog.data, topics: inboxLog.topics })
+      const outputLeafIndex = (decoded.args as unknown as { index: bigint }).index
+
+      const outputAfter = outputToken
+        ? ((await outputToken.read.balanceOf([cc.l1OutputPortal as `0x${string}`])) as bigint)
+        : 0n
+      const swapOutput = outputAfter - outputBefore
+      // For forked/real V3 we use the actual delta; for the mock router the
+      // delta also equals AMOUNT_IN, so this is correct either way.
+      const claimAmount = swapOutput > 0n ? swapOutput : pendingPrivateSwap.amountIn
+
+      setPendingPrivateSwap({
+        ...pendingPrivateSwap,
+        l1RelayTxHash: relayTx,
+        outputLeafIndex: outputLeafIndex.toString(),
+        claimAmount,
+      })
+      setResult(
+        `L1 swapPrivate mined (${relayTx.slice(0, 10)}…). ` +
+          (cc.realUniswapForked
+            ? `Real V3 returned ${claimAmount} USDC raw ≈ $${(Number(claimAmount) / 1e6).toFixed(2)} for ${pendingPrivateSwap.amountIn} wei WETH. `
+            : `Mock router paid out ${claimAmount}. `) +
+          `Output mint queued at L1→L2 leaf ${outputLeafIndex.toString()}. ` +
+          `Now claim with the secret to mint private AZB notes — the recipient is decoupled from the depositor.`,
+      )
+      void Fr
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleClaimPrivateSwap() {
+    if (!sandbox?.l2BridgeB || !pendingPrivateSwap?.outputLeafIndex) return
+    setBusy(true)
+    setError(null)
+    setResult(null)
+    try {
+      const fieldsMod = await import('@aztec/aztec.js/fields')
+      const Fr = fieldsMod.Fr
+      type FrInstance = InstanceType<typeof fieldsMod.Fr>
+      const { admin, l2BridgeB, token0 } = sandbox
+      const leaf: FrInstance = new Fr(BigInt(pendingPrivateSwap.outputLeafIndex))
+      const secret: FrInstance = new Fr(BigInt(pendingPrivateSwap.claimSecret))
+      const claimAmount = pendingPrivateSwap.claimAmount ?? pendingPrivateSwap.amountIn
+      // claim_private mints private AZB notes to `admin`. The recipient address
+      // is in the call args, but observers cannot link it back to the original
+      // swap_private depositor — anyone holding the secret could have claimed.
+      // In production you would claim to a fresh wallet to maximise unlinkability.
+      for (let i = 0; i < 10; i++) {
+        try {
+          await (
+            l2BridgeB as unknown as {
+              methods: {
+                claim_private: (
+                  recipient: typeof admin,
+                  amount: bigint,
+                  secret: FrInstance,
+                  leaf: FrInstance,
+                ) => { send: (opts: { from: typeof admin }) => Promise<unknown> }
+              }
+            }
+          ).methods
+            .claim_private(admin, claimAmount, secret, leaf)
+            .send({ from: admin })
+          break
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e)
+          if (
+            msg.includes('nonexistent L1-to-L2 message') ||
+            msg.includes('No L1 to L2 message found')
+          ) {
+            setResult(`L2 inbox not at message yet (try ${i}/10); poking L2 with a self-transfer…`)
+            try {
+              await token0.methods.transfer_in_public(admin, admin, 1n, Fr.ZERO).send({ from: admin })
+            } catch {
+              // even a revert mines a block
+            }
+          } else {
+            throw e
+          }
+        }
+      }
+      setResult(
+        `claimed ${claimAmount} ${cc?.realUniswapForked ? 'USDC raw (private AZB notes)' : 'AZB as private notes'} — full private Uniswap-from-L2 round-trip closed.`,
+      )
+      setPendingPrivateSwap(null)
+      await refresh(sandbox)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function handleClaim() {
     if (!sandbox?.l2Bridge || !pendingClaim) return
     setBusy(true)
@@ -635,6 +945,65 @@ export function BridgePanel({ state, onClose }: Props) {
             </span>
           </div>
 
+          {sandbox.l2Uniswap && (
+            <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900">
+                Private flow — L2 hidden depositor → L1 Uniswap → L2 hidden recipient
+              </p>
+              <p className="mt-1 text-xs text-emerald-900/80">
+                Same L1 leg, but the L2 sides use <code className="font-mono">swap_private</code> /
+                <code className="font-mono"> claim_private</code>. The depositor's L2 identity never
+                hits public state; the claim's recipient is decoupled from the deposit via the claim
+                secret — anyone with the secret could claim, so observers can't link the two
+                endpoints.
+              </p>
+              {cc?.realUniswapForked && (
+                <p className="mt-2 rounded border border-emerald-300 bg-white/60 p-2 text-xs text-emerald-950">
+                  <strong>Mainnet-forked L1 detected.</strong> L1 leg routes through the real
+                  Uniswap V3 SwapRouter at{' '}
+                  <code className="font-mono">0xE592…1564</code>. Input portal escrows WETH; output
+                  portal receives USDC. Swap denomination:{' '}
+                  <code className="font-mono">{cc.forkedSwapAmountInWei}</code> wei (
+                  {(Number(cc.forkedSwapAmountInWei) / 1e18).toFixed(4)} WETH).
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleSwapPrivateOnL1}
+                  disabled={busy || privateAza === null || privateAza < 500n}
+                  className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+                  title={
+                    privateAza !== null && privateAza < 500n
+                      ? 'depositor needs ≥ 500 private AZA — re-seed with npm run sandbox:seed'
+                      : undefined
+                  }
+                >
+                  Swap 500 AZA (private) → AZB via L1
+                </button>
+                <button
+                  onClick={handleRelayPrivateSwap}
+                  disabled={busy || !pendingPrivateSwap || !!pendingPrivateSwap.l1RelayTxHash}
+                  className="rounded-full border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                >
+                  Relay private swap on L1
+                </button>
+                <button
+                  onClick={handleClaimPrivateSwap}
+                  disabled={busy || !pendingPrivateSwap?.outputLeafIndex}
+                  className="rounded-full border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                >
+                  Claim private AZB on L2
+                </button>
+                <span className="text-xs text-emerald-900/70">
+                  private AZA balance:{' '}
+                  <span className="font-mono">
+                    {privateAza === null ? '—' : fmt(privateAza)}
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 grid grid-cols-3 gap-4 rounded-xl border border-black/10 bg-zinc-50 p-3 text-sm">
             <div>
               <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-black/40">
@@ -705,6 +1074,24 @@ export function BridgePanel({ state, onClose }: Props) {
                 Three clicks: <strong>Swap</strong> → <strong>Relay swap on L1</strong> (waits
                 for outbox advance, ~1–2 min) → <strong>Claim AZB on L2</strong>.
               </p>
+            </div>
+          )}
+          {pendingPrivateSwap && (
+            <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+              <p>
+                pending PRIVATE L2→L1 swap · {pendingPrivateSwap.amountIn.toString()} AZA → ≥{' '}
+                {pendingPrivateSwap.minOut.toString()} AZB · fee{' '}
+                {pendingPrivateSwap.feeTier.toString()}bps
+              </p>
+              <p className="mt-1 font-mono">
+                claim_secret_hash: {pendingPrivateSwap.claimSecretHash.slice(0, 18)}…
+              </p>
+              {pendingPrivateSwap.l1RelayTxHash && (
+                <p className="mt-1 font-mono">
+                  L1 relay tx: {pendingPrivateSwap.l1RelayTxHash.slice(0, 14)}… · output leaf{' '}
+                  {pendingPrivateSwap.outputLeafIndex}
+                </p>
+              )}
             </div>
           )}
         </>
