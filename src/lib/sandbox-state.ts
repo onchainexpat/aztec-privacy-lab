@@ -50,6 +50,27 @@ export interface SandboxState {
     admin: string
     electionId: string
   }
+  minesweeper?: {
+    address: string
+    instance: unknown
+    paymentToken: string
+    operator: string
+  }
+  battleship?: {
+    address: string
+    instance: unknown
+    paymentToken: string
+    operator: string
+  }
+  baseBridge?: {
+    l2Address: string
+    l2Instance: unknown
+    l1Portal: string
+    mockBaseStandardBridge: string
+    inputToken: string
+    inputBridge: string
+    inputTokenPortal: string
+  }
   crossChain?: {
     bridge0: string
     bridge1?: string
@@ -77,6 +98,9 @@ export interface SandboxState {
     forkedSwapFeeTier?: number
     forkedSwapMinOut?: string
     registryAddress?: string
+    /** Testnet (Sepolia) state populated by `npm run testnet:deploy-l1-portals`. */
+    l1ChainId?: number
+    portalsInitialized?: boolean
   }
   initialPrivateBalances: { AZA: string; AZB: string }
   reserves?: { AZA: string; AZB: string }

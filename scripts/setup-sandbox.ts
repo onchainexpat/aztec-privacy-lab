@@ -25,6 +25,8 @@ import { PublicTotalCrowdfundingContract } from '../src/contracts/PublicTotalCro
 import { PerDonorReceiptsContract } from '../src/contracts/PerDonorReceipts'
 import { PublicCollateralPrivateDebtContract } from '../src/contracts/PublicCollateralPrivateDebt'
 import { PrivateVotingContract } from '@aztec/noir-contracts.js/PrivateVoting'
+import { MinesweeperContract } from '../src/contracts/Minesweeper'
+import { BattleshipContract } from '../src/contracts/Battleship'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -181,6 +183,22 @@ async function main() {
   await voting.methods.start_vote({ id: DEMO_ELECTION_ID }).send({ from: admin })
   log('election', DEMO_ELECTION_ID.toString(), 'started')
 
+  log('deploying Minesweeper (games variant g1)…')
+  const { contract: minesweeper } = await MinesweeperContract.deploy(
+    wallet,
+    token0.address, // payment token = AZA
+    admin,
+  ).send({ from: admin })
+  log('Minesweeper at', minesweeper.address.toString())
+
+  log('deploying Battleship (games variant g2)…')
+  const { contract: battleship } = await BattleshipContract.deploy(
+    wallet,
+    token0.address,
+    admin,
+  ).send({ from: admin })
+  log('Battleship at', battleship.address.toString())
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -276,6 +294,18 @@ async function main() {
       instance: await instanceJSON(voting.address),
       admin: admin.toString(),
       electionId: DEMO_ELECTION_ID.toString(),
+    },
+    minesweeper: {
+      address: minesweeper.address.toString(),
+      instance: await instanceJSON(minesweeper.address),
+      paymentToken: 'AZA',
+      operator: admin.toString(),
+    },
+    battleship: {
+      address: battleship.address.toString(),
+      instance: await instanceJSON(battleship.address),
+      paymentToken: 'AZA',
+      operator: admin.toString(),
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

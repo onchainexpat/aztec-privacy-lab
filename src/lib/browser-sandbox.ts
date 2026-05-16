@@ -18,6 +18,8 @@ import type { PublicTotalCrowdfundingContract } from '../contracts/PublicTotalCr
 import type { PerDonorReceiptsContract } from '../contracts/PerDonorReceipts'
 import type { PublicCollateralPrivateDebtContract } from '../contracts/PublicCollateralPrivateDebt'
 import type { PrivateVotingContract } from '@aztec/noir-contracts.js/PrivateVoting'
+import type { MinesweeperContract } from '../contracts/Minesweeper'
+import type { BattleshipContract } from '../contracts/Battleship'
 import type { TokenBridgeContract } from '@aztec/noir-contracts.js/TokenBridge'
 import type { UniswapContract } from '@aztec/noir-contracts.js/Uniswap'
 import type { SandboxState } from './sandbox-state'
@@ -35,6 +37,8 @@ export interface BrowserSandbox {
   publicCrowdfunding: PublicTotalCrowdfundingContract | null
   perDonorReceipts: PerDonorReceiptsContract | null
   voting: PrivateVotingContract | null
+  minesweeper: MinesweeperContract | null
+  battleship: BattleshipContract | null
   lending: LendingContract | null
   ld2: PublicCollateralPrivateDebtContract | null
   l2Bridge: TokenBridgeContract | null
@@ -95,6 +99,8 @@ export function initBrowserSandbox(
     const publicCrowdfundingMod = await import('../contracts/PublicTotalCrowdfunding')
     const perDonorReceiptsMod = await import('../contracts/PerDonorReceipts')
     const votingMod = await import('@aztec/noir-contracts.js/PrivateVoting')
+    const minesweeperMod = await import('../contracts/Minesweeper')
+    const battleshipMod = await import('../contracts/Battleship')
     const bridgeMod = await import('@aztec/noir-contracts.js/TokenBridge')
     const uniswapMod = await import('@aztec/noir-contracts.js/Uniswap')
 
@@ -166,6 +172,18 @@ export function initBrowserSandbox(
       await wallet.registerContract(
         deserialize(state.voting.instance),
         votingMod.PrivateVotingContract.artifact,
+      )
+    }
+    if (state.minesweeper) {
+      await wallet.registerContract(
+        deserialize(state.minesweeper.instance),
+        minesweeperMod.MinesweeperContractArtifact,
+      )
+    }
+    if (state.battleship) {
+      await wallet.registerContract(
+        deserialize(state.battleship.instance),
+        battleshipMod.BattleshipContractArtifact,
       )
     }
     if (state.crossChain?.bridge0Instance) {
@@ -245,6 +263,18 @@ export function initBrowserSandbox(
           wallet,
         )
       : null
+    const minesweeper = state.minesweeper
+      ? await minesweeperMod.MinesweeperContract.at(
+          addressMod.AztecAddress.fromString(state.minesweeper.address),
+          wallet,
+        )
+      : null
+    const battleship = state.battleship
+      ? await battleshipMod.BattleshipContract.at(
+          addressMod.AztecAddress.fromString(state.battleship.address),
+          wallet,
+        )
+      : null
     const l2Bridge = state.crossChain?.bridge0Instance
       ? await bridgeMod.TokenBridgeContract.at(
           addressMod.AztecAddress.fromString(state.crossChain.bridge0),
@@ -277,6 +307,8 @@ export function initBrowserSandbox(
       publicCrowdfunding,
       perDonorReceipts,
       voting,
+      minesweeper,
+      battleship,
       lending,
       ld2,
       l2Bridge,

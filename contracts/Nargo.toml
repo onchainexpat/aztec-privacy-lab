@@ -4,4 +4,7 @@ members = [
   "public_total_crowdfunding",
   "per_donor_receipts",
   "public_collateral_private_debt",
+  "minesweeper",
+  "battleship",
+  "base_bridge",
 ]

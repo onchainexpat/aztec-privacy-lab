@@ -16,6 +16,9 @@ import { LaunchpadMatrix } from './LaunchpadMatrix'
 import { LaunchpadPanel } from './LaunchpadPanel'
 import { LaunchpadPanelTestnet } from './LaunchpadPanelTestnet'
 import { LendingMatrix } from './LendingMatrix'
+import { GamesMatrix } from './GamesMatrix'
+import { MinesweeperPanel } from './MinesweeperPanel'
+import { BattleshipPanel } from './BattleshipPanel'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -26,6 +29,7 @@ import { loadDeployState, type SandboxState } from '../lib/sandbox-state'
 import type { Variation } from '../data/variations'
 import type { LaunchpadVariation } from '../data/launchpad'
 import type { LendingVariation } from '../data/lending'
+import type { GameVariation } from '../data/games'
 
 export function Shell() {
   // Lazy initializer so the first render already has the correct network. If
@@ -39,6 +43,7 @@ export function Shell() {
   const [activeVariant, setActiveVariant] = useState<Variation['id'] | null>(null)
   const [activeLaunchpad, setActiveLaunchpad] = useState<LaunchpadVariation['id'] | null>(null)
   const [activeLending, setActiveLending] = useState<LendingVariation['id'] | null>(null)
+  const [activeGame, setActiveGame] = useState<GameVariation['id'] | null>(null)
   const [votingOpen, setVotingOpen] = useState(false)
   const [bridgeOpen, setBridgeOpen] = useState(false)
   const [sandboxState, setSandboxState] = useState<SandboxState | null>(null)
@@ -151,7 +156,58 @@ export function Shell() {
                   <strong>Cross-chain L1 bridge</strong> card below, open it, and look for the
                   green <strong>Private flow</strong> sub-panel.
                 </p>
-                <ul className="mt-3 list-disc space-y-1 pl-5 text-emerald-900/90">
+
+                <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <div className="rounded-xl border border-emerald-300 bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900">
+                      1 · L2 private
+                    </p>
+                    <p className="mt-1 font-mono text-xs">swap_private</p>
+                    <p className="mt-2 text-xs text-emerald-900/80">
+                      Depositor's private notes burned via{' '}
+                      <code className="text-[10px]">transfer_to_public</code>. L2 caller hidden in
+                      private kernel — only the L2 Uniswap public balance moves.
+                    </p>
+                    <p className="mt-2 text-[10px] uppercase tracking-wide text-emerald-700">
+                      hides: depositor address
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-sky-300 bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-sky-900">
+                      2 · L1 public swap
+                    </p>
+                    <p className="mt-1 font-mono text-xs">UniswapPortal.swapPrivate</p>
+                    <p className="mt-2 text-xs text-sky-900/80">
+                      Portal consumes two L2→L1 messages (withdraw + swap), routes through real
+                      Uniswap V3 router, queues an L1→L2 mint keyed by{' '}
+                      <code className="text-[10px]">claim_secret_hash</code>.
+                    </p>
+                    <p className="mt-2 text-[10px] uppercase tracking-wide text-sky-700">
+                      public: amount, fee, tokens
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-emerald-300 bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900">
+                      3 · L2 private
+                    </p>
+                    <p className="mt-1 font-mono text-xs">claim_private</p>
+                    <p className="mt-2 text-xs text-emerald-900/80">
+                      Any L2 address with the secret redeems the output as private notes. Demo
+                      claims to a different account from the depositor.
+                    </p>
+                    <p className="mt-2 text-[10px] uppercase tracking-wide text-emerald-700">
+                      hides: recipient ⇎ depositor link
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-center text-xs text-emerald-800">
+                  Alice (private) → <span className="font-mono">[L2 Uniswap]</span> →{' '}
+                  <span className="font-mono">L2→L1 msgs</span> →{' '}
+                  <span className="font-mono">[V3 router]</span> →{' '}
+                  <span className="font-mono">L1→L2 msg</span> → Bob (private, ≠ Alice)
+                </p>
+
+                <ul className="mt-4 list-disc space-y-1 pl-5 text-emerald-900/90">
                   <li>
                     <strong>swap_private</strong> on L2: depositor's L2 identity never enters
                     public state — only the Uniswap contract's public balance moves.
@@ -211,12 +267,149 @@ export function Shell() {
                   Open bridge panel ↓
                 </button>
               </>
+            ) : sandboxState?.crossChain?.l1UniswapPortal && sandboxState.crossChain.portalsInitialized ? (
+              <>
+                <p className="mt-2">
+                  Testnet L1 portals are deployed on Sepolia and wired to the Aztec testnet L2
+                  contracts. Interactive trigger from the dashboard is not yet wired — for now the
+                  flow is driven via the CLI.
+                </p>
+                <div className="mt-3 grid grid-cols-1 gap-2 text-xs">
+                  <p>
+                    L1 UniswapPortalSepolia:{' '}
+                    <code className="font-mono">{sandboxState.crossChain.l1UniswapPortal}</code>
+                  </p>
+                  <p>
+                    L1 router (V3 SwapRouter02 on Sepolia):{' '}
+                    <code className="font-mono">{sandboxState.crossChain.l1Router}</code>
+                  </p>
+                  <p>
+                    L2 Uniswap:{' '}
+                    <code className="font-mono">{sandboxState.crossChain.l2Uniswap}</code>
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="mt-2">
+                  Testnet ship is staged but not yet executed. Bundled UniswapPortal hardcodes the
+                  mainnet V3 router; we ship a Sepolia-friendly fork at{' '}
+                  <code className="font-mono text-xs">
+                    contracts-l1/UniswapPortalSepolia/src/UniswapPortalSepolia.sol
+                  </code>
+                  . To fire the deploy you need a Sepolia key with ~0.1 ETH:
+                </p>
+                <pre className="mt-3 overflow-x-auto rounded-lg border border-emerald-300/40 bg-white p-3 font-mono text-[11px]">
+{`# 1. L1 contracts (Sepolia)
+SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
+  npm run testnet:deploy-l1-portals
+
+# 2. L2 contracts (Aztec testnet) + init L1 portals
+TESTNET_SECRET=0x... TESTNET_SALT=0x... TESTNET_SIGNING=0x... \\
+SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
+  npm run testnet:wire-uniswap`}
+                </pre>
+                <p className="mt-2 text-xs text-emerald-900/70">
+                  Once wired, an interactive testnet flow needs (a) Sepolia ETH for the L1 portal
+                  call and (b) a per-tab Schnorr account deployed via SponsoredFPC. Tracked in the
+                  testnet-interactive blocker note. The CLI run script is{' '}
+                  <strong>not yet written</strong> in this batch — it would mirror{' '}
+                  <code className="font-mono">run-uniswap-swap-private.ts</code> but read the
+                  Sepolia portal addresses from <code>testnet-state.json</code>.
+                </p>
+              </>
+            )}
+          </section>
+        )}
+        {activeVariant === 'i' && (
+          <section className="mt-10 rounded-2xl border border-sky-200 bg-sky-50/40 p-6 text-sm text-sky-900">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-sky-950">
+                Variant i — Aztec L2 private deposit → L1 portal → Base L2
+              </h3>
+              <button
+                onClick={() => setActiveVariant(null)}
+                className="text-sm text-sky-900/60 underline-offset-4 hover:underline"
+              >
+                Close
+              </button>
+            </div>
+            {network === 'sandbox' ? (
+              <>
+                <p className="mt-2">
+                  Same primitive as variant h, retargeted at Base's L1StandardBridge. The L2 caller
+                  burns a private AZA note via{' '}
+                  <code className="font-mono text-xs">transfer_to_public</code>; the L1
+                  BaseBridgePortal consumes both L2→L1 messages and forwards to a Mock Base bridge
+                  that emits a public deposit event keyed by the Base recipient.
+                </p>
+                <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <div className="rounded-xl border border-emerald-300 bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900">
+                      1 · L2 private
+                    </p>
+                    <p className="mt-1 font-mono text-xs">bridge_private</p>
+                    <p className="mt-2 text-xs text-emerald-900/80">
+                      Caller's private AZA notes burn into the contract's public balance. L2
+                      identity stays inside the private kernel.
+                    </p>
+                    <p className="mt-2 text-[10px] uppercase tracking-wide text-emerald-700">
+                      hides: depositor address
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-sky-300 bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-sky-900">
+                      2 · L1 portal hop
+                    </p>
+                    <p className="mt-1 font-mono text-xs">BaseBridgePortal.bridgeToBase</p>
+                    <p className="mt-2 text-xs text-sky-900/80">
+                      Consumes withdrawal + bridge-intent L2→L1 messages, pulls the released ERC20,
+                      forwards to Base L1StandardBridge.
+                    </p>
+                    <p className="mt-2 text-[10px] uppercase tracking-wide text-sky-700">
+                      public: amount, recipient, tokens
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-amber-300 bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-900">
+                      3 · Base L2
+                    </p>
+                    <p className="mt-1 font-mono text-xs">bridgeERC20To(to, amount)</p>
+                    <p className="mt-2 text-xs text-amber-900/80">
+                      On real Base mainnet this is the canonical L1 → Base L2 deposit (~3 min).
+                      Sandbox uses a stub that emits the same event.
+                    </p>
+                    <p className="mt-2 text-[10px] uppercase tracking-wide text-amber-700">
+                      public: recipient on Base
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-center text-xs text-sky-800">
+                  Alice (private) → <span className="font-mono">[L2 BaseBridge]</span> →{' '}
+                  <span className="font-mono">L2→L1 msgs</span> →{' '}
+                  <span className="font-mono">[BaseBridgePortal]</span> →{' '}
+                  <span className="font-mono">[L1StandardBridge]</span> → 0xbabe (public, ≠ Alice)
+                </p>
+                <p className="mt-4">
+                  <strong>Run it:</strong>{' '}
+                  <code className="font-mono text-xs">
+                    sandbox:setup &amp;&amp; sandbox:seed &amp;&amp; sandbox:l1-portal &amp;&amp;
+                    sandbox:base-bridge
+                  </code>{' '}
+                  →{' '}
+                  <code className="font-mono text-xs">npm run sandbox:base-bridge-private</code>.
+                </p>
+                <p className="mt-2 text-xs text-sky-900/70">
+                  <strong>One-way only:</strong> no L1→L2 claim message — the tokens leave Aztec
+                  entirely. Anonymity set is other Aztec depositors funneling through the same
+                  portal in a similar window; single-user usage leaks via timing correlation.
+                </p>
+              </>
             ) : (
               <p className="mt-2">
-                The L1 leg currently runs against a local anvil chain bundled with the Aztec
-                sandbox. Switch the network toggle (top-right) to <strong>Sandbox</strong> and
-                follow the setup steps to try it. Testnet support waits on deploying the portals
-                to Sepolia — tracked separately.
+                Currently runs only on the sandbox L1 anvil chain. Testnet support waits on
+                deploying BaseBridgePortal to Sepolia + the real Base L1StandardBridge on Sepolia
+                (address <code className="font-mono text-xs">0xfd0Bf71F60660E2f608ed56e1659C450eB113120</code> at last check). Switch the network toggle to <strong>Sandbox</strong> to try it.
               </p>
             )}
           </section>
@@ -231,7 +424,10 @@ export function Shell() {
               onClose={() => setActiveVariant(null)}
             />
           )}
-        {activeVariant && !sandboxState && (
+        {activeVariant &&
+          activeVariant !== 'h' &&
+          activeVariant !== 'i' &&
+          !sandboxState && (
           <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
             Variant {activeVariant} needs the sandbox deployment. Run{' '}
             <code>npm run sandbox:setup</code> and reload.
@@ -296,6 +492,47 @@ export function Shell() {
               onClose={() => setActiveLending(null)}
             />
           )}
+
+        <div className="mt-16">
+          <GamesMatrix onTry={(id) => setActiveGame(id)} />
+        </div>
+
+        {activeGame === 'g1' && sandboxState && network === 'sandbox' && (
+          <MinesweeperPanel state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g2' && sandboxState && network === 'sandbox' && (
+          <BattleshipPanel state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g3' && sandboxState && network === 'sandbox' && (
+          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50/40 p-6 text-sm text-amber-900">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-amber-950">
+                Variant g3 — PvP Battleship: research-grade
+              </h3>
+              <button
+                onClick={() => setActiveGame(null)}
+                className="text-sm text-amber-900/60 underline-offset-4 hover:underline"
+              >
+                Close
+              </button>
+            </div>
+            <p className="mt-2">
+              Two-player Battleship with hidden boards is genuinely hard on Aztec: each player
+              needs to prove a hit/miss without revealing their fleet, which requires either ZK
+              proofs of board membership per turn or a trusted external operator. The matrix card
+              above explains the trade-offs — playable panel intentionally omitted.
+            </p>
+          </section>
+        )}
+        {activeGame && network === 'testnet' && (
+          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+            Variant {activeGame} needs the sandbox + the Minesweeper/Battleship Noir contract. Switch
+            the network toggle to <strong>Sandbox</strong> when it ships.
+            <button onClick={() => setActiveGame(null)} className="ml-3 underline">
+              Close
+            </button>
+          </section>
+        )}
 
         <div className="mt-16 rounded-2xl border border-black/10 bg-white p-6">
           <div className="flex items-start justify-between gap-4">

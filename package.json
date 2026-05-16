@@ -18,12 +18,19 @@
     "sandbox:fork-anvil": "./scripts/start-fork-anvil.sh",
     "sandbox:fork-uniswap": "tsx scripts/setup-forked-uniswap.ts",
     "sandbox:swap-l1-private-forked": "tsx scripts/run-forked-swap-private.ts",
+    "sandbox:base-bridge": "tsx scripts/wire-base-bridge.ts",
+    "sandbox:base-bridge-private": "tsx scripts/run-base-bridge-private.ts",
     "testnet:generate-key": "tsx scripts/generate-testnet-key.ts",
     "testnet:setup": "tsx scripts/setup-testnet.ts",
     "testnet:seed-amm": "tsx scripts/seed-testnet-amm.ts",
     "testnet:reseed-amm": "tsx scripts/reseed-testnet-amm.ts",
     "testnet:redeploy-amm": "tsx scripts/redeploy-testnet-amm.ts",
-    "testnet:deploy-launchpad": "tsx scripts/deploy-testnet-launchpad.ts"
+    "testnet:deploy-launchpad": "tsx scripts/deploy-testnet-launchpad.ts",
+    "testnet:deploy-l1-portals": "tsx scripts/deploy-testnet-l1-portals.ts",
+    "testnet:wire-uniswap": "tsx scripts/wire-testnet-uniswap.ts",
+    "testnet:plant-mock-router": "tsx scripts/plant-testnet-mock-router.ts",
+    "testnet:swap-l1-private": "tsx scripts/run-testnet-swap-private.ts",
+    "testnet:complete-pending-swap": "tsx scripts/complete-testnet-pending-swap.ts"
   },
   "dependencies": {
     "@azguardwallet/client": "^0.9.0",

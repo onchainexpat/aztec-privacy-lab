@@ -152,5 +152,67 @@
     "donationToken": "azETH",
     "operator": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
     "deadline": "1781220884"
+  },
+  "crossChain": {
+    "l1Rpc": "https://ethereum-sepolia.publicnode.com",
+    "l1ChainId": 11155111,
+    "l1Deployer": "0x3eA55104E4Be19Dbc3E09eb5BF9a2b4cfEbE11EF",
+    "l1Token": "0x1f7aeb08dcf63fcdb53cdb9741a350e50a93bafd",
+    "l1TokenB": "0xb13e90119fc11ce720457aa079d01d5309483611",
+    "l1Portal": "0x4ee699458f19dc77220c26c6c7c1f3b0d878af5e",
+    "l1OutputPortal": "0x1a50177af4f86455c81d6b57182dce3969df01e0",
+    "l1UniswapPortal": "0x3246babc31563d019b0a0897e37c5f96f45be0e5",
+    "l1Router": "0xb91e6f0c16c12b3f28f1017e5a7b9da5c20f453c",
+    "registryAddress": "0xa0bfb1b494fb49041e5c6e8c2c1be09cd171c6ba",
+    "portalsInitialized": true,
+    "bridge0": "0x1004254a6e688b0aea77c61e85e4d1a8967b91326a0b5d943d0dd9314f7434b4",
+    "bridge0Instance": {
+      "version": 1,
+      "salt": "0x134f104c23ba1b6dcc251fda0312a4b60f476a0f216b9eed22726cf6b39a075b",
+      "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+      "currentContractClassId": "0x17ff1c202a4be1d5778fb25ffee33d30280a670fbb460b352c0b92e15972b552",
+      "originalContractClassId": "0x17ff1c202a4be1d5778fb25ffee33d30280a670fbb460b352c0b92e15972b552",
+      "initializationHash": "0x12bb4ca6a5d48eb88e5e8449efd6a589719af9622122087ec60889c08d49b998",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x1004254a6e688b0aea77c61e85e4d1a8967b91326a0b5d943d0dd9314f7434b4"
+    },
+    "l2BridgeB": "0x09828ad7ef0f78a74eef3826262ee45d2eaa361d46df2c06cb437400197307fc",
+    "l2BridgeBInstance": {
+      "version": 1,
+      "salt": "0x0fb45acfdbaa569f5e78c31706623b80150a8ef896b701f2d4b0055bcb8cf2db",
+      "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+      "currentContractClassId": "0x17ff1c202a4be1d5778fb25ffee33d30280a670fbb460b352c0b92e15972b552",
+      "originalContractClassId": "0x17ff1c202a4be1d5778fb25ffee33d30280a670fbb460b352c0b92e15972b552",
+      "initializationHash": "0x13c40a6bb75581c5687e2b9a26703fe0e8381deecb28550dd475553aed63fcd9",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x09828ad7ef0f78a74eef3826262ee45d2eaa361d46df2c06cb437400197307fc"
+    },
+    "l2Uniswap": "0x1ee218708e5b6255b95502fb3f5e984b3c3ebfda2a6a40523f492c45b5ee5f0e",
+    "l2UniswapInstance": {
+      "version": 1,
+      "salt": "0x036a3f34fee8d2f8f7937385c7a1dd8fedb771d553d6b91f1dcd1f7a4da5732f",
+      "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+      "currentContractClassId": "0x0464b2509a0cee3dbaa6a52f6ad7bd13b39c9da7d90997c71384a9b19c00a943",
+      "originalContractClassId": "0x0464b2509a0cee3dbaa6a52f6ad7bd13b39c9da7d90997c71384a9b19c00a943",
+      "initializationHash": "0x15a82a5ea0d92c7b3750f9654073eb8e67054a4f20caaf0043ede4c26aa6975a",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x1ee218708e5b6255b95502fb3f5e984b3c3ebfda2a6a40523f492c45b5ee5f0e"
+    },
+    "mockSwapRouter": "0xb91e6f0c16c12b3f28f1017e5a7b9da5c20f453c"
   }
 }

@@ -8,7 +8,7 @@ export interface VariationAxis {
 }
 
 export interface Variation {
-  id: 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h'
+  id: 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i'
   title: string
   one_liner: string
   verdict: Verdict
@@ -132,6 +132,25 @@ export const AMM_VARIATIONS: Variation[] = [
       'A swap_private tx (caller hidden in private kernel — only the L2 Uniswap public balance moved). Later, a claim_private tx to some recipient address with the secret. The two halves share no on-chain link; only the secret holder can claim.',
     reason:
       'Built today on sandbox using the bundled Uniswap + TokenPortal contracts. swap_private burns the depositor\'s private notes via transfer_to_public (no public_authwit, no public sender); the L1 portal\'s swapPrivate consumes the L2→L1 messages and queues an L1→L2 mint addressed by claim secret, not recipient; claim_private redeems to any L2 address. Limitation: the L1 leg is fully public (this is a privacy-of-L2-endpoints variant, not an L1-side mixer). Open the Cross-chain bridge panel and click "Swap (private) → AZB via L1" to try it.',
+  },
+  {
+    id: 'i',
+    title: 'L2 private deposit → L1 portal → Base L2 (public recipient)',
+    one_liner:
+      'Same primitive as variant h, but the L1 portal hands off to Base’s L1StandardBridge instead of Uniswap — depositor stays hidden, recipient lives on Base.',
+    verdict: 'buildable',
+    axes: [
+      { label: 'L2 depositor', value: 'private' },
+      { label: 'L1 amount', value: 'public' },
+      { label: 'Base recipient', value: 'public' },
+      { label: 'Link depositor → recipient', value: 'private' },
+    ],
+    what_l1_sees:
+      'An L2→L1 withdrawal from the input TokenPortal followed by BaseBridgePortal.bridgeToBase forwarding the released ERC20 to a Base L1StandardBridge. The L1 logs show "portal X sent N tokens to address Y on Base" — Y is public on both sides.',
+    what_observer_sees_on_l2:
+      'A bridge_private tx (caller hidden in the private kernel — only the L2 BaseBridge contract’s public balance shifts). No L2 receiver to observe because the assets leave the Aztec system entirely.',
+    reason:
+      'Built end-to-end on the sandbox using a vendored BaseBridgePortal + MockBaseL1StandardBridge. The Noir contract mirrors UniswapContract.swap_private but emits a "bridge_to_base" content hash instead of "swap_private". One-way only — there’s no L1→L2 claim message because the tokens leave Aztec. Anonymity set = other Aztec depositors funneling through the same portal in similar timeframes. Run via `npm run sandbox:base-bridge && npm run sandbox:base-bridge-private`.',
   },
   {
     id: 'g',
