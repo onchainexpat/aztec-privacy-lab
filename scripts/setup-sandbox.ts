@@ -206,9 +206,17 @@ async function main() {
   const { Fr } = await import('@aztec/aztec.js/fields')
 
   log('deploying SealedBidAuction (games variant g5)…')
-  // Bid window: now + 5 min. Reveal window: bid_deadline + 5 min.
-  const auctionBidDeadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 5)
-  const auctionRevealDeadline = auctionBidDeadline + 60n * 5n
+  // L2 block timestamps drift ahead of wall-clock on a sandbox that's been
+  // running for a while — use the latest L2 block ts as the baseline so the
+  // contract's `self.context.timestamp()` check matches our expectations.
+  const latestHeader = await node.getBlockHeader()
+  const l2NowSec =
+    latestHeader && latestHeader.globalVariables
+      ? Number((latestHeader.globalVariables as { timestamp: bigint }).timestamp)
+      : Math.floor(Date.now() / 1000)
+  // Bid window: L2-now + 2 hr. Reveal window: bid_deadline + 2 hr.
+  const auctionBidDeadline = BigInt(l2NowSec + 60 * 120)
+  const auctionRevealDeadline = auctionBidDeadline + 60n * 120n
   // Off-chain item description hashed for the on-chain commitment. The actual
   // text lives in the panel; the hash just binds the demo to a known item.
   const auctionItemHash = 1n
@@ -236,9 +244,9 @@ async function main() {
   const wordleTargetPacked = packWord(wordleTarget)
   const wordleSalt = Fr.random()
   const wordleChallengeHash = pedersenHash([wordleTargetPacked, wordleSalt])
-  // Bid window: 1 hour. Reveal window: bid_deadline + 1 hour.
-  const wordleGuessDeadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60)
-  const wordleRevealDeadline = wordleGuessDeadline + 60n * 60n
+  // Use L2-now baseline (sandbox L2 drifts ahead of wall-clock).
+  const wordleGuessDeadline = BigInt(l2NowSec + 60 * 120)
+  const wordleRevealDeadline = wordleGuessDeadline + 60n * 120n
   const { contract: wordle } = await WordleContract.deploy(
     wallet,
     admin,

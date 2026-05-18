@@ -57,9 +57,38 @@ export function WordlePanel({ state, onClose }: Props) {
   const inRevealWindow = now >= guessDeadline && now < revealDeadline
 
   useEffect(() => {
-    const tick = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000)
-    return () => clearInterval(tick)
-  }, [])
+    let cancelled = false
+    // L2 time can drift ahead of wall-clock on sandbox; mirror the contract's
+    // `self.context.timestamp()` view by polling the L2 block header.
+    async function poll() {
+      try {
+        const res = await fetch(state.sandboxUrl, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0', id: 1, method: 'node_getBlockHeader', params: [],
+          }),
+        })
+        const data = (await res.json()) as {
+          result?: { globalVariables?: { timestamp?: string | number | bigint } }
+        }
+        const ts = data?.result?.globalVariables?.timestamp
+        if (ts != null && !cancelled) {
+          setNow(Number(ts))
+          return
+        }
+      } catch {
+        // fall through to wall-clock fallback
+      }
+      if (!cancelled) setNow(Math.floor(Date.now() / 1000))
+    }
+    void poll()
+    const tick = setInterval(poll, 5000)
+    return () => {
+      cancelled = true
+      clearInterval(tick)
+    }
+  }, [state.sandboxUrl])
 
   async function refreshStatus(sb: BrowserSandbox) {
     if (!sb.wordle) return

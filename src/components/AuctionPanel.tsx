@@ -45,9 +45,39 @@ export function AuctionPanel({ state, onClose }: Props) {
   const inRevealWindow = now >= bidDeadline && now < revealDeadline
 
   useEffect(() => {
-    const tick = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000)
-    return () => clearInterval(tick)
-  }, [])
+    let cancelled = false
+    // Query L2 block timestamp because sandbox L2 time drifts ahead of
+    // wall-clock - the contract checks `self.context.timestamp()` which is the
+    // L2 time, so the UI countdown must use the same source to stay honest.
+    async function poll() {
+      try {
+        const res = await fetch(state.sandboxUrl, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0', id: 1, method: 'node_getBlockHeader', params: [],
+          }),
+        })
+        const data = (await res.json()) as {
+          result?: { globalVariables?: { timestamp?: string | number | bigint } }
+        }
+        const ts = data?.result?.globalVariables?.timestamp
+        if (ts != null && !cancelled) {
+          setNow(Number(ts))
+          return
+        }
+      } catch {
+        // fall through to wall-clock fallback
+      }
+      if (!cancelled) setNow(Math.floor(Date.now() / 1000))
+    }
+    void poll()
+    const tick = setInterval(poll, 5000)
+    return () => {
+      cancelled = true
+      clearInterval(tick)
+    }
+  }, [state.sandboxUrl])
 
   async function refreshStatus(sb: BrowserSandbox) {
     if (!sb.sealedBidAuction) return
@@ -253,7 +283,11 @@ export function AuctionPanel({ state, onClose }: Props) {
                       disabled={!inRevealWindow || busy}
                       className="rounded-full bg-amber-500 px-3 py-1 text-xs font-medium text-white hover:opacity-90 disabled:opacity-40"
                     >
-                      {inRevealWindow ? 'Reveal' : 'Reveal (window closed)'}
+                      {inRevealWindow
+                        ? 'Reveal'
+                        : inBidWindow
+                          ? 'Reveal (after bids close)'
+                          : 'Reveal (window closed)'}
                     </button>
                   </li>
                 ))}

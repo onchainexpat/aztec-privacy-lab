@@ -45,7 +45,14 @@ export function GamesMatrix({ onTry }: Props) {
                 )}
                 {v.reason && (
                   <p className="mt-2 text-black/80">
-                    <span className="font-medium">Why research-grade:</span> {v.reason}
+                    <span className="font-medium">
+                      {v.verdict === 'research'
+                        ? 'Why research-grade:'
+                        : v.status === 'planned'
+                          ? 'Why it fits Aztec:'
+                          : 'Why:'}
+                    </span>{' '}
+                    {v.reason}
                   </p>
                 )}
               </details>
