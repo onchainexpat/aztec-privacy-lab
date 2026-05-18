@@ -8,4 +8,5 @@ members = [
   "battleship",
   "base_bridge",
   "sealed_bid_auction",
+  "wordle",
 ]

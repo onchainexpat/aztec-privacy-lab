@@ -28,6 +28,7 @@ import { PrivateVotingContract } from '@aztec/noir-contracts.js/PrivateVoting'
 import { MinesweeperContract } from '../src/contracts/Minesweeper'
 import { BattleshipContract } from '../src/contracts/Battleship'
 import { SealedBidAuctionContract } from '../src/contracts/SealedBidAuction'
+import { WordleContract } from '../src/contracts/Wordle'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -200,6 +201,10 @@ async function main() {
   ).send({ from: admin })
   log('Battleship at', battleship.address.toString())
 
+  // For Wordle we need pedersenHash to compute the challenge commitment.
+  const { pedersenHash } = await import('@aztec/foundation/crypto/sync')
+  const { Fr } = await import('@aztec/aztec.js/fields')
+
   log('deploying SealedBidAuction (games variant g5)…')
   // Bid window: now + 5 min. Reveal window: bid_deadline + 5 min.
   const auctionBidDeadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 5)
@@ -215,6 +220,33 @@ async function main() {
     auctionRevealDeadline,
   ).send({ from: admin })
   log('SealedBidAuction at', auction.address.toString())
+
+  log('deploying Wordle (games variant g6)…')
+  // Pack a 5-letter target into a single Field. "aztec" is the demo target;
+  // production would generate this off-chain per day from a curated list.
+  function packWord(word: string): bigint {
+    if (word.length !== 5) throw new Error('word must be 5 letters')
+    let packed = 0n
+    for (let i = 0; i < 5; i++) {
+      packed = packed * 256n + BigInt(word.charCodeAt(i))
+    }
+    return packed
+  }
+  const wordleTarget = 'aztec'
+  const wordleTargetPacked = packWord(wordleTarget)
+  const wordleSalt = Fr.random()
+  const wordleChallengeHash = pedersenHash([wordleTargetPacked, wordleSalt])
+  // Bid window: 1 hour. Reveal window: bid_deadline + 1 hour.
+  const wordleGuessDeadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60)
+  const wordleRevealDeadline = wordleGuessDeadline + 60n * 60n
+  const { contract: wordle } = await WordleContract.deploy(
+    wallet,
+    admin,
+    wordleChallengeHash.toBigInt(),
+    wordleGuessDeadline,
+    wordleRevealDeadline,
+  ).send({ from: admin })
+  log('Wordle at', wordle.address.toString(), '(target =', wordleTarget, ')')
 
   log('minting balances to admin…')
   const MINT = 1_000_000n
@@ -331,6 +363,19 @@ async function main() {
       itemHash: auctionItemHash.toString(),
       bidDeadline: auctionBidDeadline.toString(),
       revealDeadline: auctionRevealDeadline.toString(),
+    },
+    wordle: {
+      address: wordle.address.toString(),
+      instance: await instanceJSON(wordle.address),
+      operator: admin.toString(),
+      // Store target + salt so the operator (us, in this demo) can reveal at
+      // the deadline. In a real deploy these would only live in the operator's
+      // PXE, NOT in the shared state file.
+      targetWord: wordleTarget,
+      targetPacked: wordleTargetPacked.toString(),
+      targetSalt: wordleSalt.toString(),
+      guessDeadline: wordleGuessDeadline.toString(),
+      revealDeadline: wordleRevealDeadline.toString(),
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

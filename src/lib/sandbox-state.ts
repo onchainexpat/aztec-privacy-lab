@@ -70,6 +70,16 @@ export interface SandboxState {
     bidDeadline: string
     revealDeadline: string
   }
+  wordle?: {
+    address: string
+    instance: unknown
+    operator: string
+    targetWord: string
+    targetPacked: string
+    targetSalt: string
+    guessDeadline: string
+    revealDeadline: string
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

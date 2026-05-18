@@ -110,9 +110,9 @@ export const GAME_VARIATIONS: GameVariation[] = [
     id: 'g6',
     title: 'Wordle · daily puzzle with private guesses',
     one_liner:
-      'Public daily target hash; each guess stored as YOUR private note. Your guess history stays hidden until you choose to share. Public leaderboard shows ranks + completion time, not the path you took.',
+      'Public daily target hash; each guess emits a private commitment. Operator reveals target at day-end; solvers can prove which attempt they got right without exposing failed guesses.',
     verdict: 'buildable',
-    status: 'planned',
+    status: 'shipped',
     axes: [
       { label: 'Target word', value: 'public' },
       { label: 'Player guess history', value: 'private' },
