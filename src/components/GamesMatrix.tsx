@@ -12,11 +12,12 @@ export function GamesMatrix({ onTry }: Props) {
     <section>
       <MatrixHeader
         title="Games — privacy matrix"
-        subtitle="Pay-to-play games where a Noir contract holds hidden state. Two ship today (g1, g2) with explicit honesty about the on-chain RNG limit; the trustless PvP variant (g3) is research-grade."
+        subtitle="Two ship today (g1 Minesweeper, g2 Battleship single-player) with explicit on-chain RNG caveats. g3 PvP Battleship is research-grade. g4–g7 are planned designs that use Aztec's per-user private notes for genuinely hidden state (no contract-side RNG required)."
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {GAME_VARIATIONS.map((v) => {
-          const interactive = v.verdict === 'hard'
+          const interactive = v.status === 'shipped'
+          const planned = v.status === 'planned'
           return (
             <div key={v.id} className="flex flex-col rounded-2xl border border-black/10 bg-white p-5">
               <div className="mb-2 flex items-start justify-between gap-3">
@@ -57,9 +58,13 @@ export function GamesMatrix({ onTry }: Props) {
                 >
                   Try variant {v.id} →
                 </button>
+              ) : planned ? (
+                <span className="text-xs text-black/40">
+                  Spec'd · Noir contract + panel not yet implemented.
+                </span>
               ) : (
                 <span className="text-xs text-black/40">
-                  Needs PvP matchmaker UI; tracked as future work.
+                  Research-grade · needs PvP matchmaker UI.
                 </span>
               )}
             </div>

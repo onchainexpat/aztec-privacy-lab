@@ -1,10 +1,17 @@
 import type { Verdict, VariationAxis } from './variations'
 
 export interface GameVariation {
-  id: 'g1' | 'g2' | 'g3'
+  id: 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'g7'
   title: string
   one_liner: string
   verdict: Verdict
+  /**
+   * Implementation state — independent of `verdict` (which is about feasibility).
+   *   'shipped'  — Noir contract deployed + interactive panel wired
+   *   'planned'  — buildable today, designed but not yet implemented
+   *   'research' — needs new primitives/infra (also flagged via verdict: 'research')
+   */
+  status?: 'shipped' | 'planned' | 'research'
   axes: VariationAxis[]
   what_observer_sees: string
   trust_caveat?: string
@@ -18,6 +25,7 @@ export const GAME_VARIATIONS: GameVariation[] = [
     one_liner:
       'Pay-to-play single-player Minesweeper. Contract pseudo-randomly places mines from on-chain entropy; player reveals one cell at a time.',
     verdict: 'hard',
+    status: 'shipped',
     axes: [
       { label: 'Player identity', value: 'public' },
       { label: 'Board layout', value: 'private' },
@@ -34,6 +42,7 @@ export const GAME_VARIATIONS: GameVariation[] = [
     one_liner:
       'Fleet of 5 ships placed on a 10×10 board from contract seed. Player fires shots; contract reports miss / hit / sunk.',
     verdict: 'hard',
+    status: 'shipped',
     axes: [
       { label: 'Player identity', value: 'public' },
       { label: 'Ship positions', value: 'private' },
@@ -50,6 +59,7 @@ export const GAME_VARIATIONS: GameVariation[] = [
     one_liner:
       'Two players, two boards, no contract-side randomness. Each player commits to their own fleet hash; shots prove hit/miss in ZK without revealing the rest.',
     verdict: 'research',
+    status: 'research',
     axes: [
       { label: 'Each player identity', value: 'public' },
       { label: 'Each player fleet', value: 'private' },
@@ -59,5 +69,76 @@ export const GAME_VARIATIONS: GameVariation[] = [
       "Two commit txs (one per player) with fleet hashes. Then alternating fire / answer txs — each answer comes with a ZK proof that the response is consistent with the committed fleet. Observers see who's winning but never see ship positions.",
     reason:
       'Fully trustless and the most interesting privacy story, but the matchmaking UI alone (pair two browsers, manage turns, sync the encrypted boards) is a sub-project. Tracked as research-grade; ship when g1/g2 prove the contract pattern.',
+  },
+  {
+    id: 'g4',
+    title: 'Blackjack · player vs deterministic dealer',
+    one_liner:
+      'Hole cards dealt to the player as their OWN private notes (genuinely hidden — encrypted to player pubkey, not contract). Dealer follows a fixed rule from a public seed; player decides hit/stand and reveals at showdown.',
+    verdict: 'buildable',
+    status: 'planned',
+    axes: [
+      { label: 'Player hand', value: 'private' },
+      { label: 'Dealer hand', value: 'public' },
+      { label: 'Player decisions', value: 'private' },
+      { label: 'Final score', value: 'public' },
+    ],
+    what_observer_sees:
+      'Bet + dealer face-up card public. A sequence of player private function calls (hit/stand) — only the action type is visible, not the resulting hand. At showdown the player reveals a ZK proof: "given my hole cards + my hit history, my final total is N (≤21 or busted)." Contract verifies + settles.',
+    reason:
+      'The strongest single-player Aztec demo: the player\'s hand lives in their own private notes (encrypted to their pubkey, NOT the contract\'s), so observers truly cannot see the hand mid-game. Dealer rules are deterministic ("hit until 17") so no RNG needed beyond the initial public shuffle seed. Buildable today; not yet implemented.',
+  },
+  {
+    id: 'g5',
+    title: 'Sealed-bid auction',
+    one_liner:
+      "Place a bid as a private note. Auction window closes; only the winning bid reveals to claim. Losing bids stay hidden forever — something Solidity can't do without an MPC operator.",
+    verdict: 'buildable',
+    status: 'planned',
+    axes: [
+      { label: 'Bidder identity', value: 'private' },
+      { label: 'Bid amount', value: 'private' },
+      { label: 'Winning bid', value: 'public' },
+      { label: 'Losing bids', value: 'private' },
+    ],
+    what_observer_sees:
+      'A public list of bid commitments (each is a private note nullifier — opaque). At close, a single reveal tx surfaces the highest bid + winner. All other bids stay encrypted in their bidders\' PXEs; observers never learn who else bid or how much.',
+    reason:
+      "Cleanest pure-Aztec privacy showcase. Each bid is a user-owned private note (genuinely hidden — not contract-owned). At reveal, only the winner has to open. Losers' bids are nullified without disclosure. Buildable today; not yet implemented.",
+  },
+  {
+    id: 'g6',
+    title: 'Wordle · daily puzzle with private guesses',
+    one_liner:
+      'Public daily target hash; each guess stored as YOUR private note. Your guess history stays hidden until you choose to share. Public leaderboard shows ranks + completion time, not the path you took.',
+    verdict: 'buildable',
+    status: 'planned',
+    axes: [
+      { label: 'Target word', value: 'public' },
+      { label: 'Player guess history', value: 'private' },
+      { label: 'Completion + rank', value: 'public' },
+    ],
+    what_observer_sees:
+      'A public daily challenge (committed hash of the target word, revealed at end-of-day cron). Each player makes guess txs that store the guess as a private note + emit a public "guess #N submitted" event. At day end, players can optionally reveal their path to prove a fast solve. The actual letters guessed stay private otherwise.',
+    reason:
+      "Solid showcase of 'gameplay history stays private even on a public chain.' Each player's guess history is their own private notes — observers can see WHEN you played, not WHAT you guessed. Buildable today; not yet implemented.",
+  },
+  {
+    id: 'g7',
+    title: 'Private lottery · anonymous tickets + VRF draw',
+    one_liner:
+      'Buy a ticket privately (number stored as your private note). Chainlink VRF on L1 draws the winning number. Winners claim publicly; non-winners stay anonymous — even the list of ticket-holders can be hidden.',
+    verdict: 'buildable',
+    status: 'planned',
+    axes: [
+      { label: 'Ticket holders', value: 'private' },
+      { label: 'Ticket numbers', value: 'private' },
+      { label: 'Winning number', value: 'public' },
+      { label: 'Winner identity', value: 'public' },
+    ],
+    what_observer_sees:
+      'A public counter of ticket commitments (each is a private note nullifier). VRF request emitted as an L2→L1 message via portal; VRF callback returns the winning number as an L1→L2 message. Only the winner reveals to claim — losers stay anonymous, their ticket numbers stay encrypted in their PXEs.',
+    reason:
+      "First legitimate use of Chainlink VRF in this matrix — the public winning number is fine to be public; the private property is the anonymity set of ticket holders. Single-user demo: buy a ticket, wait for VRF, see your private note still encrypted whether you won or lost. Buildable today; not yet implemented.",
   },
 ]
