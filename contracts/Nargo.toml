@@ -7,4 +7,5 @@ members = [
   "minesweeper",
   "battleship",
   "base_bridge",
+  "sealed_bid_auction",
 ]

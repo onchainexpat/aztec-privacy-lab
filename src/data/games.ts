@@ -92,9 +92,9 @@ export const GAME_VARIATIONS: GameVariation[] = [
     id: 'g5',
     title: 'Sealed-bid auction',
     one_liner:
-      "Place a bid as a private note. Auction window closes; only the winning bid reveals to claim. Losing bids stay hidden forever — something Solidity can't do without an MPC operator.",
+      "Place a bid as a private commitment. Reveal window opens; only the bids you choose to publish reach public state. Bids you keep sealed stay private forever - something Solidity can't do without an MPC operator.",
     verdict: 'buildable',
-    status: 'planned',
+    status: 'shipped',
     axes: [
       { label: 'Bidder identity', value: 'private' },
       { label: 'Bid amount', value: 'private' },

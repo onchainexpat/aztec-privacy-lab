@@ -19,6 +19,7 @@ import { LendingMatrix } from './LendingMatrix'
 import { GamesMatrix } from './GamesMatrix'
 import { MinesweeperPanel } from './MinesweeperPanel'
 import { BattleshipPanel } from './BattleshipPanel'
+import { AuctionPanel } from './AuctionPanel'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -502,6 +503,9 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         )}
         {activeGame === 'g2' && sandboxState && network === 'sandbox' && (
           <BattleshipPanel state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g5' && sandboxState && network === 'sandbox' && (
+          <AuctionPanel state={sandboxState} onClose={() => setActiveGame(null)} />
         )}
         {activeGame === 'g3' && sandboxState && network === 'sandbox' && (
           <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50/40 p-6 text-sm text-amber-900">

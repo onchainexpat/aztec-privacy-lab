@@ -27,6 +27,7 @@ import { PublicCollateralPrivateDebtContract } from '../src/contracts/PublicColl
 import { PrivateVotingContract } from '@aztec/noir-contracts.js/PrivateVoting'
 import { MinesweeperContract } from '../src/contracts/Minesweeper'
 import { BattleshipContract } from '../src/contracts/Battleship'
+import { SealedBidAuctionContract } from '../src/contracts/SealedBidAuction'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -199,6 +200,22 @@ async function main() {
   ).send({ from: admin })
   log('Battleship at', battleship.address.toString())
 
+  log('deploying SealedBidAuction (games variant g5)…')
+  // Bid window: now + 5 min. Reveal window: bid_deadline + 5 min.
+  const auctionBidDeadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 5)
+  const auctionRevealDeadline = auctionBidDeadline + 60n * 5n
+  // Off-chain item description hashed for the on-chain commitment. The actual
+  // text lives in the panel; the hash just binds the demo to a known item.
+  const auctionItemHash = 1n
+  const { contract: auction } = await SealedBidAuctionContract.deploy(
+    wallet,
+    admin,
+    auctionItemHash,
+    auctionBidDeadline,
+    auctionRevealDeadline,
+  ).send({ from: admin })
+  log('SealedBidAuction at', auction.address.toString())
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -306,6 +323,14 @@ async function main() {
       instance: await instanceJSON(battleship.address),
       paymentToken: 'AZA',
       operator: admin.toString(),
+    },
+    sealedBidAuction: {
+      address: auction.address.toString(),
+      instance: await instanceJSON(auction.address),
+      operator: admin.toString(),
+      itemHash: auctionItemHash.toString(),
+      bidDeadline: auctionBidDeadline.toString(),
+      revealDeadline: auctionRevealDeadline.toString(),
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

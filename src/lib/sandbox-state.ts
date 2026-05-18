@@ -62,6 +62,14 @@ export interface SandboxState {
     paymentToken: string
     operator: string
   }
+  sealedBidAuction?: {
+    address: string
+    instance: unknown
+    operator: string
+    itemHash: string
+    bidDeadline: string
+    revealDeadline: string
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown
