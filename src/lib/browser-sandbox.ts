@@ -22,6 +22,7 @@ import type { MinesweeperContract } from '../contracts/Minesweeper'
 import type { BattleshipContract } from '../contracts/Battleship'
 import type { SealedBidAuctionContract } from '../contracts/SealedBidAuction'
 import type { WordleContract } from '../contracts/Wordle'
+import type { LotteryContract } from '../contracts/Lottery'
 import type { TokenBridgeContract } from '@aztec/noir-contracts.js/TokenBridge'
 import type { UniswapContract } from '@aztec/noir-contracts.js/Uniswap'
 import type { SandboxState } from './sandbox-state'
@@ -43,6 +44,7 @@ export interface BrowserSandbox {
   battleship: BattleshipContract | null
   sealedBidAuction: SealedBidAuctionContract | null
   wordle: WordleContract | null
+  lottery: LotteryContract | null
   lending: LendingContract | null
   ld2: PublicCollateralPrivateDebtContract | null
   l2Bridge: TokenBridgeContract | null
@@ -107,6 +109,7 @@ export function initBrowserSandbox(
     const battleshipMod = await import('../contracts/Battleship')
     const auctionMod = await import('../contracts/SealedBidAuction')
     const wordleMod = await import('../contracts/Wordle')
+    const lotteryMod = await import('../contracts/Lottery')
     const bridgeMod = await import('@aztec/noir-contracts.js/TokenBridge')
     const uniswapMod = await import('@aztec/noir-contracts.js/Uniswap')
 
@@ -202,6 +205,12 @@ export function initBrowserSandbox(
       await wallet.registerContract(
         deserialize(state.wordle.instance),
         wordleMod.WordleContractArtifact,
+      )
+    }
+    if (state.lottery) {
+      await wallet.registerContract(
+        deserialize(state.lottery.instance),
+        lotteryMod.LotteryContractArtifact,
       )
     }
     if (state.crossChain?.bridge0Instance) {
@@ -305,6 +314,12 @@ export function initBrowserSandbox(
           wallet,
         )
       : null
+    const lottery = state.lottery
+      ? await lotteryMod.LotteryContract.at(
+          addressMod.AztecAddress.fromString(state.lottery.address),
+          wallet,
+        )
+      : null
     const l2Bridge = state.crossChain?.bridge0Instance
       ? await bridgeMod.TokenBridgeContract.at(
           addressMod.AztecAddress.fromString(state.crossChain.bridge0),
@@ -341,6 +356,7 @@ export function initBrowserSandbox(
       battleship,
       sealedBidAuction,
       wordle,
+      lottery,
       lending,
       ld2,
       l2Bridge,

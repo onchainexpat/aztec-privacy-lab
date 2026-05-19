@@ -125,11 +125,11 @@ export const GAME_VARIATIONS: GameVariation[] = [
   },
   {
     id: 'g7',
-    title: 'Private lottery · anonymous tickets + VRF draw',
+    title: 'Private lottery · anonymous tickets',
     one_liner:
-      'Buy a ticket privately (number stored as your private note). Chainlink VRF on L1 draws the winning number. Winners claim publicly; non-winners stay anonymous — even the list of ticket-holders can be hidden.',
+      'Buy a ticket privately - each ticket is a commitment to (player, number, salt). Operator draws via commit-reveal; the contract also emits an L2->L1 hook so the draw can be upgraded to Chainlink VRF using the same portal pattern as variant h. Winners claim publicly; non-winners stay anonymous - the anonymity set is all ticket holders.',
     verdict: 'buildable',
-    status: 'planned',
+    status: 'shipped',
     axes: [
       { label: 'Ticket holders', value: 'private' },
       { label: 'Ticket numbers', value: 'private' },
@@ -137,8 +137,8 @@ export const GAME_VARIATIONS: GameVariation[] = [
       { label: 'Winner identity', value: 'public' },
     ],
     what_observer_sees:
-      'A public counter of ticket commitments (each is a private note nullifier). VRF request emitted as an L2→L1 message via portal; VRF callback returns the winning number as an L1→L2 message. Only the winner reveals to claim — losers stay anonymous, their ticket numbers stay encrypted in their PXEs.',
+      "A public counter of opaque ticket commitments. At draw time the operator reveals the previously-committed seed; the contract derives the winning number deterministically. Only winners reveal (number, salt) to claim. Non-winners' tickets stay encrypted in their PXEs forever - observers cannot enumerate ticket holders.",
     reason:
-      "First legitimate use of Chainlink VRF in this matrix — the public winning number is fine to be public; the private property is the anonymity set of ticket holders. Single-user demo: buy a ticket, wait for VRF, see your private note still encrypted whether you won or lost. Buildable today; not yet implemented.",
+      "Sandbox uses operator commit-reveal for randomness; the contract also emits an L2->L1 message at request_draw as a hook for upgrading to real Chainlink VRF (same L1 portal pattern as variant h Uniswap or variant i Base bridge). The privacy story - anonymity set of ticket holders - holds under either RNG source.",
   },
 ]

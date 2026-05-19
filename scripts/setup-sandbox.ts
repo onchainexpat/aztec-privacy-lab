@@ -29,6 +29,7 @@ import { MinesweeperContract } from '../src/contracts/Minesweeper'
 import { BattleshipContract } from '../src/contracts/Battleship'
 import { SealedBidAuctionContract } from '../src/contracts/SealedBidAuction'
 import { WordleContract } from '../src/contracts/Wordle'
+import { LotteryContract } from '../src/contracts/Lottery'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -214,9 +215,10 @@ async function main() {
     latestHeader && latestHeader.globalVariables
       ? Number((latestHeader.globalVariables as { timestamp: bigint }).timestamp)
       : Math.floor(Date.now() / 1000)
-  // Bid window: L2-now + 2 hr. Reveal window: bid_deadline + 2 hr.
-  const auctionBidDeadline = BigInt(l2NowSec + 60 * 120)
-  const auctionRevealDeadline = auctionBidDeadline + 60n * 120n
+  // Fast-cycle windows for sandbox testing: 10 min bid + 10 min reveal.
+  // Sandbox L2 advances ahead of wall-clock so we need extra slack.
+  const auctionBidDeadline = BigInt(l2NowSec + 600)
+  const auctionRevealDeadline = auctionBidDeadline + 600n
   // Off-chain item description hashed for the on-chain commitment. The actual
   // text lives in the panel; the hash just binds the demo to a known item.
   const auctionItemHash = 1n
@@ -244,9 +246,9 @@ async function main() {
   const wordleTargetPacked = packWord(wordleTarget)
   const wordleSalt = Fr.random()
   const wordleChallengeHash = pedersenHash([wordleTargetPacked, wordleSalt])
-  // Use L2-now baseline (sandbox L2 drifts ahead of wall-clock).
-  const wordleGuessDeadline = BigInt(l2NowSec + 60 * 120)
-  const wordleRevealDeadline = wordleGuessDeadline + 60n * 120n
+  // Fast-cycle windows: 10 min guess + 10 min reveal.
+  const wordleGuessDeadline = BigInt(l2NowSec + 600)
+  const wordleRevealDeadline = wordleGuessDeadline + 600n
   const { contract: wordle } = await WordleContract.deploy(
     wallet,
     admin,
@@ -255,6 +257,22 @@ async function main() {
     wordleRevealDeadline,
   ).send({ from: admin })
   log('Wordle at', wordle.address.toString(), '(target =', wordleTarget, ')')
+
+  log('deploying Lottery (games variant g7)…')
+  // Operator commits to a random seed; revealed at finalize_draw. Sandbox
+  // path. The L1 VRF portal slot is wired to a zero address - real VRF lands
+  // when the L1 portal is deployed (variant h pattern).
+  const lotterySeed = Fr.random()
+  const lotterySalt = Fr.random()
+  const lotterySeedCommitment = pedersenHash([lotterySeed, lotterySalt])
+  const { contract: lottery } = await LotteryContract.deploy(
+    wallet,
+    token0.address,
+    admin,
+    EthAddress.ZERO,
+    lotterySeedCommitment.toBigInt(),
+  ).send({ from: admin })
+  log('Lottery at', lottery.address.toString())
 
   log('minting balances to admin…')
   const MINT = 1_000_000n
@@ -384,6 +402,17 @@ async function main() {
       targetSalt: wordleSalt.toString(),
       guessDeadline: wordleGuessDeadline.toString(),
       revealDeadline: wordleRevealDeadline.toString(),
+    },
+    lottery: {
+      address: lottery.address.toString(),
+      instance: await instanceJSON(lottery.address),
+      operator: admin.toString(),
+      // Seed + salt would live ONLY in the operator's PXE in a real deploy;
+      // we store them here so the dashboard demo can complete the cycle.
+      seed: lotterySeed.toString(),
+      salt: lotterySalt.toString(),
+      seedCommitment: lotterySeedCommitment.toString(),
+      maxNumber: '100',
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

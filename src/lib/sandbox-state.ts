@@ -80,6 +80,15 @@ export interface SandboxState {
     guessDeadline: string
     revealDeadline: string
   }
+  lottery?: {
+    address: string
+    instance: unknown
+    operator: string
+    seed: string
+    salt: string
+    seedCommitment: string
+    maxNumber: string
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown
