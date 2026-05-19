@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { initBrowserSandbox, type BrowserSandbox } from '../lib/browser-sandbox'
 import type { SandboxState } from '../lib/sandbox-state'
+import { PrivacyLeakage } from './ui/PrivacyLeakage'
 
 interface Props {
   variant: 'a' | 'c' | 'f'
@@ -238,13 +239,23 @@ export function SwapPanel({ variant, state, onClose }: Props) {
         <>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {variant === 'a' && (
-              <button
-                onClick={handleSwap}
-                disabled={busy}
-                className="rounded-full bg-[var(--color-private)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {busy ? 'Submitting…' : `Swap 1,000 ${state.token0.symbol} → ${state.token1.symbol}`}
-              </button>
+              <>
+                <button
+                  onClick={handleSwap}
+                  disabled={busy}
+                  className="rounded-full bg-[var(--color-private)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+                >
+                  {busy ? 'Submitting…' : `Swap 1,000 ${state.token0.symbol} → ${state.token1.symbol}`}
+                </button>
+                <PrivacyLeakage
+                  className="w-full"
+                  publicLeaks={[
+                    `pool reserves delta (-1,000 ${state.token0.symbol}, +${state.token1.symbol} amountOut)`,
+                    'swap amounts (both in + out)',
+                  ]}
+                  staysPrivate={['swapper address (private kernel)', 'recipient address']}
+                />
+              </>
             )}
             {variant === 'f' && (
               <>

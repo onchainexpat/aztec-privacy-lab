@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initBrowserSandbox, type BrowserSandbox } from '../lib/browser-sandbox'
 import type { SandboxState } from '../lib/sandbox-state'
+import { PrivacyLeakage } from './ui/PrivacyLeakage'
 
 interface Props {
   state: SandboxState
@@ -179,6 +180,12 @@ export function BattleshipPanel({ state, onClose }: Props) {
               </span>
             </span>
           </div>
+          <PrivacyLeakage
+            className="mt-2"
+            publicLeaks={['game_id (= seed)', 'contract balance +1000 AZA', 'shots/hits/status counters']}
+            staysPrivate={['player address (private kernel hides msg_sender)']}
+            caveat="ship position derivable from public seed - same RNG limit as g1. The privacy here is the player's identity at start_game, not the board layout."
+          />
 
           {game && (
             <div className="mt-5">

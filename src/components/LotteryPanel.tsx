@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initBrowserSandbox, type BrowserSandbox } from '../lib/browser-sandbox'
 import type { SandboxState } from '../lib/sandbox-state'
+import { PrivacyLeakage } from './ui/PrivacyLeakage'
 
 interface Props {
   state: SandboxState
@@ -257,6 +258,11 @@ export function LotteryPanel({ state, onClose }: Props) {
                 <span className="text-xs text-black/50">Ticket sales closed.</span>
               )}
             </div>
+            <PrivacyLeakage
+              className="mt-2"
+              publicLeaks={['ticket counter +1', 'contract public balance +1000 AZA']}
+              staysPrivate={['buyer address', 'chosen number', 'salt']}
+            />
           </div>
 
           <div className="mt-4 rounded-xl border border-black/10 p-4">
@@ -329,7 +335,18 @@ export function LotteryPanel({ state, onClose }: Props) {
                 Finalize (reveal seed)
               </button>
             </div>
-            <p className="mt-2 text-xs text-amber-900/70">
+            <PrivacyLeakage
+              className="mt-2"
+              publicLeaks={['phase transition', 'L2->L1 message hash (VRF hook)']}
+              staysPrivate={['committed seed (until finalize)']}
+            />
+            <PrivacyLeakage
+              className="mt-2"
+              publicLeaks={['seed', 'salt', 'winning number']}
+              staysPrivate={['nothing further (round resolved)']}
+              caveat="finalize reveals the operator's seed - that's the trust point. Real Chainlink VRF via portal would remove this caveat."
+            />
+            <p className="mt-3 text-xs text-amber-900/70">
               Two-step operator flow: request_draw transitions the round into the drawing phase
               (also emits an L2-&gt;L1 message as a hook for a real VRF portal); finalize_draw
               reveals the committed seed and derives the winning number deterministically.

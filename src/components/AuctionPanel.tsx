@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initBrowserSandbox, type BrowserSandbox } from '../lib/browser-sandbox'
 import type { SandboxState } from '../lib/sandbox-state'
+import { PrivacyLeakage } from './ui/PrivacyLeakage'
 
 interface Props {
   state: SandboxState
@@ -256,6 +257,11 @@ export function AuctionPanel({ state, onClose }: Props) {
                 <span className="text-xs text-black/50">Bid window closed.</span>
               )}
             </div>
+            <PrivacyLeakage
+              className="mt-2"
+              publicLeaks={['bid counter +1', 'opaque commitment hash']}
+              staysPrivate={['bidder address', 'bid amount', 'salt']}
+            />
           </div>
 
           <div className="mt-4 rounded-xl border border-black/10 p-4">
@@ -266,6 +272,11 @@ export function AuctionPanel({ state, onClose }: Props) {
               Saved client-side only. If you refresh the page, the salts are gone and the bids
               stay sealed forever - a feature, not a bug.
             </p>
+            <PrivacyLeakage
+              className="mt-2"
+              publicLeaks={['your address', 'revealed bid amount', 'winner state update']}
+              staysPrivate={['other unrevealed bids of yours (and everyone elses)']}
+            />
             {commitments.length === 0 ? (
               <p className="mt-2 text-xs text-black/40">no bids placed in this session</p>
             ) : (

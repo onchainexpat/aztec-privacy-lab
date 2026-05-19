@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initBrowserSandbox, type BrowserSandbox } from '../lib/browser-sandbox'
 import type { SandboxState } from '../lib/sandbox-state'
+import { PrivacyLeakage } from './ui/PrivacyLeakage'
 
 interface Props {
   state: SandboxState
@@ -194,6 +195,12 @@ export function MinesweeperPanel({ state, onClose }: Props) {
               </span>
             </span>
           </div>
+          <PrivacyLeakage
+            className="mt-2"
+            publicLeaks={['game_id (= seed)', 'contract balance +1000 AZA', 'reveal_mask + status updates']}
+            staysPrivate={['payer address (private kernel hides msg_sender)']}
+            caveat="seed is publicly derivable so an attacker can recompute the board off-chain. Honest demo of what contract-RNG can/cannot hide on Aztec."
+          />
 
           {game && (
             <div className="mt-5">

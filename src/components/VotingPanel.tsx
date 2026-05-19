@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { initBrowserSandbox, type BrowserSandbox } from '../lib/browser-sandbox'
 import type { SandboxState } from '../lib/sandbox-state'
+import { PrivacyLeakage } from './ui/PrivacyLeakage'
 
 interface Props {
   state: SandboxState
@@ -121,6 +122,11 @@ export function VotingPanel({ state, onClose }: Props) {
               PXE ready · admin {sandbox.admin.toString().slice(0, 8)}…
             </span>
           </div>
+          <PrivacyLeakage
+            className="mt-2"
+            publicLeaks={['tally increments for chosen candidate', 'single-use nullifier']}
+            staysPrivate={['voter address', 'choice (yes vs no)']}
+          />
 
           <div className="mt-4 grid grid-cols-2 gap-4 rounded-xl border border-black/10 bg-zinc-50 p-3 text-sm">
             <div>

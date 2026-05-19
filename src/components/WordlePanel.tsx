@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initBrowserSandbox, type BrowserSandbox } from '../lib/browser-sandbox'
 import type { SandboxState } from '../lib/sandbox-state'
+import { PrivacyLeakage } from './ui/PrivacyLeakage'
 
 interface Props {
   state: SandboxState
@@ -274,6 +275,11 @@ export function WordlePanel({ state, onClose }: Props) {
                 <span className="text-xs text-black/50">All 6 attempts used.</span>
               )}
             </div>
+            <PrivacyLeakage
+              className="mt-2"
+              publicLeaks={['your attempt counter +1', 'opaque commitment hash']}
+              staysPrivate={['guessed word', 'salt']}
+            />
           </div>
 
           <div className="mt-4 rounded-xl border border-black/10 p-4">
@@ -321,6 +327,11 @@ export function WordlePanel({ state, onClose }: Props) {
               >
                 Reveal target
               </button>
+              <PrivacyLeakage
+                className="mt-2"
+                publicLeaks={['target word', 'salt (proves the original commitment)']}
+                staysPrivate={['players guess histories (still encrypted in each PXE)']}
+              />
             </div>
           )}
 
@@ -343,6 +354,11 @@ export function WordlePanel({ state, onClose }: Props) {
                   >
                     Prove solve
                   </button>
+                  <PrivacyLeakage
+                    className="mt-2"
+                    publicLeaks={['your address', 'winning attempt #']}
+                    staysPrivate={['failed guesses', 'their salts']}
+                  />
                 </>
               ) : winningGuess && solvedOn > 0 ? (
                 <p className="mt-1 text-xs text-emerald-900/80">
