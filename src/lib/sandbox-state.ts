@@ -89,6 +89,12 @@ export interface SandboxState {
     seedCommitment: string
     maxNumber: string
   }
+  attestation?: {
+    address: string
+    instance: unknown
+    issuer: string
+    credentials: { secret: string; commitment: string }[]
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

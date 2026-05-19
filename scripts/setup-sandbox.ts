@@ -30,6 +30,7 @@ import { BattleshipContract } from '../src/contracts/Battleship'
 import { SealedBidAuctionContract } from '../src/contracts/SealedBidAuction'
 import { WordleContract } from '../src/contracts/Wordle'
 import { LotteryContract } from '../src/contracts/Lottery'
+import { IdentityAttestationContract } from '../src/contracts/IdentityAttestation'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -274,6 +275,29 @@ async function main() {
   ).send({ from: admin })
   log('Lottery at', lottery.address.toString())
 
+  log('deploying IdentityAttestation (anonymous credential primitive)…')
+  const { contract: attestation } = await IdentityAttestationContract.deploy(
+    wallet,
+    admin, // issuer = admin in this demo
+  ).send({ from: admin })
+  log('IdentityAttestation at', attestation.address.toString())
+
+  // Pre-issue three credentials so the demo has something to prove against
+  // immediately. Each (secret, hash) lives in the operator's PXE in real
+  // life; we publish them in state.json so the dashboard demo can complete
+  // the cycle end-to-end.
+  const attestationSecrets: { secret: string; commitment: string }[] = []
+  for (let i = 0; i < 3; i++) {
+    const secret = Fr.random()
+    const commitment = pedersenHash([secret])
+    await attestation.methods.add_credential(commitment.toBigInt()).send({ from: admin })
+    attestationSecrets.push({
+      secret: secret.toString(),
+      commitment: commitment.toString(),
+    })
+  }
+  log('  pre-issued', attestationSecrets.length, 'credentials')
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -413,6 +437,15 @@ async function main() {
       salt: lotterySalt.toString(),
       seedCommitment: lotterySeedCommitment.toString(),
       maxNumber: '100',
+    },
+    attestation: {
+      address: attestation.address.toString(),
+      instance: await instanceJSON(attestation.address),
+      issuer: admin.toString(),
+      // Secrets would live ONLY in each credential holder's PXE in real
+      // life. The demo publishes them so a single browser session can
+      // play both the issuer + the prover roles.
+      credentials: attestationSecrets,
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

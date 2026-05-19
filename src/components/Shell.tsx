@@ -22,6 +22,7 @@ import { BattleshipPanel } from './BattleshipPanel'
 import { AuctionPanel } from './AuctionPanel'
 import { WordlePanel } from './WordlePanel'
 import { LotteryPanel } from './LotteryPanel'
+import { AttestationPanel } from './AttestationPanel'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -48,6 +49,7 @@ export function Shell() {
   const [activeLending, setActiveLending] = useState<LendingVariation['id'] | null>(null)
   const [activeGame, setActiveGame] = useState<GameVariation['id'] | null>(null)
   const [votingOpen, setVotingOpen] = useState(false)
+  const [attestationOpen, setAttestationOpen] = useState(false)
   const [bridgeOpen, setBridgeOpen] = useState(false)
   const [sandboxState, setSandboxState] = useState<SandboxState | null>(null)
 
@@ -577,6 +579,45 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         )}
         {votingOpen && sandboxState && network === 'sandbox' && (
           <VotingPanel state={sandboxState} onClose={() => setVotingOpen(false)} />
+        )}
+
+        <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Identity attestation</h2>
+              <p className="mt-1 text-sm text-black/60">
+                Anonymous credential primitive — KYC-without-deanonymization. An issuer
+                publishes credential commitments to a public whitelist; holders prove
+                membership privately. The contract sees an opaque slot get consumed; public
+                observers don't learn which holder proved. Concrete fits: accredited investor
+                proofs, age gates, allowlist airdrops, sybil-resistant voting eligibility.
+              </p>
+            </div>
+            {!attestationOpen && (
+              <button
+                onClick={() => setAttestationOpen(true)}
+                className="shrink-0 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:opacity-90"
+              >
+                Try attestation →
+              </button>
+            )}
+          </div>
+        </div>
+
+        {attestationOpen && sandboxState && network === 'sandbox' && (
+          <AttestationPanel
+            state={sandboxState}
+            onClose={() => setAttestationOpen(false)}
+          />
+        )}
+        {attestationOpen && network === 'testnet' && (
+          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+            Identity attestation isn't deployed on testnet yet. Switch to <strong>Sandbox</strong>{' '}
+            to try it.
+            <button onClick={() => setAttestationOpen(false)} className="ml-3 underline">
+              Close
+            </button>
+          </section>
         )}
 
         {network === 'sandbox' && (

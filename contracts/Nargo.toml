@@ -10,4 +10,5 @@ members = [
   "sealed_bid_auction",
   "wordle",
   "lottery",
+  "identity_attestation",
 ]
