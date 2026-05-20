@@ -26,6 +26,7 @@
     "testnet:reseed-amm": "tsx scripts/reseed-testnet-amm.ts",
     "testnet:redeploy-amm": "tsx scripts/redeploy-testnet-amm.ts",
     "testnet:deploy-launchpad": "tsx scripts/deploy-testnet-launchpad.ts",
+    "testnet:deploy-extras": "tsx scripts/deploy-testnet-extras.ts",
     "testnet:deploy-l1-portals": "tsx scripts/deploy-testnet-l1-portals.ts",
     "testnet:wire-uniswap": "tsx scripts/wire-testnet-uniswap.ts",
     "testnet:plant-mock-router": "tsx scripts/plant-testnet-mock-router.ts",

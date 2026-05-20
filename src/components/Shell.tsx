@@ -24,6 +24,7 @@ import { AuctionPanel } from './AuctionPanel'
 import { WordlePanel } from './WordlePanel'
 import { LotteryPanel } from './LotteryPanel'
 import { AttestationPanel } from './AttestationPanel'
+import { AttestationPanelTestnet } from './AttestationPanelTestnet'
 import { BatchPayPanel } from './BatchPayPanel'
 import { EscrowPanel } from './EscrowPanel'
 import { LendingPanel } from './LendingPanel'
@@ -597,14 +598,11 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
             onClose={() => setAttestationOpen(false)}
           />
         )}
-        {attestationOpen && network === 'testnet' && (
-          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-            Identity attestation isn't deployed on testnet yet. Switch to <strong>Sandbox</strong>{' '}
-            to try it.
-            <button onClick={() => setAttestationOpen(false)} className="ml-3 underline">
-              Close
-            </button>
-          </section>
+        {attestationOpen && sandboxState && network === 'testnet' && (
+          <AttestationPanelTestnet
+            state={sandboxState}
+            onClose={() => setAttestationOpen(false)}
+          />
         )}
 
         <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
