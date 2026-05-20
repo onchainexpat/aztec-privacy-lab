@@ -673,6 +673,14 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
                 on-chain↔off-chain order link all stay private — only an opaque order-id nullifier
                 is public. Same shape as zkp2p's EscrowV2 + AttestationService, in Noir.
               </p>
+              <p className="mt-1 text-xs text-black/45">
+                Trustless-upgrade PoC: a Noir zkEmail circuit that verifies Amazon's DKIM-signed
+                confirmation email + extracts the order id lives at{' '}
+                <code className="font-mono">contracts-zkemail/amazon_order_proof</code>. It
+                demonstrates the exact API that would replace the attestor; compiling it needs a
+                stand-alone nargo aligned with zkemail.nr (the lib + the Aztec toolchain are on
+                diverging Noir release trains today). See the circuit's README.
+              </p>
             </div>
             {!escrowOpen && (
               <button
