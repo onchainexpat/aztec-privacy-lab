@@ -100,6 +100,12 @@ export interface SandboxState {
     instance: unknown
     paymentToken: string
   }
+  goodsEscrow?: {
+    address: string
+    instance: unknown
+    paymentToken: string
+    attestor: string
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

@@ -12,4 +12,5 @@ members = [
   "lottery",
   "identity_attestation",
   "batch_pay",
+  "goods_escrow",
 ]

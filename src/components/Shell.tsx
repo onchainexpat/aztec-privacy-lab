@@ -24,6 +24,7 @@ import { WordlePanel } from './WordlePanel'
 import { LotteryPanel } from './LotteryPanel'
 import { AttestationPanel } from './AttestationPanel'
 import { BatchPayPanel } from './BatchPayPanel'
+import { EscrowPanel } from './EscrowPanel'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -52,6 +53,7 @@ export function Shell() {
   const [votingOpen, setVotingOpen] = useState(false)
   const [attestationOpen, setAttestationOpen] = useState(false)
   const [batchPayOpen, setBatchPayOpen] = useState(false)
+  const [escrowOpen, setEscrowOpen] = useState(false)
   const [bridgeOpen, setBridgeOpen] = useState(false)
   const [sandboxState, setSandboxState] = useState<SandboxState | null>(null)
 
@@ -655,6 +657,41 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
           <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
             BatchPay isn't deployed on testnet yet. Switch to <strong>Sandbox</strong> to try it.
             <button onClick={() => setBatchPayOpen(false)} className="ml-3 underline">
+              Close
+            </button>
+          </section>
+        )}
+
+        <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">P2P goods escrow (zkp2p-style)</h2>
+              <p className="mt-1 text-sm text-black/60">
+                "Buy me this on Amazon." Lock USDC against an item commitment; a fulfiller buys it
+                IRL and an attestor (production: a zkEmail/zkTLS proof of Amazon's confirmation
+                emails) releases the funds on delivery. Buyer + fulfiller identities and the
+                on-chain↔off-chain order link all stay private — only an opaque order-id nullifier
+                is public. Same shape as zkp2p's EscrowV2 + AttestationService, in Noir.
+              </p>
+            </div>
+            {!escrowOpen && (
+              <button
+                onClick={() => setEscrowOpen(true)}
+                className="shrink-0 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:opacity-90"
+              >
+                Try escrow →
+              </button>
+            )}
+          </div>
+        </div>
+
+        {escrowOpen && sandboxState && network === 'sandbox' && (
+          <EscrowPanel state={sandboxState} onClose={() => setEscrowOpen(false)} />
+        )}
+        {escrowOpen && network === 'testnet' && (
+          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+            GoodsEscrow isn't deployed on testnet yet. Switch to <strong>Sandbox</strong> to try it.
+            <button onClick={() => setEscrowOpen(false)} className="ml-3 underline">
               Close
             </button>
           </section>

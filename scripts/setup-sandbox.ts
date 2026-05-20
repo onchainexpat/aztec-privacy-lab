@@ -32,6 +32,7 @@ import { WordleContract } from '../src/contracts/Wordle'
 import { LotteryContract } from '../src/contracts/Lottery'
 import { IdentityAttestationContract } from '../src/contracts/IdentityAttestation'
 import { BatchPayContract } from '../src/contracts/BatchPay'
+import { GoodsEscrowContract } from '../src/contracts/GoodsEscrow'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -306,6 +307,15 @@ async function main() {
   ).send({ from: admin })
   log('BatchPay at', batchPay.address.toString())
 
+  log('deploying GoodsEscrow (zkp2p-style P2P escrow)…')
+  // attestor = admin in this demo (stands in for a zkEmail/zkTLS verifier).
+  const { contract: goodsEscrow } = await GoodsEscrowContract.deploy(
+    wallet,
+    token0.address, // USDC = AZA in the demo
+    admin,
+  ).send({ from: admin })
+  log('GoodsEscrow at', goodsEscrow.address.toString())
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -459,6 +469,12 @@ async function main() {
       address: batchPay.address.toString(),
       instance: await instanceJSON(batchPay.address),
       paymentToken: 'AZA',
+    },
+    goodsEscrow: {
+      address: goodsEscrow.address.toString(),
+      instance: await instanceJSON(goodsEscrow.address),
+      paymentToken: 'AZA',
+      attestor: admin.toString(),
     },
     crossChain: {
       bridge0: bridge0.address.toString(),
