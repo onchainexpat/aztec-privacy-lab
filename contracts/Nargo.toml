@@ -13,4 +13,5 @@ members = [
   "identity_attestation",
   "batch_pay",
   "goods_escrow",
+  "battleship_pvp",
 ]

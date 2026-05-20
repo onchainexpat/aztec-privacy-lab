@@ -19,6 +19,7 @@ import { LendingMatrix } from './LendingMatrix'
 import { GamesMatrix } from './GamesMatrix'
 import { MinesweeperPanel } from './MinesweeperPanel'
 import { BattleshipPanel } from './BattleshipPanel'
+import { BattleshipPvPPanel } from './BattleshipPvPPanel'
 import { AuctionPanel } from './AuctionPanel'
 import { WordlePanel } from './WordlePanel'
 import { LotteryPanel } from './LotteryPanel'
@@ -522,25 +523,7 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
           <LotteryPanel state={sandboxState} onClose={() => setActiveGame(null)} />
         )}
         {activeGame === 'g3' && sandboxState && network === 'sandbox' && (
-          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50/40 p-6 text-sm text-amber-900">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-amber-950">
-                Variant g3 — PvP Battleship: research-grade
-              </h3>
-              <button
-                onClick={() => setActiveGame(null)}
-                className="text-sm text-amber-900/60 underline-offset-4 hover:underline"
-              >
-                Close
-              </button>
-            </div>
-            <p className="mt-2">
-              Two-player Battleship with hidden boards is genuinely hard on Aztec: each player
-              needs to prove a hit/miss without revealing their fleet, which requires either ZK
-              proofs of board membership per turn or a trusted external operator. The matrix card
-              above explains the trade-offs — playable panel intentionally omitted.
-            </p>
-          </section>
+          <BattleshipPvPPanel state={sandboxState} onClose={() => setActiveGame(null)} />
         )}
         {activeGame && network === 'testnet' && (
           <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">

@@ -33,6 +33,7 @@ import { LotteryContract } from '../src/contracts/Lottery'
 import { IdentityAttestationContract } from '../src/contracts/IdentityAttestation'
 import { BatchPayContract } from '../src/contracts/BatchPay'
 import { GoodsEscrowContract } from '../src/contracts/GoodsEscrow'
+import { BattleshipPvPContract } from '../src/contracts/BattleshipPvP'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -316,6 +317,12 @@ async function main() {
   ).send({ from: admin })
   log('GoodsEscrow at', goodsEscrow.address.toString())
 
+  log('deploying BattleshipPvP (games variant g3 - trustless PvP)…')
+  const { contract: battleshipPvp } = await BattleshipPvPContract.deploy(wallet).send({
+    from: admin,
+  })
+  log('BattleshipPvP at', battleshipPvp.address.toString())
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -475,6 +482,10 @@ async function main() {
       instance: await instanceJSON(goodsEscrow.address),
       paymentToken: 'AZA',
       attestor: admin.toString(),
+    },
+    battleshipPvp: {
+      address: battleshipPvp.address.toString(),
+      instance: await instanceJSON(battleshipPvp.address),
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

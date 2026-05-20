@@ -12,7 +12,7 @@ export function GamesMatrix({ onTry }: Props) {
     <section>
       <MatrixHeader
         title="Games — privacy matrix"
-        subtitle="Two ship today (g1 Minesweeper, g2 Battleship single-player) with explicit on-chain RNG caveats. g3 PvP Battleship is research-grade. g4–g7 are planned designs that use Aztec's per-user private notes for genuinely hidden state (no contract-side RNG required)."
+        subtitle="g1 Minesweeper + g2 Battleship single-player ship with explicit on-chain RNG caveats. g3 PvP Battleship + g5 auction + g6 Wordle + g7 lottery use Aztec's per-user private notes / commitments for genuinely hidden state (no contract-side RNG). g4 Blackjack is parked (VRF doesn't fix its public-seed leak)."
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {GAME_VARIATIONS.map((v) => {

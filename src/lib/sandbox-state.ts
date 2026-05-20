@@ -106,6 +106,10 @@ export interface SandboxState {
     paymentToken: string
     attestor: string
   }
+  battleshipPvp?: {
+    address: string
+    instance: unknown
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

@@ -57,18 +57,18 @@ export const GAME_VARIATIONS: GameVariation[] = [
     id: 'g3',
     title: 'Battleship · PvP commit-reveal (trustless)',
     one_liner:
-      'Two players, two boards, no contract-side randomness. Each player commits to their own fleet hash; shots prove hit/miss in ZK without revealing the rest.',
-    verdict: 'research',
-    status: 'research',
+      'Two players, two hidden fleets, no contract-side randomness or trusted operator. Each player commits a fleet hash; the defender proves hit/miss against it in a private function, revealing only the boolean.',
+    verdict: 'buildable',
+    status: 'shipped',
     axes: [
       { label: 'Each player identity', value: 'public' },
       { label: 'Each player fleet', value: 'private' },
       { label: 'Shot outcomes', value: 'public' },
     ],
     what_observer_sees:
-      "Two commit txs (one per player) with fleet hashes. Then alternating fire / answer txs — each answer comes with a ZK proof that the response is consistent with the committed fleet. Observers see who's winning but never see ship positions.",
+      "Two commit txs (one per player) with fleet hashes. Then alternating fire (public) / answer (private) txs — each answer carries a ZK proof that the hit/miss boolean is consistent with the committed fleet. Observers see who's winning but never the ship positions.",
     reason:
-      'Fully trustless and the most interesting privacy story, but the matchmaking UI alone (pair two browsers, manage turns, sync the encrypted boards) is a sub-project. Tracked as research-grade; ship when g1/g2 prove the contract pattern.',
+      "The genuinely trustless privacy story: no contract-RNG, no operator. The defender re-opens their committed fleet as private inputs each answer; the public phase binds the boolean to the stored commitment so they can't move ships to dodge. Demo plays both players from one browser for convenience (UI shortcut) - the on-chain privacy is real either way. Production would also constrain ship-placement validity inside the commitment circuit + add real two-PXE matchmaking.",
   },
   {
     id: 'g4',
