@@ -95,6 +95,11 @@ export interface SandboxState {
     issuer: string
     credentials: { secret: string; commitment: string }[]
   }
+  batchPay?: {
+    address: string
+    instance: unknown
+    paymentToken: string
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

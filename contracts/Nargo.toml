@@ -11,4 +11,5 @@ members = [
   "wordle",
   "lottery",
   "identity_attestation",
+  "batch_pay",
 ]

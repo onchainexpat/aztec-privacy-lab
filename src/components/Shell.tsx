@@ -23,6 +23,7 @@ import { AuctionPanel } from './AuctionPanel'
 import { WordlePanel } from './WordlePanel'
 import { LotteryPanel } from './LotteryPanel'
 import { AttestationPanel } from './AttestationPanel'
+import { BatchPayPanel } from './BatchPayPanel'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -50,6 +51,7 @@ export function Shell() {
   const [activeGame, setActiveGame] = useState<GameVariation['id'] | null>(null)
   const [votingOpen, setVotingOpen] = useState(false)
   const [attestationOpen, setAttestationOpen] = useState(false)
+  const [batchPayOpen, setBatchPayOpen] = useState(false)
   const [bridgeOpen, setBridgeOpen] = useState(false)
   const [sandboxState, setSandboxState] = useState<SandboxState | null>(null)
 
@@ -615,6 +617,44 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
             Identity attestation isn't deployed on testnet yet. Switch to <strong>Sandbox</strong>{' '}
             to try it.
             <button onClick={() => setAttestationOpen(false)} className="ml-3 underline">
+              Close
+            </button>
+          </section>
+        )}
+
+        <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Nested private composability</h2>
+              <p className="mt-1 text-sm text-black/60">
+                One private tx, multiple private sub-calls across contracts. A BatchPay
+                orchestrator makes two nested <code className="font-mono text-xs">
+                Token.transfer_in_private
+                </code>{' '}
+                calls in a single private function — zero public footprint. Observers can't tell
+                the sender, recipients, amounts, or even how many recipients. This is Aztec's
+                "call stack of nested private functions" property that a mixer or a public batch
+                payment can't match.
+              </p>
+            </div>
+            {!batchPayOpen && (
+              <button
+                onClick={() => setBatchPayOpen(true)}
+                className="shrink-0 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:opacity-90"
+              >
+                Try batch pay →
+              </button>
+            )}
+          </div>
+        </div>
+
+        {batchPayOpen && sandboxState && network === 'sandbox' && (
+          <BatchPayPanel state={sandboxState} onClose={() => setBatchPayOpen(false)} />
+        )}
+        {batchPayOpen && network === 'testnet' && (
+          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+            BatchPay isn't deployed on testnet yet. Switch to <strong>Sandbox</strong> to try it.
+            <button onClick={() => setBatchPayOpen(false)} className="ml-3 underline">
               Close
             </button>
           </section>

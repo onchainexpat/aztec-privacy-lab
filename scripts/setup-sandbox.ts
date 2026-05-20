@@ -31,6 +31,7 @@ import { SealedBidAuctionContract } from '../src/contracts/SealedBidAuction'
 import { WordleContract } from '../src/contracts/Wordle'
 import { LotteryContract } from '../src/contracts/Lottery'
 import { IdentityAttestationContract } from '../src/contracts/IdentityAttestation'
+import { BatchPayContract } from '../src/contracts/BatchPay'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -298,6 +299,13 @@ async function main() {
   }
   log('  pre-issued', attestationSecrets.length, 'credentials')
 
+  log('deploying BatchPay (nested private composability demo)…')
+  const { contract: batchPay } = await BatchPayContract.deploy(
+    wallet,
+    token0.address,
+  ).send({ from: admin })
+  log('BatchPay at', batchPay.address.toString())
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -446,6 +454,11 @@ async function main() {
       // life. The demo publishes them so a single browser session can
       // play both the issuer + the prover roles.
       credentials: attestationSecrets,
+    },
+    batchPay: {
+      address: batchPay.address.toString(),
+      instance: await instanceJSON(batchPay.address),
+      paymentToken: 'AZA',
     },
     crossChain: {
       bridge0: bridge0.address.toString(),
