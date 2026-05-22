@@ -26,8 +26,7 @@ import { SponsoredFPCContract } from '@aztec/noir-contracts.js/SponsoredFPC'
 import { SponsoredFeePaymentMethod } from '@aztec/aztec.js/fee'
 import { getContractInstanceFromInstantiationParams } from '@aztec/aztec.js/contracts'
 import { SPONSORED_FPC_SALT } from '@aztec/constants'
-import { jsonStringify, jsonParseWithSchema } from '@aztec/foundation/json-rpc'
-import { ContractInstanceWithAddressSchema } from '@aztec/stdlib/contract'
+import { jsonStringify } from '@aztec/foundation/json-rpc'
 import { pedersenHash } from '@aztec/foundation/crypto/sync'
 
 import { IdentityAttestationContract } from '../src/contracts/IdentityAttestation'
@@ -37,8 +36,6 @@ import { WordleContract } from '../src/contracts/Wordle'
 import { LotteryContract } from '../src/contracts/Lottery'
 import { GoodsEscrowContract } from '../src/contracts/GoodsEscrow'
 import { BatchPayContract } from '../src/contracts/BatchPay'
-import { PayrollContract } from '../src/contracts/Payroll'
-import { TokenContract } from '@aztec/noir-contracts.js/Token'
 
 const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -66,9 +63,6 @@ function packWord(word: string): bigint {
   let p = 0n
   for (let i = 0; i < 5; i++) p = p * 256n + BigInt(word.charCodeAt(i))
   return p
-}
-function deserializeInstance(raw: unknown) {
-  return jsonParseWithSchema(JSON.stringify(raw), ContractInstanceWithAddressSchema)
 }
 
 async function main() {
@@ -196,41 +190,6 @@ async function main() {
   })
   log('  at', batchPay.address.toString())
 
-  // --- Payroll ---
-  log('deploying Payroll…')
-  const { contract: payroll } = await PayrollContract.deploy(wallet, aza, admin).send({
-    from: admin,
-    fee: feeOpts,
-  })
-  log('  at', payroll.address.toString())
-  // Publish payslips for period 0 (employee = admin in this demo). Only opaque
-  // commitments land on chain; amounts live in this state file for the demo.
-  const payrollPeriod = 0n
-  const payrollAmounts = [3200n, 4500n, 2750n]
-  const payrollPayslips: { amount: string; period: string; commitment: string }[] = []
-  for (const amount of payrollAmounts) {
-    const commitment = pedersenHash([admin.toField(), new Fr(amount), new Fr(payrollPeriod)])
-    await payroll.methods.add_payslip(commitment.toBigInt()).send({ from: admin, fee: feeOpts })
-    payrollPayslips.push({
-      amount: amount.toString(),
-      period: payrollPeriod.toString(),
-      commitment: commitment.toString(),
-    })
-  }
-  log('  published', payrollPayslips.length, 'payslips')
-  // Best-effort: fund the pool so the live register shows a balance. Requires
-  // the deployer to be the AZA minter; non-fatal if not.
-  try {
-    await wallet.registerContract(deserializeInstance(state.token0.instance), TokenContract.artifact)
-    const azaToken = await TokenContract.at(aza, wallet)
-    await azaToken.methods
-      .mint_to_public(payroll.address, 50_000n)
-      .send({ from: admin, fee: feeOpts })
-    log('  funded pool 50000 AZA')
-  } catch (e) {
-    log('  (skipped pool funding:', (e as Error).message, ')')
-  }
-
   // --- persist ---
   state.attestation = {
     address: attestation.address.toString(),
@@ -280,18 +239,9 @@ async function main() {
     instance: await instanceJSON(batchPay.address),
     paymentToken: 'AZA',
   }
-  state.payroll = {
-    address: payroll.address.toString(),
-    instance: await instanceJSON(payroll.address),
-    paymentToken: 'AZA',
-    operator: admin.toString(),
-    employee: admin.toString(),
-    period: payrollPeriod.toString(),
-    payslips: payrollPayslips,
-  }
 
   writeFileSync(stateFile, JSON.stringify(state, null, 2))
-  log('done — wrote testnet-state.json with 8 new variants')
+  log('done — wrote testnet-state.json with 7 new variants')
 
   await wallet.stop()
 }
