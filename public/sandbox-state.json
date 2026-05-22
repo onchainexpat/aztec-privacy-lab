@@ -2,12 +2,12 @@
   "sandboxUrl": "http://localhost:8090",
   "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
   "token0": {
-    "address": "0x206aeaef49c1ed12131298ac7549e102e44ff2fea1740ef9658a54515ec682a8",
+    "address": "0x04c10d8b7241bc1ad85d1129db0a48f773fc07107a0a5e1dc9cdec543257db2a",
     "name": "AztecA",
     "symbol": "AZA",
     "instance": {
       "version": 1,
-      "salt": "0x1f80efc72d906536e5928ee55a1c6c63e07486562cf73ea018c68ef51985d51f",
+      "salt": "0x033d9f62aa45038b9d457eedb302313e9dbe497b4cd2905d0fbe7c08dc8ec290",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x1e653650e61ca9c95543cf2acb96e6a4c5c8f4172ff3b1ce5628a8a0bb5085ce",
       "originalContractClassId": "0x1e653650e61ca9c95543cf2acb96e6a4c5c8f4172ff3b1ce5628a8a0bb5085ce",
@@ -18,16 +18,16 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x206aeaef49c1ed12131298ac7549e102e44ff2fea1740ef9658a54515ec682a8"
+      "address": "0x04c10d8b7241bc1ad85d1129db0a48f773fc07107a0a5e1dc9cdec543257db2a"
     }
   },
   "token1": {
-    "address": "0x2af6b87bd75b71e00b32218a75a05651b4e978038621b24e20249f3269968b7b",
+    "address": "0x246c4ab76ac36717e1873b528b76f7cabb19ac0c16bec29a44237c8d4a0abb80",
     "name": "AztecB",
     "symbol": "AZB",
     "instance": {
       "version": 1,
-      "salt": "0x2a6c932724707ce779c39d1336a0b0587e4f217beaf47b3950c45d458bbef063",
+      "salt": "0x1aa3406b02d8e6821f61992ebcd83f7ad1f71cc634fcf22ce661cbca8bcb3964",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x1e653650e61ca9c95543cf2acb96e6a4c5c8f4172ff3b1ce5628a8a0bb5085ce",
       "originalContractClassId": "0x1e653650e61ca9c95543cf2acb96e6a4c5c8f4172ff3b1ce5628a8a0bb5085ce",
@@ -38,16 +38,16 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x2af6b87bd75b71e00b32218a75a05651b4e978038621b24e20249f3269968b7b"
+      "address": "0x246c4ab76ac36717e1873b528b76f7cabb19ac0c16bec29a44237c8d4a0abb80"
     }
   },
   "lpToken": {
-    "address": "0x0a8844c2122a28d39f1bfa0ed7beea4574ce31643dd48a78459a8d78f39b617c",
+    "address": "0x03c7c17322cdb47bb1b20dafcde2f4c1b52bb83ad1b2409563f196e6149a6e11",
     "name": "AztecLP",
     "symbol": "AZLP",
     "instance": {
       "version": 1,
-      "salt": "0x0d5642c65987504beb644cf1c968feabe185891cf9b8baca7a03807df723a647",
+      "salt": "0x2cb1fb4863ddcb44bf19fd66f28b0142b41459d4f07a76e40c855892569d739f",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x1e653650e61ca9c95543cf2acb96e6a4c5c8f4172ff3b1ce5628a8a0bb5085ce",
       "originalContractClassId": "0x1e653650e61ca9c95543cf2acb96e6a4c5c8f4172ff3b1ce5628a8a0bb5085ce",
@@ -58,32 +58,32 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x0a8844c2122a28d39f1bfa0ed7beea4574ce31643dd48a78459a8d78f39b617c"
+      "address": "0x03c7c17322cdb47bb1b20dafcde2f4c1b52bb83ad1b2409563f196e6149a6e11"
     }
   },
   "amm": {
-    "address": "0x009b1508cddc215ca030b6c33323a905fc207e6324fb7ac55a44a8bf9838965f",
+    "address": "0x01b76f142055d195eb123f05295de6896adcb35786b6e1af40205ce8c100eb07",
     "instance": {
       "version": 1,
-      "salt": "0x1526f7918cd41084b8c14762a8a1155baa78e93af78386d51f9b3b005a11fa35",
+      "salt": "0x098c288ab72b49b23226376e0dbb38daae7c8b0ad6a28d9466dfc0bcbe0fc64f",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x04b9222155ecfae494b0b1df25bbb8a3bfa03ad60baf47f08c06442ea329cc48",
       "originalContractClassId": "0x04b9222155ecfae494b0b1df25bbb8a3bfa03ad60baf47f08c06442ea329cc48",
-      "initializationHash": "0x207d0cb9dfe4697118212865817ab197d8fa64caa2f92926a0a8f5b30591f756",
+      "initializationHash": "0x0fb9b486fce26135a3c4808af4403e8620022a4ccda738d96bfb5f3ec406b541",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x009b1508cddc215ca030b6c33323a905fc207e6324fb7ac55a44a8bf9838965f"
+      "address": "0x01b76f142055d195eb123f05295de6896adcb35786b6e1af40205ce8c100eb07"
     }
   },
   "privateSwapWrapper": {
-    "address": "0x1bf9e1814be5a1f3a0a35319a48203c7e4bdab020550573f24a6d27036aa6be3",
+    "address": "0x29bb4e65689587a6bd5327dbbd32ce6a86bcd9b57b15ecc7ab1fda45f84a2e9b",
     "instance": {
       "version": 1,
-      "salt": "0x1775a31e619b09dc4645ebfaf35e178f7972b5d3214e42b08be13ab4c5e62645",
+      "salt": "0x023089442688891d140344f5cb758d48812db581f05f22f3743b3510abd00fa5",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x1ea9fddbd1ea3db3240a53219a0b0d1b7a888b76a85acb7a56edac0d37a11314",
       "originalContractClassId": "0x1ea9fddbd1ea3db3240a53219a0b0d1b7a888b76a85acb7a56edac0d37a11314",
@@ -94,14 +94,14 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x1bf9e1814be5a1f3a0a35319a48203c7e4bdab020550573f24a6d27036aa6be3"
+      "address": "0x29bb4e65689587a6bd5327dbbd32ce6a86bcd9b57b15ecc7ab1fda45f84a2e9b"
     }
   },
   "priceFeed": {
-    "address": "0x29b21a3b0fd3785f5c0e66c0429637ebff07478b93293098989493323b873436",
+    "address": "0x078e0bb9171d73aca47466f4dab538c3bd6e4034fe8a2361b5e2afc1343f6c7b",
     "instance": {
       "version": 1,
-      "salt": "0x2bb4bafbda9cfa566efd571389340c5bd5314a8b6fe6979d4365108d19b932ce",
+      "salt": "0x2619b0e57577f86070a86c015f642a5f9d26168543d6ff1fce0faaf5fe91c878",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x288f82c759ad8eef2abab537b09baaecc03962a712cfd3a2ef56ae64d3684e49",
       "originalContractClassId": "0x288f82c759ad8eef2abab537b09baaecc03962a712cfd3a2ef56ae64d3684e49",
@@ -112,15 +112,15 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x29b21a3b0fd3785f5c0e66c0429637ebff07478b93293098989493323b873436"
+      "address": "0x078e0bb9171d73aca47466f4dab538c3bd6e4034fe8a2361b5e2afc1343f6c7b"
     },
     "price": "1000000000"
   },
   "lending": {
-    "address": "0x1a4577b6975543afc8ae48ea96adaea8fd998737e5fb5b69a171bd6d8ed906ef",
+    "address": "0x144d66bdf8dfbc7b03be45e22d7c07e90f19c31b0f60e77019b7ac23415b29f4",
     "instance": {
       "version": 1,
-      "salt": "0x0d7566695b1c735b932777c40b5a1bf6202e956a39013a6aa203cfda93954a17",
+      "salt": "0x1c50e80d0dd2b151d6043e8db78968cf4a69cde453a50b7242aa418992e2f0b9",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x1a3b4c9bfdd0cf6e41c23b75ec9d2f00d474560c5f0db630115dc34bfc9618b6",
       "originalContractClassId": "0x1a3b4c9bfdd0cf6e41c23b75ec9d2f00d474560c5f0db630115dc34bfc9618b6",
@@ -131,28 +131,28 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x1a4577b6975543afc8ae48ea96adaea8fd998737e5fb5b69a171bd6d8ed906ef"
+      "address": "0x144d66bdf8dfbc7b03be45e22d7c07e90f19c31b0f60e77019b7ac23415b29f4"
     },
     "collateralAsset": "AZA",
     "stableCoin": "AZB",
     "loanToValueBps": "8000"
   },
   "publicCollateralPrivateDebt": {
-    "address": "0x1985e6a3741e12106e91e98256a9acd444f835fcae197a925a69b33c49339d1d",
+    "address": "0x00bab0c6ed4524d3f26172aeb6f16533cf783dc4b09a2ff29829ac859701be53",
     "instance": {
       "version": 1,
-      "salt": "0x179270e225a650dbd51e668352abc177113f395ed7624188d6434446cf4b5abd",
+      "salt": "0x1f131ecea39b7aeb0f6753942f321d90742065f52562f94c7e19cf5756026756",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x12298f830dfeccf657398fb50b65494a88a6170a1e2e59009844b57ead356a38",
       "originalContractClassId": "0x12298f830dfeccf657398fb50b65494a88a6170a1e2e59009844b57ead356a38",
-      "initializationHash": "0x130fe7e077633a47b8a32308294eb063ce49ebcce0ba508450f340e933ac4443",
+      "initializationHash": "0x0f73a74ebeb7e930591ee02aa867944dd54ff38caef3f348a07dc5ee3653c193",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x1985e6a3741e12106e91e98256a9acd444f835fcae197a925a69b33c49339d1d"
+      "address": "0x00bab0c6ed4524d3f26172aeb6f16533cf783dc4b09a2ff29829ac859701be53"
     },
     "collateralAsset": "AZA",
     "debtAsset": "AZB",
@@ -160,71 +160,71 @@
     "ltvDenominator": "100"
   },
   "crowdfunding": {
-    "address": "0x17b9699b973cdd5e665a00480c8b8801e5264f92e67023783da1314ae2fc8a70",
+    "address": "0x18a3a30c03878b976fa913d44b3e480e783a075976fd9273b6ddee958e16cf27",
     "instance": {
       "version": 1,
-      "salt": "0x005363e6ca745208b0e3c1cb07b7668e02eeeafd75ab4f336600a050aafa102c",
+      "salt": "0x099f44c85a5570b9715cd9e5b295cab63a3232b71571f6af9f58984052eec503",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x0eb5de62c782822358c2cec8d397769c3733f0a4e8a46778b2e765ec7388b171",
       "originalContractClassId": "0x0eb5de62c782822358c2cec8d397769c3733f0a4e8a46778b2e765ec7388b171",
-      "initializationHash": "0x154747097f7d3e14271a688aa214ca347838d8edc551dff38c6febb65b5d7cdd",
+      "initializationHash": "0x24710f7660edc74d7cbc3dd67c60f16bb6ee9df4d4ca0bd48b957fdcf3c44056",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x17b9699b973cdd5e665a00480c8b8801e5264f92e67023783da1314ae2fc8a70"
+      "address": "0x18a3a30c03878b976fa913d44b3e480e783a075976fd9273b6ddee958e16cf27"
     },
     "donationToken": "AZA",
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
-    "deadline": "1781890303"
+    "deadline": "1782060415"
   },
   "publicCrowdfunding": {
-    "address": "0x10cf44dc0e0fbe99f5c8d270bb06c0afbd1c2c69134c2bc3d2a81f4bf387cede",
+    "address": "0x08ca7ab0086373463d91111d83f66ec62568f05fcf44f6daec1c4668cb2d6b6c",
     "instance": {
       "version": 1,
-      "salt": "0x099a618ca9993b7a7fa3782b212eb7d51f34f74c3b4389e7f2f6aa37c016a2fe",
+      "salt": "0x18a4a70d64b58e858387efc95746c8401f796956b33e08d27aa8cf8a72e8b1e1",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x2aae87506f7d3ecbcc2c1e776dedd1a6286bd4a06bd929141cf3bce0063a760f",
       "originalContractClassId": "0x2aae87506f7d3ecbcc2c1e776dedd1a6286bd4a06bd929141cf3bce0063a760f",
-      "initializationHash": "0x2e81be6224a7336fea70c11effea17897c59f831c6dec137ba5c99971a15e2af",
+      "initializationHash": "0x0c0b8467c12904bf8f56e5ba1a4daae4b5211d478e7a6c4c80c863dd2611d073",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x10cf44dc0e0fbe99f5c8d270bb06c0afbd1c2c69134c2bc3d2a81f4bf387cede"
+      "address": "0x08ca7ab0086373463d91111d83f66ec62568f05fcf44f6daec1c4668cb2d6b6c"
     },
     "donationToken": "AZA",
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a"
   },
   "perDonorReceipts": {
-    "address": "0x0ad744492d68ad01189d5ca872900b40c224fbb9621d3af26d2f29779dc6457d",
+    "address": "0x1c84e54bd487b36dbe44a109a2e5e16f864a1c42157439319434dbb182a57a84",
     "instance": {
       "version": 1,
-      "salt": "0x23ec7c3fbff33e591638f143ceeb29918c08ecf76d635fc07b1de521dff8a417",
+      "salt": "0x1cd285c79184e1d564013bf776bf0da9dd3092a76d6e1b4d9d78426186401401",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x143dfbf02c89c6fd5faf89e6445a3798860570faebc7c920ab5431408568f2c4",
       "originalContractClassId": "0x143dfbf02c89c6fd5faf89e6445a3798860570faebc7c920ab5431408568f2c4",
-      "initializationHash": "0x2e81be6224a7336fea70c11effea17897c59f831c6dec137ba5c99971a15e2af",
+      "initializationHash": "0x0c0b8467c12904bf8f56e5ba1a4daae4b5211d478e7a6c4c80c863dd2611d073",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x0ad744492d68ad01189d5ca872900b40c224fbb9621d3af26d2f29779dc6457d"
+      "address": "0x1c84e54bd487b36dbe44a109a2e5e16f864a1c42157439319434dbb182a57a84"
     },
     "donationToken": "AZA",
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a"
   },
   "voting": {
-    "address": "0x25e740752df5c1a40fb969c0b0590125efe6f98cc6fc1f2cd42120173560cb06",
+    "address": "0x178e73883b14b1ab3342528f4779b68ac514ca6f882903b18cc1a37eec1802fa",
     "instance": {
       "version": 1,
-      "salt": "0x1e9d96d09c02ced221762ca955aa8af69462f2d8985e0f3fa10307c207317072",
+      "salt": "0x2221b217e999238711c694758e93807a083448b78b722d2eddd484d5149109b9",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x0c4e037b62b611fdaa0bc68c5837b2cc14f6700e3a550bfe7532c9bbad2256ba",
       "originalContractClassId": "0x0c4e037b62b611fdaa0bc68c5837b2cc14f6700e3a550bfe7532c9bbad2256ba",
@@ -235,125 +235,125 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x25e740752df5c1a40fb969c0b0590125efe6f98cc6fc1f2cd42120173560cb06"
+      "address": "0x178e73883b14b1ab3342528f4779b68ac514ca6f882903b18cc1a37eec1802fa"
     },
     "admin": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
     "electionId": "1"
   },
   "minesweeper": {
-    "address": "0x02eed99c42a48da3f22fb2705d42c4a87a0a7350e3abe767373f22db6fbc8e20",
+    "address": "0x26b7a81d00058e80343d5930a888aa19a5a903756f45edde64221b275c222d89",
     "instance": {
       "version": 1,
-      "salt": "0x073df675a57bb8d803df7f89b6469b6b2e39647e42f2b0df08deb76470d6841f",
+      "salt": "0x2f6e6287e816de4863c9b98963c6b69ad70b4a53ecc98f06b7eebd34b5183ad8",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x1bbdfb14a2a9fa85005e41dab5af810c35b8d6803e7b42c3189664680017352c",
       "originalContractClassId": "0x1bbdfb14a2a9fa85005e41dab5af810c35b8d6803e7b42c3189664680017352c",
-      "initializationHash": "0x2e81be6224a7336fea70c11effea17897c59f831c6dec137ba5c99971a15e2af",
+      "initializationHash": "0x0c0b8467c12904bf8f56e5ba1a4daae4b5211d478e7a6c4c80c863dd2611d073",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x02eed99c42a48da3f22fb2705d42c4a87a0a7350e3abe767373f22db6fbc8e20"
+      "address": "0x26b7a81d00058e80343d5930a888aa19a5a903756f45edde64221b275c222d89"
     },
     "paymentToken": "AZA",
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a"
   },
   "battleship": {
-    "address": "0x2e9936e6b3ae6d07b0ae830fa8416cd2afbd4ce1da1019414ddf0e1ab4684b4e",
+    "address": "0x25a8f986c9d984c9f5c00fd25b9ff143160f96a0966faeccdd064830b79ccdf6",
     "instance": {
       "version": 1,
-      "salt": "0x290f7091b84786ae94757483e2e5c353118b42a9f4f075054e039126b2966cbf",
+      "salt": "0x088a94be436dec12fc11f4944afa7ed518036e7209b5f73bdb83dd0bc6cef99a",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x268e1c4a43ac8009f6391d2d22a4482bd353082979270534c06786e1f476b2c0",
       "originalContractClassId": "0x268e1c4a43ac8009f6391d2d22a4482bd353082979270534c06786e1f476b2c0",
-      "initializationHash": "0x2e81be6224a7336fea70c11effea17897c59f831c6dec137ba5c99971a15e2af",
+      "initializationHash": "0x0c0b8467c12904bf8f56e5ba1a4daae4b5211d478e7a6c4c80c863dd2611d073",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x2e9936e6b3ae6d07b0ae830fa8416cd2afbd4ce1da1019414ddf0e1ab4684b4e"
+      "address": "0x25a8f986c9d984c9f5c00fd25b9ff143160f96a0966faeccdd064830b79ccdf6"
     },
     "paymentToken": "AZA",
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a"
   },
   "sealedBidAuction": {
-    "address": "0x013c809ef68d84bc92f44f394b92bca8f37e0cfc2646c98859915c141d57b58b",
+    "address": "0x28f76ace045dd0c77533a22f12bb61e8ead89d031a370162af4c73e6e28493a1",
     "instance": {
       "version": 1,
-      "salt": "0x29cabe0c90b0372a267d8542ada1b98b1bce998c7746b912c1eb620e37b04175",
+      "salt": "0x107025b2d4fb4c74e2186f23b104d931d2d8b166b3be481ae727c7d1747c59f0",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x0b505b10f021275dc3a92c4cdab54eb9498dd1557f0c52d23006503b6683668b",
       "originalContractClassId": "0x0b505b10f021275dc3a92c4cdab54eb9498dd1557f0c52d23006503b6683668b",
-      "initializationHash": "0x029e79680b3f692150c562a7009f1af47b1dc25c11b3e93893ea854ec9f0999b",
+      "initializationHash": "0x275dce40b20e39dbeaa3fdcc2301865073d836d727664363078c52955ea27530",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x013c809ef68d84bc92f44f394b92bca8f37e0cfc2646c98859915c141d57b58b"
+      "address": "0x28f76ace045dd0c77533a22f12bb61e8ead89d031a370162af4c73e6e28493a1"
     },
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
     "itemHash": "1",
-    "bidDeadline": "1779373222",
-    "revealDeadline": "1779373822"
+    "bidDeadline": "1779550835",
+    "revealDeadline": "1779551435"
   },
   "wordle": {
-    "address": "0x2abdb8ac7ed443c658a252cfceca52ecd52dca9fcbfeb749f79bdd0fa76a4d59",
+    "address": "0x256e96f0e974a24d6fc6fbb0a7156cc430d6c84b24ac7c8b2aacd8652a6096de",
     "instance": {
       "version": 1,
-      "salt": "0x0e3e8f5c6508622d7ea4cfdeb87c2f80038e06f0ca5053391f223549c5b8cffd",
+      "salt": "0x17401b000e107d32ff197d9cc70911c4cd72283aec43237e27f48e71ffb5a527",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x2ee01c563a6f9687d34decac9ab71a5e02864c17271512be4c186b870baad0a8",
       "originalContractClassId": "0x2ee01c563a6f9687d34decac9ab71a5e02864c17271512be4c186b870baad0a8",
-      "initializationHash": "0x2c2408c4c358eaa00813ac7756404ead4de5761da19ab0a0d97e15e92ae6e3aa",
+      "initializationHash": "0x1062cfd3d032d8f5b6d10a43755dfe94e331ae765bc247a8f308283cbd971527",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x2abdb8ac7ed443c658a252cfceca52ecd52dca9fcbfeb749f79bdd0fa76a4d59"
+      "address": "0x256e96f0e974a24d6fc6fbb0a7156cc430d6c84b24ac7c8b2aacd8652a6096de"
     },
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
     "targetWord": "aztec",
     "targetPacked": "418666276195",
-    "targetSalt": "0x1b3c0836ad0556860188be684192c1339c5d30a2e23a4fe50e315f9ac8b603e5",
-    "guessDeadline": "1779373222",
-    "revealDeadline": "1779373822"
+    "targetSalt": "0x1f6f03139f42501c1fe05cef8b8bab3669a25afa7c629d3a05da2fb3189daf1d",
+    "guessDeadline": "1779550835",
+    "revealDeadline": "1779551435"
   },
   "lottery": {
-    "address": "0x2832451c51c65ba80a73638f313a7a9833a96a660f2f6e27f281078a5685e2a2",
+    "address": "0x19072d5c57283ce9f86d41c5688fd9747e91fdc88a8ad383fcbec8e8640f5be5",
     "instance": {
       "version": 1,
-      "salt": "0x0a01279f55833d741f56089840d419188173360a74ffe38a3d31c9531f405be8",
+      "salt": "0x1f406da376754b4b49b0d18949dc02c4b625bfcb23a6fd8721a433964e5fccfd",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x2ea94996b1c824da4d79e31d5acf3e3c8a07344993ac51e1853c1fa756b76206",
       "originalContractClassId": "0x2ea94996b1c824da4d79e31d5acf3e3c8a07344993ac51e1853c1fa756b76206",
-      "initializationHash": "0x27a35f95293767e49b716356da88c2aabde5fe1763f997bcb5a725e96235f52c",
+      "initializationHash": "0x04da3a5c103645937ee4128355c1bf7715e8e51d032b26b6990572e36fb9393a",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x2832451c51c65ba80a73638f313a7a9833a96a660f2f6e27f281078a5685e2a2"
+      "address": "0x19072d5c57283ce9f86d41c5688fd9747e91fdc88a8ad383fcbec8e8640f5be5"
     },
     "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
-    "seed": "0x05e66c73afa6ef5dfef5bec6908f87e7151448b7f29f8c714d437d6a5d8cbeee",
-    "salt": "0x15d1e3f12f425642abc72bd40234400c84b0289831be6684256f6c7c24a53b1b",
-    "seedCommitment": "0x1e8b64018a13e4e7918dffda03381053f697488a2dd62f272f471dcd84100a41",
+    "seed": "0x0cfd81e824579eba4e0e021b481101b7a98ec2f6b6454132b3c0f6bcb00dc3dc",
+    "salt": "0x1bb05774ee83321fd27475955b0bf95cd0ebf93c4e563fda48e1775e0a3b6a39",
+    "seedCommitment": "0x261d794bea99b5b45554b617f0bd086f2357379f250b98d759bd4c3c14627e7f",
     "maxNumber": "100"
   },
   "attestation": {
-    "address": "0x03d66d911b4f46edb8f649ba20bc5ba079dfe6d7e469b9a4280b61e39b39269d",
+    "address": "0x088877c6b928fd955d3e7f9e91b52c8ff6063e4b2f7439325dccabb9c3f4b9a5",
     "instance": {
       "version": 1,
-      "salt": "0x19c1a23ce1c61705b66fee6b434c1d3e29de097e60d34e5f1b00823cd673baba",
+      "salt": "0x178807cfd313c41bdca89288ec951394f0ac4946c5339715c3edc0068ffa7ca0",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x068b78043c11865ed312fa0de2dd127c14f9c0206987720ed50c9f02b7edbe72",
       "originalContractClassId": "0x068b78043c11865ed312fa0de2dd127c14f9c0206987720ed50c9f02b7edbe72",
@@ -364,68 +364,68 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x03d66d911b4f46edb8f649ba20bc5ba079dfe6d7e469b9a4280b61e39b39269d"
+      "address": "0x088877c6b928fd955d3e7f9e91b52c8ff6063e4b2f7439325dccabb9c3f4b9a5"
     },
     "issuer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
     "credentials": [
       {
-        "secret": "0x303b3b4f9e7527503fb0cf788e913fe6dc8f48c5e921529894af3fbf07fe4b45",
-        "commitment": "0x1cf1bfb45cbd393a1e3ab00153419e00a6ef65c0e79011beea097ee01b1367ef"
+        "secret": "0x25e89279fa2a21445b811fdabcf0b0a8cdf8fbbdadd916a12939d5ad5d8ed122",
+        "commitment": "0x1f9686c6ff8a3a79c20b7434884afcb226769ba7507131fe690100486009dddc"
       },
       {
-        "secret": "0x201171afe517220f402ae442e74c66e2413c53956e0f36a93b75bc604d8707dc",
-        "commitment": "0x1cbab39638955204ef6bbb9fc859473d9f934bea3bc280666efaee0394cb6207"
+        "secret": "0x0b809b46e76849ca64c11a12630514a2779863c0fea332aff2f45e3df14598a2",
+        "commitment": "0x136e0f6345d4a45b82a630dd714f6da74faa8277a29c6e2fe779f7b4c7b27f21"
       },
       {
-        "secret": "0x164496c89922399a02ce4bd0b690f34d27f8830cbd9c53d4f733ad176e96df21",
-        "commitment": "0x0f99d150f0cff530dc1d40be717050a02eb7833b5e9cb6918b9a50c66f46a217"
+        "secret": "0x0bb65192e4bcde2dd8dfb8c5cccbaf75320b13ab109d6bd1f2870e975a4ca3df",
+        "commitment": "0x21892d79889521a21dfb2c8e5e910ae85f7caa712bcd0e4488606ac3597e1a64"
       }
     ]
   },
   "batchPay": {
-    "address": "0x07e7611eb6cacb4e5140d5fc3f99fa09f3ff1a09ceac8957f3d71ee1cfffa7df",
+    "address": "0x1d63a192499bc91aacb2b455ae110912ac7f03fe255ba9c1c758a0a9829cfed9",
     "instance": {
       "version": 1,
-      "salt": "0x214354f3de09c80be1f5066565c7c1890e73e95ac4972e281c19e5a41620c100",
+      "salt": "0x0b4e27d0f7e9c91be2fae456193d386daa2fe71d497189190b46c6e137c7252e",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x08e792720d6543a9eb4cf9371a403853727f493ecd7aa160cb273c6dbd56bbd7",
       "originalContractClassId": "0x08e792720d6543a9eb4cf9371a403853727f493ecd7aa160cb273c6dbd56bbd7",
-      "initializationHash": "0x10b26ca848c196ced5b25ccf6ca9256bda26ce659815df5d107533b18827d9b6",
+      "initializationHash": "0x0579b03d0f9739a81d0afa7e99feed16b54f64fa0839b5dd28cd7c9d72d32c39",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x07e7611eb6cacb4e5140d5fc3f99fa09f3ff1a09ceac8957f3d71ee1cfffa7df"
+      "address": "0x1d63a192499bc91aacb2b455ae110912ac7f03fe255ba9c1c758a0a9829cfed9"
     },
     "paymentToken": "AZA"
   },
   "goodsEscrow": {
-    "address": "0x04b0ce2e29fca46a209f392a0c82d74583451cb1097751010aa31d8b836f534e",
+    "address": "0x16b5e0d5190cb2a1c6fdcbf5f5356fc6212eff0a54ff6ced4744eabe1d547b36",
     "instance": {
       "version": 1,
-      "salt": "0x1e5406274aa4990b423722d9514786dc26d8311695d158274e207bb5a1ab5400",
+      "salt": "0x2923eb171847058f8a869c9c4b4b911d6540ffbc3c775bd45135ba283c81819a",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x0ce522bec0b4178df02f8d0deef936583c839e71312a23ec03fa1db1b125438b",
       "originalContractClassId": "0x0ce522bec0b4178df02f8d0deef936583c839e71312a23ec03fa1db1b125438b",
-      "initializationHash": "0x2e81be6224a7336fea70c11effea17897c59f831c6dec137ba5c99971a15e2af",
+      "initializationHash": "0x0c0b8467c12904bf8f56e5ba1a4daae4b5211d478e7a6c4c80c863dd2611d073",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
         "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x04b0ce2e29fca46a209f392a0c82d74583451cb1097751010aa31d8b836f534e"
+      "address": "0x16b5e0d5190cb2a1c6fdcbf5f5356fc6212eff0a54ff6ced4744eabe1d547b36"
     },
     "paymentToken": "AZA",
     "attestor": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a"
   },
   "battleshipPvp": {
-    "address": "0x0ac506697c30250a68ea0b49261235a3e04fdab41ee8f9cf327ed8bf918f3bca",
+    "address": "0x26a104049fc1d0a75c2d5584100943239dec4c521c11882579d5e3ddddec38d0",
     "instance": {
       "version": 1,
-      "salt": "0x11ee0fb17cc89bf90378394d4cdf57114f214c00710e8ace8e47aa3a33c07760",
+      "salt": "0x2c8c5e9f1c811e04e0e7f2cd887ac0de605d76ad32708a03fbb5badcef09c9f6",
       "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
       "currentContractClassId": "0x007d171a176ef27ea6e6674230470666adc55a0bef38ac172c47eb6907e08147",
       "originalContractClassId": "0x007d171a176ef27ea6e6674230470666adc55a0bef38ac172c47eb6907e08147",
@@ -436,18 +436,57 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x0ac506697c30250a68ea0b49261235a3e04fdab41ee8f9cf327ed8bf918f3bca"
+      "address": "0x26a104049fc1d0a75c2d5584100943239dec4c521c11882579d5e3ddddec38d0"
     }
   },
+  "payroll": {
+    "address": "0x0f980dbb0fe08afa3e14147ad5e40022ce118052005a16f0a7f5cd30088788e5",
+    "instance": {
+      "version": 1,
+      "salt": "0x22148252e96e3dd6e549857fc97401c9128a712c8012937dd4b29f5ea3b15e9c",
+      "deployer": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
+      "currentContractClassId": "0x1e115f1739e30b19e4a68133b8040fd8292ab0d03dbeeebaf6d31a8207b7e768",
+      "originalContractClassId": "0x1e115f1739e30b19e4a68133b8040fd8292ab0d03dbeeebaf6d31a8207b7e768",
+      "initializationHash": "0x0c0b8467c12904bf8f56e5ba1a4daae4b5211d478e7a6c4c80c863dd2611d073",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x0f980dbb0fe08afa3e14147ad5e40022ce118052005a16f0a7f5cd30088788e5"
+    },
+    "paymentToken": "AZA",
+    "operator": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
+    "employee": "0x1092539b9d20142398c8a8f3e9b0462f1d38cddd587c94b7bc80ff47e6a0b51a",
+    "period": "0",
+    "payslips": [
+      {
+        "amount": "3200",
+        "period": "0",
+        "commitment": "0x1f121e86f5768ed5d5594f40d1e3226f05d4e633acd4d22f5dc0e2dbe216e119"
+      },
+      {
+        "amount": "4500",
+        "period": "0",
+        "commitment": "0x01eaa0773454e9e2706888f644f52b3996c5882c187fd5b086d41d865e33483d"
+      },
+      {
+        "amount": "2750",
+        "period": "0",
+        "commitment": "0x1729f6fbfe45bfd09acdc2eef3d0481c3685e2ce99ab16c45dd709a6ccdf116d"
+      }
+    ]
+  },
   "crossChain": {
-    "bridge0": "0x142e80d6badc9d4771b10bda086983cc5b33e76b7d55b7fa667c80ab15dd715f",
-    "bridge1": "0x2fbf263a899790dfb61d877e0a0c1f44356bbb64fca72b2b8352bd1273c2c7d4",
-    "l2Uniswap": "0x0b94deb446ea01e8add98d621e6b686d14dd16c310619392e125eec143173046",
+    "bridge0": "0x1c5881fa3e2c7e23a8165f04ac80572ed90eb420cafb97dd1f8122a2a527b3c5",
+    "bridge1": "0x24fb9da282e73466b1e8bf25014d4f50c35edd35656c480beec8f7bc943f3cd8",
+    "l2Uniswap": "0x0700d99a43b68ad7739865ed6ed6fdd191861c8d3b9d005425e9d8ca3ba74d8a",
     "placeholderPortal": "0x000000000000000000000000000000000000dead"
   },
   "initialPrivateBalances": {
     "AZA": "1000000",
     "AZB": "1000000"
   },
-  "deployedAt": "2026-05-20T17:33:42.391Z"
+  "deployedAt": "2026-05-22T16:49:41.259Z"
 }

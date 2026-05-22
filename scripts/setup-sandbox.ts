@@ -34,6 +34,7 @@ import { IdentityAttestationContract } from '../src/contracts/IdentityAttestatio
 import { BatchPayContract } from '../src/contracts/BatchPay'
 import { GoodsEscrowContract } from '../src/contracts/GoodsEscrow'
 import { BattleshipPvPContract } from '../src/contracts/BattleshipPvP'
+import { PayrollContract } from '../src/contracts/Payroll'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -323,6 +324,36 @@ async function main() {
   })
   log('BattleshipPvP at', battleshipPvp.address.toString())
 
+  log('deploying Payroll (confidential payroll register)…')
+  // operator = admin; in this demo the same account also plays the employee.
+  const { contract: payroll } = await PayrollContract.deploy(
+    wallet,
+    token0.address, // payroll currency = AZA (USDC stand-in)
+    admin,
+  ).send({ from: admin })
+  log('Payroll at', payroll.address.toString())
+  // Fund the pool directly by minting public AZA to the contract (setup
+  // shortcut — the panel's fund() path exercises the authwit-gated deposit).
+  const PAYROLL_FUND = 50_000n
+  await token0.methods.mint_to_public(payroll.address, PAYROLL_FUND).send({ from: admin })
+  // Publish a few payslips for period 0. Each commitment binds (employee,
+  // amount, period); only an opaque field lands on chain. employee = admin in
+  // this single-session demo. Amounts/salts would live only in the operator's
+  // PXE in a real deploy; we publish them so the dashboard can complete claims.
+  const payrollPeriod = 0n
+  const payrollAmounts = [3200n, 4500n, 2750n]
+  const payrollPayslips: { amount: string; period: string; commitment: string }[] = []
+  for (const amount of payrollAmounts) {
+    const commitment = pedersenHash([admin.toField(), new Fr(amount), new Fr(payrollPeriod)])
+    await payroll.methods.add_payslip(commitment.toBigInt()).send({ from: admin })
+    payrollPayslips.push({
+      amount: amount.toString(),
+      period: payrollPeriod.toString(),
+      commitment: commitment.toString(),
+    })
+  }
+  log('  funded', PAYROLL_FUND.toString(), 'AZA, published', payrollPayslips.length, 'payslips')
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -486,6 +517,16 @@ async function main() {
     battleshipPvp: {
       address: battleshipPvp.address.toString(),
       instance: await instanceJSON(battleshipPvp.address),
+    },
+    payroll: {
+      address: payroll.address.toString(),
+      instance: await instanceJSON(payroll.address),
+      paymentToken: 'AZA',
+      operator: admin.toString(),
+      // Demo: the same account is registered as the employee for every payslip.
+      employee: admin.toString(),
+      period: payrollPeriod.toString(),
+      payslips: payrollPayslips,
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

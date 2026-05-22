@@ -110,6 +110,15 @@ export interface SandboxState {
     address: string
     instance: unknown
   }
+  payroll?: {
+    address: string
+    instance: unknown
+    paymentToken: string
+    operator: string
+    employee: string
+    period: string
+    payslips: { amount: string; period: string; commitment: string }[]
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

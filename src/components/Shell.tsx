@@ -33,6 +33,8 @@ import { BatchPayPanel } from './BatchPayPanel'
 import { BatchPayPanelTestnet } from './BatchPayPanelTestnet'
 import { EscrowPanel } from './EscrowPanel'
 import { EscrowPanelTestnet } from './EscrowPanelTestnet'
+import { PayrollPanel } from './PayrollPanel'
+import { PayrollPanelTestnet } from './PayrollPanelTestnet'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -62,6 +64,7 @@ export function Shell() {
   const [attestationOpen, setAttestationOpen] = useState(false)
   const [batchPayOpen, setBatchPayOpen] = useState(false)
   const [escrowOpen, setEscrowOpen] = useState(false)
+  const [payrollOpen, setPayrollOpen] = useState(false)
   const [bridgeOpen, setBridgeOpen] = useState(false)
   const [sandboxState, setSandboxState] = useState<SandboxState | null>(null)
 
@@ -693,6 +696,38 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         )}
         {escrowOpen && sandboxState && network === 'testnet' && (
           <EscrowPanelTestnet state={sandboxState} onClose={() => setEscrowOpen(false)} />
+        )}
+
+        <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Confidential payroll</h2>
+              <p className="mt-1 text-sm text-black/60">
+                An employer funds a pool and publishes one opaque commitment per employee per pay
+                period — <code className="font-mono text-xs">pedersen(employee, amount, period)</code>.
+                Each employee claims privately: the claim hides which registered employee is
+                collecting (private kernel), and pays out to an address that need not be linkable to
+                them. The whole salary register stays opaque on chain; only aggregate counters and
+                opaque commitments are public. Concrete fits: confidential salaries, grant
+                disbursements, recurring vendor payments.
+              </p>
+            </div>
+            {!payrollOpen && (
+              <button
+                onClick={() => setPayrollOpen(true)}
+                className="shrink-0 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:opacity-90"
+              >
+                Try payroll →
+              </button>
+            )}
+          </div>
+        </div>
+
+        {payrollOpen && sandboxState && network === 'sandbox' && (
+          <PayrollPanel state={sandboxState} onClose={() => setPayrollOpen(false)} />
+        )}
+        {payrollOpen && sandboxState && network === 'testnet' && (
+          <PayrollPanelTestnet state={sandboxState} onClose={() => setPayrollOpen(false)} />
         )}
 
         {network === 'sandbox' && (
