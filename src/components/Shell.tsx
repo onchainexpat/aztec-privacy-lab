@@ -20,13 +20,19 @@ import { GamesMatrix } from './GamesMatrix'
 import { MinesweeperPanel } from './MinesweeperPanel'
 import { BattleshipPanel } from './BattleshipPanel'
 import { BattleshipPvPPanel } from './BattleshipPvPPanel'
+import { BattleshipPvPPanelTestnet } from './BattleshipPvPPanelTestnet'
 import { AuctionPanel } from './AuctionPanel'
+import { AuctionPanelTestnet } from './AuctionPanelTestnet'
 import { WordlePanel } from './WordlePanel'
+import { WordlePanelTestnet } from './WordlePanelTestnet'
 import { LotteryPanel } from './LotteryPanel'
+import { LotteryPanelTestnet } from './LotteryPanelTestnet'
 import { AttestationPanel } from './AttestationPanel'
 import { AttestationPanelTestnet } from './AttestationPanelTestnet'
 import { BatchPayPanel } from './BatchPayPanel'
+import { BatchPayPanelTestnet } from './BatchPayPanelTestnet'
 import { EscrowPanel } from './EscrowPanel'
+import { EscrowPanelTestnet } from './EscrowPanelTestnet'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -526,10 +532,23 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         {activeGame === 'g3' && sandboxState && network === 'sandbox' && (
           <BattleshipPvPPanel state={sandboxState} onClose={() => setActiveGame(null)} />
         )}
-        {activeGame && network === 'testnet' && (
+        {activeGame === 'g5' && sandboxState && network === 'testnet' && (
+          <AuctionPanelTestnet state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g6' && sandboxState && network === 'testnet' && (
+          <WordlePanelTestnet state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g7' && sandboxState && network === 'testnet' && (
+          <LotteryPanelTestnet state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g3' && sandboxState && network === 'testnet' && (
+          <BattleshipPvPPanelTestnet state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame && ['g1', 'g2'].includes(activeGame) && network === 'testnet' && (
           <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-            Variant {activeGame} needs the sandbox + the Minesweeper/Battleship Noir contract. Switch
-            the network toggle to <strong>Sandbox</strong> when it ships.
+            Variant {activeGame} (Minesweeper/Battleship-solo) is sandbox-only — it needs the
+            contract-side RNG that only the local sandbox provides. Switch the network toggle to{' '}
+            <strong>Sandbox</strong> to try it.
             <button onClick={() => setActiveGame(null)} className="ml-3 underline">
               Close
             </button>
@@ -634,13 +653,8 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         {batchPayOpen && sandboxState && network === 'sandbox' && (
           <BatchPayPanel state={sandboxState} onClose={() => setBatchPayOpen(false)} />
         )}
-        {batchPayOpen && network === 'testnet' && (
-          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-            BatchPay isn't deployed on testnet yet. Switch to <strong>Sandbox</strong> to try it.
-            <button onClick={() => setBatchPayOpen(false)} className="ml-3 underline">
-              Close
-            </button>
-          </section>
+        {batchPayOpen && sandboxState && network === 'testnet' && (
+          <BatchPayPanelTestnet state={sandboxState} onClose={() => setBatchPayOpen(false)} />
         )}
 
         <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
@@ -677,13 +691,8 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         {escrowOpen && sandboxState && network === 'sandbox' && (
           <EscrowPanel state={sandboxState} onClose={() => setEscrowOpen(false)} />
         )}
-        {escrowOpen && network === 'testnet' && (
-          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-            GoodsEscrow isn't deployed on testnet yet. Switch to <strong>Sandbox</strong> to try it.
-            <button onClick={() => setEscrowOpen(false)} className="ml-3 underline">
-              Close
-            </button>
-          </section>
+        {escrowOpen && sandboxState && network === 'testnet' && (
+          <EscrowPanelTestnet state={sandboxState} onClose={() => setEscrowOpen(false)} />
         )}
 
         {network === 'sandbox' && (
