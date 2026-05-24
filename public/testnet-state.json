@@ -452,5 +452,24 @@
         "amount": "1500"
       }
     ]
+  },
+  "blackjack": {
+    "address": "0x2317b06757594bd4190f89bbf60f92c92c53f5b987798df0f945e07c43ec98c0",
+    "instance": {
+      "version": 1,
+      "salt": "0x0af8ac5ca5987e48fbe07eb15dd0569612b64333578816e1c9c59784f33ecd43",
+      "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+      "currentContractClassId": "0x1c7bb4f3e920bcd493c97564676f27a3061440d6e45cc93ad061757c954042cd",
+      "originalContractClassId": "0x1c7bb4f3e920bcd493c97564676f27a3061440d6e45cc93ad061757c954042cd",
+      "initializationHash": "0x1583b521c34cbc4f3e9b458cce0402c3ac9693e58105b46651def27f5a4f7db6",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x2317b06757594bd4190f89bbf60f92c92c53f5b987798df0f945e07c43ec98c0"
+    },
+    "dealer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a"
   }
 }
