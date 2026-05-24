@@ -36,6 +36,8 @@ import { EscrowPanelTestnet } from './EscrowPanelTestnet'
 import { PayrollPanel } from './PayrollPanel'
 import { PayrollPanelTestnet } from './PayrollPanelTestnet'
 import { RewardsMatrix } from './RewardsMatrix'
+import { RewardsPanel } from './RewardsPanel'
+import { RewardsPanelTestnet } from './RewardsPanelTestnet'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -66,6 +68,7 @@ export function Shell() {
   const [batchPayOpen, setBatchPayOpen] = useState(false)
   const [escrowOpen, setEscrowOpen] = useState(false)
   const [payrollOpen, setPayrollOpen] = useState(false)
+  const [rewardsOpen, setRewardsOpen] = useState(false)
   const [bridgeOpen, setBridgeOpen] = useState(false)
   const [sandboxState, setSandboxState] = useState<SandboxState | null>(null)
 
@@ -731,7 +734,13 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
           <PayrollPanelTestnet state={sandboxState} onClose={() => setPayrollOpen(false)} />
         )}
 
-        <RewardsMatrix />
+        <RewardsMatrix onTry={() => setRewardsOpen(true)} />
+        {rewardsOpen && sandboxState && network === 'sandbox' && (
+          <RewardsPanel state={sandboxState} onClose={() => setRewardsOpen(false)} />
+        )}
+        {rewardsOpen && sandboxState && network === 'testnet' && (
+          <RewardsPanelTestnet state={sandboxState} onClose={() => setRewardsOpen(false)} />
+        )}
 
         {network === 'sandbox' && (
           <div className="mt-16" data-cross-chain-card>

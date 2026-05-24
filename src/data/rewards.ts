@@ -1,12 +1,15 @@
 import type { Verdict, VariationAxis } from './variations'
 
 // Merkl-style private rewards distribution. An app funds a reward pool and
-// publishes a Merkle root of (recipient, amount) leaves computed off-chain
-// from on-chain activity; users claim by proving Merkle inclusion privately
-// and receive rewards into a private note. A per-leaf nullifier prevents
-// double-claims. Two techniques here are NOT yet demonstrated elsewhere on the
-// dashboard: an in-circuit Merkle inclusion proof, and a private-note payout
-// (mint/transfer into an encrypted note so the amount need not leak at claim).
+// publishes a Merkle root over (recipient, amount) leaves computed off-chain
+// from on-chain activity; users claim by proving Merkle inclusion privately.
+// One root commits to the whole campaign. Two techniques here are new to the
+// rest of the board: an in-circuit Merkle inclusion proof, and a
+// private-RECIPIENT payout (partial note) — see the honest boundary below on
+// why the payout AMOUNT can't also be hidden under contract custody.
+//
+// r1/r2/r3 are the same deployed Rewards contract (different claim entry points
+// + a period field), the way the AMM covers variants a/f with one pool.
 
 export interface RewardsVariation {
   id: 'r1' | 'r2' | 'r3' | 'r4' | 'r5'
@@ -17,7 +20,7 @@ export interface RewardsVariation {
   what_observer_sees: string
   /** New ZK surface area this variant introduces, if any. */
   new_technique?: string
-  /** Whether a contract + panel exist yet. All are scoped, none built. */
+  /** Whether the deployed Rewards contract implements this variant. */
   built: boolean
   reason?: string
 }
@@ -25,78 +28,77 @@ export interface RewardsVariation {
 export const REWARDS_VARIATIONS: RewardsVariation[] = [
   {
     id: 'r1',
-    title: 'Public budget + root · private claimants · private amounts',
+    title: 'Private claim · private-recipient payout',
     one_liner:
-      'App publishes a Merkle root of (recipient, amount); users prove inclusion privately and are paid into a private note.',
+      'Prove Merkle inclusion privately and pay into a partial note, so the recipient address is hidden.',
     verdict: 'buildable',
-    built: false,
+    built: true,
     axes: [
-      { label: 'Reward budget', value: 'public' },
       { label: 'Merkle root', value: 'public' },
       { label: 'Claimant identity', value: 'private' },
-      { label: 'Claim amount', value: 'private' },
+      { label: 'Recipient', value: 'private' },
+      { label: 'Payout amount', value: 'public' },
     ],
     new_technique:
-      'In-circuit Merkle inclusion proof inside a private function + private-note payout (mint/transfer into an encrypted note, so the amount never lands in public state).',
+      'In-circuit Merkle inclusion proof (root_from_sibling_path / poseidon2) inside a private function, plus a private-recipient payout via transfer_to_private (partial note hides who receives).',
     what_observer_sees:
-      'A public reward budget and a single Merkle root. Each claim consumes an opaque leaf nullifier and bumps a claim counter — observers learn that someone in the set claimed, but not who or how much. Scales to thousands of recipients with one on-chain commitment (vs one-per-recipient in the payroll variant).',
+      'A public reward budget and a single Merkle root. A claim consumes an opaque leaf and moves a visible amount out of the pool into SOMEONE\'s private note — observers see the amount but not which eligible member claimed nor who received it. claim_private on the deployed contract.',
   },
   {
     id: 'r2',
-    title: 'Public rewards table · private claim',
+    title: 'Private claim · public payout',
     one_liner:
-      'The full (address -> amount) table is public for transparency; whether/when a given user claims stays private.',
+      'Same inclusion proof, paid to a visible recipient. The claimant\'s eligible identity still stays hidden.',
     verdict: 'buildable',
-    built: false,
+    built: true,
     axes: [
-      { label: 'Rewards table', value: 'public' },
       { label: 'Merkle root', value: 'public' },
       { label: 'Claimant identity', value: 'private' },
-      { label: 'Claim amount', value: 'public' },
+      { label: 'Recipient', value: 'public' },
+      { label: 'Payout amount', value: 'public' },
     ],
     what_observer_sees:
-      'Everyone can audit the campaign: every recipient and entitlement is public. The privacy gain is on the claim side — the act of claiming runs through a private function, so linking a payout to a specific wallet/session is hidden. Good for transparent incentive programs that still want unlinkable redemption.',
+      'Amount + recipient are public at claim (or send to a burner to break the link). The privacy gain is the anonymity set: observers learn someone in the tree claimed, not who. claim_public on the deployed contract.',
   },
   {
     id: 'r3',
-    title: 'Vested / streaming rewards · private periodic claims',
+    title: 'Vested / recurring campaigns (periods)',
     one_liner:
-      'Rewards accrue per epoch; each periodic claim is private and nullified per (leaf, epoch).',
+      'The operator advances a period and republishes a root; the same (recipient, amount) becomes a fresh leaf each cycle.',
     verdict: 'buildable',
-    built: false,
+    built: true,
     axes: [
-      { label: 'Schedule / epoch', value: 'public' },
-      { label: 'Per-claim amount', value: 'private' },
+      { label: 'Schedule / period', value: 'public' },
       { label: 'Claimant identity', value: 'private' },
+      { label: 'Payout amount', value: 'public' },
     ],
     new_technique:
-      'Per-epoch nullifier domain (same idea as the payroll period) layered on the Merkle-inclusion claim, so the same allocation can be drawn down across epochs without linkable repeats.',
+      'Period is folded into the leaf (poseidon2(addr, amount, period)) and checked on claim, so recurring campaigns reuse the same allocation without linkable repeats and old leaves stay independently claimed.',
     what_observer_sees:
-      'A public epoch counter and root. Each epoch a recipient privately claims their vested slice; observers see a per-epoch claim count, never the schedule-to-wallet mapping or the slice sizes.',
+      'A public period counter + per-period root. Each cycle a recipient privately claims their slice; observers see a per-period claim count, never the schedule-to-wallet mapping.',
   },
   {
     id: 'r4',
-    title: 'Fully private budget · private claims',
+    title: 'Amount-private payout / fully private budget',
     one_liner:
-      'Total budget and the leaves are hidden; the contract proves sum(claims) <= budget without revealing the table.',
+      'Hide the payout amount itself (and ultimately the total budget), not just identities.',
     verdict: 'research',
     built: false,
     axes: [
       { label: 'Reward budget', value: 'private' },
-      { label: 'Merkle root', value: 'private' },
       { label: 'Claimant identity', value: 'private' },
-      { label: 'Claim amount', value: 'private' },
+      { label: 'Payout amount', value: 'private' },
     ],
     what_observer_sees:
-      'Only an opaque commitment to the root. Nothing about the budget or claims is public.',
+      'Ideally nothing but an opaque commitment. In practice the amount leaks (see reason).',
     reason:
-      'No native way to enforce sum(claims) <= a hidden budget. Each claim would need a recursive proof carrying the running total, or a separate aggregate-conservation circuit — the unified note/nullifier tree does not give cross-claim conservation for free. Research-grade.',
+      'The pool is custodied in public balance, so every release moves a VISIBLE amount out of public state — even transfer_to_private finalizes the amount in a public call. Hiding the amount needs contract-owned private notes or supply-hiding; enforcing sum(claims) <= a hidden budget needs a per-claim recursive conservation proof. Research-grade.',
   },
   {
     id: 'r5',
-    title: 'Private eligibility from private on-chain activity',
+    title: 'Eligibility from the user\'s own private activity',
     one_liner:
-      'Reward earned by qualifying private activity (e.g., private swaps); claimant proves they did it without revealing the activity.',
+      'Reward earned by qualifying private activity (e.g. private swaps); prove you did it without revealing it.',
     verdict: 'blocked',
     built: false,
     axes: [
@@ -104,9 +106,8 @@ export const REWARDS_VARIATIONS: RewardsVariation[] = [
       { label: 'Claimant identity', value: 'private' },
       { label: 'Reward paid', value: 'public' },
     ],
-    what_observer_sees:
-      'A reward payout, with no link to the private behaviour that earned it.',
+    what_observer_sees: 'A reward payout with no link to the private behaviour that earned it.',
     reason:
-      "Eligibility derived from a user's private history requires proving over past private notes/nullifiers, which Aztec does not expose to application circuits today (no general note-history proofs). The off-chain root model (r1) sidesteps this by having the app compute eligibility from observable activity; deriving it from the user's OWN private state is not yet possible.",
+      "Deriving eligibility from a user's OWN private history requires proving over past private notes/nullifiers, which Aztec does not expose to application circuits today (no general note-history proofs). The off-chain-root model (r1/r2) sidesteps this by computing eligibility from observable activity.",
   },
 ]

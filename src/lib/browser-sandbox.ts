@@ -28,6 +28,7 @@ import type { BatchPayContract } from '../contracts/BatchPay'
 import type { GoodsEscrowContract } from '../contracts/GoodsEscrow'
 import type { BattleshipPvPContract } from '../contracts/BattleshipPvP'
 import type { PayrollContract } from '../contracts/Payroll'
+import type { RewardsContract } from '../contracts/Rewards'
 import type { TokenBridgeContract } from '@aztec/noir-contracts.js/TokenBridge'
 import type { UniswapContract } from '@aztec/noir-contracts.js/Uniswap'
 import type { SandboxState } from './sandbox-state'
@@ -55,6 +56,7 @@ export interface BrowserSandbox {
   goodsEscrow: GoodsEscrowContract | null
   battleshipPvp: BattleshipPvPContract | null
   payroll: PayrollContract | null
+  rewards: RewardsContract | null
   lending: LendingContract | null
   ld2: PublicCollateralPrivateDebtContract | null
   l2Bridge: TokenBridgeContract | null
@@ -125,6 +127,7 @@ export function initBrowserSandbox(
     const goodsEscrowMod = await import('../contracts/GoodsEscrow')
     const battleshipPvpMod = await import('../contracts/BattleshipPvP')
     const payrollMod = await import('../contracts/Payroll')
+    const rewardsMod = await import('../contracts/Rewards')
     const bridgeMod = await import('@aztec/noir-contracts.js/TokenBridge')
     const uniswapMod = await import('@aztec/noir-contracts.js/Uniswap')
 
@@ -256,6 +259,12 @@ export function initBrowserSandbox(
       await wallet.registerContract(
         deserialize(state.payroll.instance),
         payrollMod.PayrollContractArtifact,
+      )
+    }
+    if (state.rewards) {
+      await wallet.registerContract(
+        deserialize(state.rewards.instance),
+        rewardsMod.RewardsContractArtifact,
       )
     }
     if (state.crossChain?.bridge0Instance) {
@@ -395,6 +404,12 @@ export function initBrowserSandbox(
           wallet,
         )
       : null
+    const rewards = state.rewards
+      ? await rewardsMod.RewardsContract.at(
+          addressMod.AztecAddress.fromString(state.rewards.address),
+          wallet,
+        )
+      : null
     const l2Bridge = state.crossChain?.bridge0Instance
       ? await bridgeMod.TokenBridgeContract.at(
           addressMod.AztecAddress.fromString(state.crossChain.bridge0),
@@ -437,6 +452,7 @@ export function initBrowserSandbox(
       goodsEscrow,
       battleshipPvp,
       payroll,
+      rewards,
       lending,
       ld2,
       l2Bridge,

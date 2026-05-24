@@ -119,6 +119,15 @@ export interface SandboxState {
     period: string
     payslips: { amount: string; period: string; commitment: string }[]
   }
+  rewards?: {
+    address: string
+    instance: unknown
+    paymentToken: string
+    operator: string
+    period: string
+    root: string
+    entries: { address: string; amount: string }[]
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

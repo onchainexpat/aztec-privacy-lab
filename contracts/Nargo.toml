@@ -15,4 +15,5 @@ members = [
   "goods_escrow",
   "battleship_pvp",
   "payroll",
+  "rewards",
 ]

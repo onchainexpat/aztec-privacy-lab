@@ -35,6 +35,8 @@ import { BatchPayContract } from '../src/contracts/BatchPay'
 import { GoodsEscrowContract } from '../src/contracts/GoodsEscrow'
 import { BattleshipPvPContract } from '../src/contracts/BattleshipPvP'
 import { PayrollContract } from '../src/contracts/Payroll'
+import { RewardsContract } from '../src/contracts/Rewards'
+import { buildRewardsTree, type RewardEntry } from '../src/lib/rewards-merkle'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -354,6 +356,28 @@ async function main() {
   }
   log('  funded', PAYROLL_FUND.toString(), 'AZA, published', payrollPayslips.length, 'payslips')
 
+  log('deploying Rewards (Merkl-style private rewards)…')
+  const { contract: rewards } = await RewardsContract.deploy(
+    wallet,
+    token0.address, // reward token = AZA
+    admin,
+  ).send({ from: admin })
+  log('Rewards at', rewards.address.toString())
+  const REWARDS_FUND = 100_000n
+  await token0.methods.mint_to_public(rewards.address, REWARDS_FUND).send({ from: admin })
+  // Campaign tree for period 0. admin is entry 0 (claimable in this demo); the
+  // rest are random addresses that make up the anonymity set.
+  const rewardsPeriod = 0n
+  const rewardsEntries: RewardEntry[] = [
+    { address: admin.toString(), amount: '5000' },
+    { address: Fr.random().toString(), amount: '3000' },
+    { address: Fr.random().toString(), amount: '7000' },
+    { address: Fr.random().toString(), amount: '1500' },
+  ]
+  const { root: rewardsRoot } = buildRewardsTree(rewardsEntries, rewardsPeriod)
+  await rewards.methods.publish_root(Fr.fromString(rewardsRoot).toBigInt()).send({ from: admin })
+  log('  funded', REWARDS_FUND.toString(), 'AZA, published root for', rewardsEntries.length, 'leaves')
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -527,6 +551,17 @@ async function main() {
       employee: admin.toString(),
       period: payrollPeriod.toString(),
       payslips: payrollPayslips,
+    },
+    rewards: {
+      address: rewards.address.toString(),
+      instance: await instanceJSON(rewards.address),
+      paymentToken: 'AZA',
+      operator: admin.toString(),
+      period: rewardsPeriod.toString(),
+      root: rewardsRoot,
+      // Campaign leaves (address, amount). The panel rebuilds the tree from
+      // these to derive its own Merkle proof. entry 0 is this demo account.
+      entries: rewardsEntries,
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

@@ -3,17 +3,30 @@ import { MatrixHeader } from './ui/MatrixHeader'
 import { VerdictBadge } from './ui/VerdictBadge'
 import { AxisPill } from './ui/AxisPill'
 
-// Scoping matrix for the Merkl-style private rewards primitive. None of these
-// are built yet — the cards document the design + feasibility so we can pick
-// which to build. r1 is the strong primary (introduces in-circuit Merkle
-// proofs + private-note payout, neither demonstrated elsewhere on the board).
-export function RewardsMatrix() {
+interface Props {
+  onTry?: () => void
+}
+
+// Matrix for the Merkl-style private rewards primitive. r1-r3 are the deployed
+// Rewards contract (one contract: claim_public, claim_private, + a period),
+// the way the AMM covers a/f with one pool. r4/r5 are explainer-only.
+export function RewardsMatrix({ onTry }: Props) {
   return (
     <section className="mt-16">
       <MatrixHeader
         title="Private rewards distribution (Merkl-style) — privacy matrix"
-        subtitle="An app funds a pool and publishes a Merkle root of (recipient, amount) computed off-chain from on-chain activity; users claim by proving inclusion privately and are paid into a private note. New ZK surface area vs the rest of the board: an in-circuit Merkle inclusion proof and a private-note payout. Scoped, not yet built."
+        subtitle="An app funds a pool and publishes one Merkle root over (recipient, amount) entitlements; users claim by proving inclusion privately. New ZK surface area vs the rest of the board: an in-circuit Merkle inclusion proof + a private-recipient payout. r1-r3 ship today on one contract; r4-r5 are explainers."
       />
+      {onTry && (
+        <div className="mb-4">
+          <button
+            onClick={onTry}
+            className="rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:opacity-90"
+          >
+            Try the rewards demo (r1–r3) →
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {REWARDS_VARIATIONS.map((v) => (
           <div key={v.id} className="flex flex-col rounded-2xl border border-black/10 bg-white p-5">
@@ -51,8 +64,14 @@ export function RewardsMatrix() {
             </details>
 
             <div className="mt-4 flex-1" />
-            <span className="self-start rounded-full border border-black/15 bg-zinc-50 px-3 py-1 text-xs text-black/50">
-              {v.verdict === 'buildable' ? 'Buildable · not yet built' : 'Explainer only'}
+            <span
+              className={`self-start rounded-full border px-3 py-1 text-xs ${
+                v.built
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : 'border-black/15 bg-zinc-50 text-black/50'
+              }`}
+            >
+              {v.built ? 'Shipped · try above' : 'Explainer only'}
             </span>
           </div>
         ))}
