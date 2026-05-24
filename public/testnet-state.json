@@ -373,5 +373,44 @@
       "address": "0x2ff1c60b7272d7cb1231a94a514392bf2474e57221e97fafb47d99dec41f4ec0"
     },
     "paymentToken": "AZA"
+  },
+  "payroll": {
+    "address": "0x2a89cef82f9db6fc7c78345a422e92a1b893e19aa9e07d6e9934cfd3a78fffd6",
+    "instance": {
+      "version": 1,
+      "salt": "0x00e18de77797374e592b47cd906edab96ebef896949936f41b1e35fbd27f6405",
+      "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+      "currentContractClassId": "0x1e115f1739e30b19e4a68133b8040fd8292ab0d03dbeeebaf6d31a8207b7e768",
+      "originalContractClassId": "0x1e115f1739e30b19e4a68133b8040fd8292ab0d03dbeeebaf6d31a8207b7e768",
+      "initializationHash": "0x0a33a8965b61f91ac3d3d5786dcef77ea0af2936ddf2e0ab53cfffac358117fd",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x2a89cef82f9db6fc7c78345a422e92a1b893e19aa9e07d6e9934cfd3a78fffd6"
+    },
+    "paymentToken": "AZA",
+    "operator": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+    "employee": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+    "period": "0",
+    "payslips": [
+      {
+        "amount": "3200",
+        "period": "0",
+        "commitment": "0x2580d9c45e322f329a8adb9d28791e510fbff2cd27eababaa080c9701b4f446b"
+      },
+      {
+        "amount": "4500",
+        "period": "0",
+        "commitment": "0x2b3b7cd2550794b2a128251ccad0e5fb183e4931cedb4c6d8325da0de646cec5"
+      },
+      {
+        "amount": "2750",
+        "period": "0",
+        "commitment": "0x21b4500e2a60f382aed69fe40b38973d49675b81c95a1ee9c37f8313d61369b9"
+      }
+    ]
   }
 }
