@@ -16,4 +16,5 @@ members = [
   "battleship_pvp",
   "payroll",
   "rewards",
+  "blackjack",
 ]

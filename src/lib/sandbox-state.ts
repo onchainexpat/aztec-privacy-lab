@@ -128,6 +128,11 @@ export interface SandboxState {
     root: string
     entries: { address: string; amount: string }[]
   }
+  blackjack?: {
+    address: string
+    instance: unknown
+    dealer: string
+  }
   baseBridge?: {
     l2Address: string
     l2Instance: unknown

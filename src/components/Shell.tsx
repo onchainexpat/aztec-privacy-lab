@@ -38,6 +38,7 @@ import { PayrollPanelTestnet } from './PayrollPanelTestnet'
 import { RewardsMatrix } from './RewardsMatrix'
 import { RewardsPanel } from './RewardsPanel'
 import { RewardsPanelTestnet } from './RewardsPanelTestnet'
+import { BlackjackPanel } from './BlackjackPanel'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -538,6 +539,19 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         )}
         {activeGame === 'g3' && sandboxState && network === 'sandbox' && (
           <BattleshipPvPPanel state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g4' && sandboxState && network === 'sandbox' && (
+          <BlackjackPanel state={sandboxState} onClose={() => setActiveGame(null)} />
+        )}
+        {activeGame === 'g4' && network === 'testnet' && (
+          <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+            Blackjack&apos;s contract is live on testnet, but the interactive game needs the dealer
+            operator online to deal cards each hand — so play it on <strong>Sandbox</strong> (one
+            session plays both roles). A real deployment would run the dealer as a service.
+            <button onClick={() => setActiveGame(null)} className="ml-3 underline">
+              Close
+            </button>
+          </section>
         )}
         {activeGame === 'g5' && sandboxState && network === 'testnet' && (
           <AuctionPanelTestnet state={sandboxState} onClose={() => setActiveGame(null)} />

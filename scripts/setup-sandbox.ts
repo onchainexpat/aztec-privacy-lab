@@ -36,6 +36,7 @@ import { GoodsEscrowContract } from '../src/contracts/GoodsEscrow'
 import { BattleshipPvPContract } from '../src/contracts/BattleshipPvP'
 import { PayrollContract } from '../src/contracts/Payroll'
 import { RewardsContract } from '../src/contracts/Rewards'
+import { BlackjackContract } from '../src/contracts/Blackjack'
 import { buildRewardsTree, type RewardEntry } from '../src/lib/rewards-merkle'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
@@ -378,6 +379,11 @@ async function main() {
   await rewards.methods.publish_root(Fr.fromString(rewardsRoot).toBigInt()).send({ from: admin })
   log('  funded', REWARDS_FUND.toString(), 'AZA, published root for', rewardsEntries.length, 'leaves')
 
+  log('deploying Blackjack (fair + private vs dealer)…')
+  // dealer = admin in this demo; games are created per session (no seed at setup).
+  const { contract: blackjack } = await BlackjackContract.deploy(wallet, admin).send({ from: admin })
+  log('Blackjack at', blackjack.address.toString())
+
   log('minting balances to admin…')
   const MINT = 1_000_000n
   await token0.methods.mint_to_private(admin, MINT).send({ from: admin })
@@ -562,6 +568,11 @@ async function main() {
       // Campaign leaves (address, amount). The panel rebuilds the tree from
       // these to derive its own Merkle proof. entry 0 is this demo account.
       entries: rewardsEntries,
+    },
+    blackjack: {
+      address: blackjack.address.toString(),
+      instance: await instanceJSON(blackjack.address),
+      dealer: admin.toString(),
     },
     crossChain: {
       bridge0: bridge0.address.toString(),

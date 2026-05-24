@@ -72,21 +72,21 @@ export const GAME_VARIATIONS: GameVariation[] = [
   },
   {
     id: 'g4',
-    title: 'Blackjack · player vs deterministic dealer',
+    title: 'Blackjack · fair + private vs online dealer',
     one_liner:
-      'Hole cards dealt to the player as their OWN private notes (genuinely hidden — encrypted to player pubkey, not contract). Dealer follows a fixed rule from a public seed; player decides hit/stand and reveals at showdown.',
+      'Combined-entropy commit-reveal shuffles a deck the dealer commits as a Merkle root. You can\'t see future cards, the dealer can\'t swap them, and at showdown your hand is a ZK witness — only your total + the outcome go public.',
     verdict: 'buildable',
-    status: 'planned',
+    status: 'shipped',
     axes: [
       { label: 'Player hand', value: 'private' },
-      { label: 'Dealer hand', value: 'public' },
       { label: 'Player decisions', value: 'private' },
-      { label: 'Final score', value: 'public' },
+      { label: 'Final total', value: 'public' },
+      { label: 'Dealer hand', value: 'public' },
     ],
     what_observer_sees:
-      'Bet + dealer face-up card public. A sequence of player private function calls (hit/stand) — only the action type is visible, not the resulting hand. At showdown the player reveals a ZK proof: "given my hole cards + my hit history, my final total is N (≤21 or busted)." Contract verifies + settles.',
+      'A committed deck Merkle root + the player\'s two commit txs. At showdown a private settle proves every player card is the committed card at its dealing position and publishes ONLY the total + win/lose/push — the player\'s individual cards never reach public state.',
     reason:
-      'The strongest single-player Aztec demo: the player\'s hand lives in their own private notes (encrypted to their pubkey, NOT the contract\'s), so observers truly cannot see the hand mid-game. Dealer rules are deterministic ("hit until 17") so no RNG needed beyond the initial public shuffle seed. Buildable today; not yet implemented.',
+      'Solves the single-player RNG problem honestly: neither side alone picks the shuffle (combined commit-reveal), the deck is committed so the dealer can\'t cheat mid-hand, and the player can\'t see ahead (never learns the dealer\'s seed during play). Cards are Merkle-verified in-circuit at showdown. Caveat: needs the dealer online to deal cards; fully-trustless shuffling is mental-poker (research-grade). Shipped on sandbox.',
   },
   {
     id: 'g5',
