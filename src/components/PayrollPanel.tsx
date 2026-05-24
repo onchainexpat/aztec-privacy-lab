@@ -29,8 +29,10 @@ export function PayrollPanel({ state, onClose }: Props) {
 
   async function refreshGlobal(sb: BrowserSandbox) {
     if (!sb.payroll) return
+    // "pool funded" = the contract's actual public AZA balance (reflects both
+    // fund() deposits and any direct mint), not the fund()-only counter.
     const [fR, pR, slipsR, clR] = await Promise.all([
-      sb.payroll.methods.get_total_funded().simulate({ from: sb.admin }),
+      sb.token0.methods.balance_of_public(sb.payroll.address).simulate({ from: sb.admin }),
       sb.payroll.methods.get_period().simulate({ from: sb.admin }),
       sb.payroll.methods.get_payslip_count().simulate({ from: sb.admin }),
       sb.payroll.methods.get_claimed_count().simulate({ from: sb.admin }),

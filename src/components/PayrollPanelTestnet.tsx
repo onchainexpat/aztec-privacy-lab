@@ -70,8 +70,10 @@ export function PayrollPanelTestnet({ state, onClose }: Props) {
 
   async function refresh(c: PayrollContract, cl: TestnetClient) {
     const { Fr } = await import('@aztec/aztec.js/fields')
+    // "pool funded" = the contract's actual public AZA balance (reflects both
+    // fund() deposits and any direct mint), not the fund()-only counter.
     const [fR, pR, slipsR, clR] = await Promise.all([
-      c.methods.get_total_funded().simulate({ from: cl.address }),
+      cl.token0.methods.balance_of_public(c.address).simulate({ from: cl.address }),
       c.methods.get_period().simulate({ from: cl.address }),
       c.methods.get_payslip_count().simulate({ from: cl.address }),
       c.methods.get_claimed_count().simulate({ from: cl.address }),
