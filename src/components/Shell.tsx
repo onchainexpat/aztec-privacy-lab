@@ -35,6 +35,7 @@ import { EscrowPanel } from './EscrowPanel'
 import { EscrowPanelTestnet } from './EscrowPanelTestnet'
 import { PayrollPanel } from './PayrollPanel'
 import { PayrollPanelTestnet } from './PayrollPanelTestnet'
+import { RewardsMatrix } from './RewardsMatrix'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
@@ -729,6 +730,8 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         {payrollOpen && sandboxState && network === 'testnet' && (
           <PayrollPanelTestnet state={sandboxState} onClose={() => setPayrollOpen(false)} />
         )}
+
+        <RewardsMatrix />
 
         {network === 'sandbox' && (
           <div className="mt-16" data-cross-chain-card>
