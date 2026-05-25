@@ -15,6 +15,7 @@ import { AMMPanelTestnet } from './AMMPanelTestnet'
 import { LaunchpadMatrix } from './LaunchpadMatrix'
 import { LaunchpadPanel } from './LaunchpadPanel'
 import { LaunchpadPanelTestnet } from './LaunchpadPanelTestnet'
+import { LaunchpadExtrasPanelTestnet } from './LaunchpadExtrasPanelTestnet'
 import { LendingMatrix } from './LendingMatrix'
 import { GamesMatrix } from './GamesMatrix'
 import { MinesweeperPanel } from './MinesweeperPanel'
@@ -41,6 +42,7 @@ import { RewardsPanelTestnet } from './RewardsPanelTestnet'
 import { BlackjackPanel } from './BlackjackPanel'
 import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
+import { LendingExtrasPanelTestnet } from './LendingExtrasPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
 import { VotingPanel } from './VotingPanel'
 import { VotingPanelTestnet } from './VotingPanelTestnet'
@@ -484,17 +486,11 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         {(activeLaunchpad === 'lp2' || activeLaunchpad === 'lp3') &&
           sandboxState &&
           network === 'testnet' && (
-            <section className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-              Variant {activeLaunchpad} uses a custom Noir contract that's currently only deployed
-              on the sandbox. Switch the network toggle to <strong>Sandbox</strong> to try it, or
-              ask for a testnet port.
-              <button
-                onClick={() => setActiveLaunchpad(null)}
-                className="ml-3 underline"
-              >
-                Close
-              </button>
-            </section>
+            <LaunchpadExtrasPanelTestnet
+              variant={activeLaunchpad}
+              state={sandboxState}
+              onClose={() => setActiveLaunchpad(null)}
+            />
           )}
 
         <div className="mt-16">
@@ -508,6 +504,15 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
             onClose={() => setActiveLending(null)}
           />
         )}
+        {(activeLending === 'ld1' || activeLending === 'ld3') &&
+          sandboxState &&
+          network === 'testnet' && (
+            <LendingExtrasPanelTestnet
+              variant={activeLending}
+              state={sandboxState}
+              onClose={() => setActiveLending(null)}
+            />
+          )}
         {(activeLending === 'ld1' || activeLending === 'ld2' || activeLending === 'ld3') &&
           sandboxState &&
           network === 'sandbox' && (
