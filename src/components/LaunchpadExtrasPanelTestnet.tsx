@@ -7,6 +7,7 @@ import {
 import type { SandboxState } from '../lib/sandbox-state'
 import { NETWORKS } from '../lib/network'
 import { PrivacyLeakage } from './ui/PrivacyLeakage'
+import { TxResult } from './ui/TxResult'
 
 type Variant = 'lp2' | 'lp3'
 
@@ -265,11 +266,7 @@ export function LaunchpadExtrasPanelTestnet({ variant, state, onClose }: Props) 
           {result}
         </p>
       )}
-      {error && (
-        <pre className="mt-3 max-h-48 overflow-auto rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-900">
-          {error}
-        </pre>
-      )}
+      {error && <TxResult message={error} />}
     </section>
   )
 }

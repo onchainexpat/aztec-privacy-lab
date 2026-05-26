@@ -7,6 +7,7 @@ import {
 import type { SandboxState } from '../lib/sandbox-state'
 import { PrivacyLeakage } from './ui/PrivacyLeakage'
 import type { PayrollContract } from '../contracts/Payroll'
+import { TxResult } from './ui/TxResult'
 
 interface Props {
   state: SandboxState
@@ -247,11 +248,7 @@ export function PayrollPanelTestnet({ state, onClose }: Props) {
             />
           </div>
 
-          {error && (
-            <pre className="mt-3 max-h-48 overflow-auto rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-900">
-              {error}
-            </pre>
-          )}
+          {error && <TxResult message={error} />}
         </>
       )}
     </section>

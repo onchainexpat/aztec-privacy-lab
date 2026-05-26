@@ -9,6 +9,7 @@ import { NETWORKS } from '../lib/network'
 import { captureProofLog, type ProofEvent } from '../lib/proof-log'
 import { useProofTimer } from '../lib/proof-timer'
 import { ProofTimer } from './ui/ProofTimer'
+import { TxResult } from './ui/TxResult'
 
 interface Props {
   state: SandboxState
@@ -249,11 +250,7 @@ export function LaunchpadPanelTestnet({ state, onClose }: Props) {
           {result}
         </p>
       )}
-      {error && (
-        <pre className="mt-3 max-h-48 overflow-auto rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-900">
-{error}
-        </pre>
-      )}
+      {error && <TxResult message={error} />}
     </section>
   )
 }
