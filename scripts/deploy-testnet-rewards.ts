@@ -87,6 +87,7 @@ async function main() {
   const { contract: rewards } = await RewardsContract.deploy(wallet, aza, admin).send({
     from: admin,
     fee: feeOpts,
+    contractAddressSalt: Fr.random(),
   })
   log('  at', rewards.address.toString())
 

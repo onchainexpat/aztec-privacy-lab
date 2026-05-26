@@ -52,6 +52,9 @@ pub contract Payroll {
 
     global SLOT_CLAIMABLE: u8 = 1;
     global SLOT_CLAIMED: u8 = 2;
+    // Per-claim payout cap (guards the demo pool against a single huge claim via
+    // the permissionless demo_add_payslip path). Above the demo payslip amounts.
+    global DEMO_MAX_PAYSLIP: u128 = 10000;
 
     #[storage]
     struct Storage<Context> {
@@ -106,6 +109,20 @@ pub contract Payroll {
         self.storage.payslip_count.write(prev + 1);
     }
 
+    // DEMO-ONLY: permissionless payslip publish so a shared-testnet visitor can
+    // play both employer + employee in their own session (publish an opaque
+    // payslip commitment for themselves, then claim it privately). The
+    // production path is the operator-gated add_payslip above; this exists so
+    // the public demo is interactive. The pool is operator-funded; claims are
+    // capped via DEMO_MAX_PAYSLIP in _consume_and_pay.
+    #[external("public")]
+    fn demo_add_payslip(commitment: Field) {
+        assert(self.storage.payslips.at(commitment).read() == 0, "payslip already added");
+        self.storage.payslips.at(commitment).write(SLOT_CLAIMABLE);
+        let prev = self.storage.payslip_count.read();
+        self.storage.payslip_count.write(prev + 1);
+    }
+
     // Operator advances to the next pay period.
     #[external("public")]
     fn advance_period() {
@@ -133,6 +150,7 @@ pub contract Payroll {
             self.storage.payslips.at(commitment).read() == SLOT_CLAIMABLE,
             "no claimable payslip or already claimed",
         );
+        assert(amount <= DEMO_MAX_PAYSLIP, "exceeds demo payout cap");
         self.storage.payslips.at(commitment).write(SLOT_CLAIMED);
         let token = self.storage.payment_token.read();
         Token::at(token).transfer_in_public(self.address, recipient, amount, 0).call(self.context);

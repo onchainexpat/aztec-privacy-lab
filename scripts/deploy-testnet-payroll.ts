@@ -92,6 +92,7 @@ async function main() {
   const { contract: payroll } = await PayrollContract.deploy(wallet, aza, admin).send({
     from: admin,
     fee: feeOpts,
+    contractAddressSalt: Fr.random(),
   })
   log('  at', payroll.address.toString())
 

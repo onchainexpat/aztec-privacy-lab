@@ -375,13 +375,13 @@
     "paymentToken": "AZA"
   },
   "payroll": {
-    "address": "0x2a89cef82f9db6fc7c78345a422e92a1b893e19aa9e07d6e9934cfd3a78fffd6",
+    "address": "0x03a1df26ae23a118d223fa6111d151a283f52a42e097fe4e3c52146585a5a1de",
     "instance": {
       "version": 1,
-      "salt": "0x00e18de77797374e592b47cd906edab96ebef896949936f41b1e35fbd27f6405",
+      "salt": "0x2ab49dc7dbd18de48e594dce9b51145de774e33360e63213dbcdc3e52592439a",
       "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
-      "currentContractClassId": "0x1e115f1739e30b19e4a68133b8040fd8292ab0d03dbeeebaf6d31a8207b7e768",
-      "originalContractClassId": "0x1e115f1739e30b19e4a68133b8040fd8292ab0d03dbeeebaf6d31a8207b7e768",
+      "currentContractClassId": "0x27591822ad63af85b037e893630947cd30fa61e14f6aa8d148a1094be673de12",
+      "originalContractClassId": "0x27591822ad63af85b037e893630947cd30fa61e14f6aa8d148a1094be673de12",
       "initializationHash": "0x0a33a8965b61f91ac3d3d5786dcef77ea0af2936ddf2e0ab53cfffac358117fd",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
@@ -389,7 +389,7 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x2a89cef82f9db6fc7c78345a422e92a1b893e19aa9e07d6e9934cfd3a78fffd6"
+      "address": "0x03a1df26ae23a118d223fa6111d151a283f52a42e097fe4e3c52146585a5a1de"
     },
     "paymentToken": "AZA",
     "operator": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
@@ -414,13 +414,13 @@
     ]
   },
   "rewards": {
-    "address": "0x23b21920d94b5a2950585303c7ce6e4dfb90b328dca73f71c2b03bd89afd25db",
+    "address": "0x1b71d87879737686a01c189649f3cc0c0e6b22e3c4fbc1b21ad74c53b13ef58a",
     "instance": {
       "version": 1,
-      "salt": "0x10f260c34d64a742bd8ade04aa93d4f1c8c7af379e860b4095a4e379e88c44a3",
+      "salt": "0x1a357bb3b954280b58278c9d7a706cd20fd2c776d73f452b70eff6f306bb3c09",
       "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
-      "currentContractClassId": "0x1818af19136c1ef7416d6090b2f9a2ef50b9dcf83562c1534874bd52ab14eea2",
-      "originalContractClassId": "0x1818af19136c1ef7416d6090b2f9a2ef50b9dcf83562c1534874bd52ab14eea2",
+      "currentContractClassId": "0x125416ed28d4efa7c48f1b86b05ce0404d37609cfe21fe29fbe73ebb9ce1b271",
+      "originalContractClassId": "0x125416ed28d4efa7c48f1b86b05ce0404d37609cfe21fe29fbe73ebb9ce1b271",
       "initializationHash": "0x0a33a8965b61f91ac3d3d5786dcef77ea0af2936ddf2e0ab53cfffac358117fd",
       "publicKeys": {
         "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
@@ -428,27 +428,27 @@
         "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
         "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
       },
-      "address": "0x23b21920d94b5a2950585303c7ce6e4dfb90b328dca73f71c2b03bd89afd25db"
+      "address": "0x1b71d87879737686a01c189649f3cc0c0e6b22e3c4fbc1b21ad74c53b13ef58a"
     },
     "paymentToken": "AZA",
     "operator": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
     "period": "0",
-    "root": "0x0b5658a8f808bcf1a782a148034a01bb9a259b46fcf8edbb73b4c8d4674ac132",
+    "root": "0x18a887ed0e23ac662b965793ffb15affd173f43e0fb4a0956252de5e7f9a024b",
     "entries": [
       {
         "address": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
         "amount": "5000"
       },
       {
-        "address": "0x2a9c4f4aa418a2e9de552331bd5f5214447bcce4ec147ddbafee92f1997f5e3a",
+        "address": "0x26f9eda8c81325c43fac3b6d5497e2237f55091d6a37a1f2829528c123c298c2",
         "amount": "3000"
       },
       {
-        "address": "0x21b0318ac29d83b863f57740207b9a8310304d6d9ce1223dba04bc93dec1cd9d",
+        "address": "0x1259c35373a6cd28290061e3a11ba0a30583d7cc2b969a9efcb03c1f93b34d01",
         "amount": "7000"
       },
       {
-        "address": "0x086896a91fd66ddbc581f67f4a0f72989946e98d37656e6b7d7138f0d217db1b",
+        "address": "0x21fb37924ea53b222d9d75db83a218055bc298f11ecccda5354f2976c5f61b8d",
         "amount": "1500"
       }
     ]

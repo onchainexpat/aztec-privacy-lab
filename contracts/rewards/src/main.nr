@@ -45,6 +45,7 @@ pub contract Rewards {
     use token::Token;
 
     global TREE_DEPTH: u32 = 4; // up to 16 leaves per campaign in this demo
+    global DEMO_REWARD: u128 = 50; // fixed payout for the permissionless demo claim
 
     #[storage]
     struct Storage<Context> {
@@ -143,6 +144,29 @@ pub contract Rewards {
         assert(period == self.storage.period.read(), "wrong period");
         assert(!self.storage.claimed.at(leaf).read(), "already claimed");
         self.storage.claimed.at(leaf).write(true);
+        let prev = self.storage.total_claimed.read();
+        self.storage.total_claimed.write(prev + 1);
+    }
+
+    // DEMO-ONLY: permissionless private claim so a shared-testnet visitor can
+    // experience the core privacy property without being pre-registered in a
+    // Merkle campaign. The caller stays hidden in the private kernel; a fixed
+    // DEMO_REWARD is paid to `recipient` (use a fresh address to keep it
+    // unlinkable). The real Merkle-inclusion flow (claim_public/claim_private)
+    // is unchanged and is exercised interactively on the sandbox. Repeat-
+    // claimable with a small fixed amount; the pool is operator-refillable.
+    #[external("private")]
+    fn demo_claim(recipient: AztecAddress) {
+        self.enqueue_self._demo_pay(recipient);
+    }
+
+    #[external("public")]
+    #[only_self]
+    fn _demo_pay(recipient: AztecAddress) {
+        let token = self.storage.payment_token.read();
+        Token::at(token).transfer_in_public(self.address, recipient, DEMO_REWARD, 0).call(
+            self.context,
+        );
         let prev = self.storage.total_claimed.read();
         self.storage.total_claimed.write(prev + 1);
     }

@@ -21,6 +21,8 @@ export function RewardsPanelTestnet({ state, onClose }: Props) {
   const [client, setClient] = useState<TestnetClient | null>(getResolvedTestnetClient())
   const [contract, setContract] = useState<RewardsContract | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [result, setResult] = useState<string | null>(null)
 
   const [poolBal, setPoolBal] = useState<bigint>(0n)
   const [period, setPeriod] = useState<number>(0)
@@ -83,6 +85,29 @@ export function RewardsPanelTestnet({ state, onClose }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract, client])
 
+  // DEMO: permissionless private claim. The caller stays hidden in the kernel;
+  // a small fixed reward is paid to the recipient. (The full Merkle-inclusion
+  // flow with both payout modes is exercised interactively on the sandbox.)
+  async function handleDemoClaim() {
+    if (!contract || !client) return
+    setBusy(true)
+    setError(null)
+    setResult(null)
+    try {
+      await contract.methods
+        .demo_claim(client.address)
+        .send({ from: client.address, fee: client.feeOpts })
+      setResult(
+        'Claimed a private reward — the claim ran as a private function (your identity stayed in the kernel); only the payout reached public state.',
+      )
+      await refresh(contract, client)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <section className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
       <div className="flex items-center justify-between">
@@ -97,10 +122,10 @@ export function RewardsPanelTestnet({ state, onClose }: Props) {
         counters + the opaque root, which is all an observer sees.
       </p>
       <p className="mt-2 rounded border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-900">
-        <strong>Why read-only here:</strong> claims are address-gated (the leaf binds the eligible
-        address), so only a registered recipient — not an anonymous visitor — can claim. Switch to
-        <strong> Sandbox</strong> to run the interactive claim with both public and
-        private-recipient payout modes.
+        <strong>Try it:</strong> the production claim is Merkle-address-gated, so this demo gives you
+        a permissionless private claim — your identity stays in the kernel, only the payout reaches
+        public state. The full Merkle-inclusion flow (both payout modes) runs interactively on{' '}
+        <strong>Sandbox</strong>; the live campaign root below is the read-only register.
       </p>
 
       {!client ? (
@@ -112,6 +137,26 @@ export function RewardsPanelTestnet({ state, onClose }: Props) {
         <p className="mt-4 text-sm text-black/50">Attaching contract…</p>
       ) : (
         <>
+          <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/40 p-4">
+            <p className="text-sm font-medium">Claim a private reward (demo)</p>
+            <p className="mt-1 text-xs text-black/55">
+              One private testnet tx (~1–2 min with proving): the claim hides you in the kernel and
+              pays a small reward to your account.
+            </p>
+            <button
+              onClick={handleDemoClaim}
+              disabled={busy}
+              className="mt-3 rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {busy ? 'Proving + claiming…' : 'Claim a private reward'}
+            </button>
+            {result && (
+              <p className="mt-3 rounded border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-900">
+                {result}
+              </p>
+            )}
+          </div>
+
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
             <Stat label="pool balance" value={`${Number(poolBal).toLocaleString()} AZA`} />
             <Stat label="claims paid" value={String(totalClaimed)} />

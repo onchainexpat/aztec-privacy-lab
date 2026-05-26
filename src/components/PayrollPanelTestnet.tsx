@@ -26,6 +26,8 @@ export function PayrollPanelTestnet({ state, onClose }: Props) {
   const [client, setClient] = useState<TestnetClient | null>(getResolvedTestnetClient())
   const [contract, setContract] = useState<PayrollContract | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [result, setResult] = useState<string | null>(null)
 
   const [funded, setFunded] = useState<bigint>(0n)
   const [period, setPeriod] = useState<number>(0)
@@ -99,6 +101,45 @@ export function PayrollPanelTestnet({ state, onClose }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract, client])
 
+  // DEMO: the visitor plays employer + employee in their own session via the
+  // permissionless demo_add_payslip path — publish an opaque payslip for their
+  // own (address, amount, period), then claim it privately. Their identity
+  // stays in the kernel; only the consumed slot + payout reach public state.
+  const DEMO_AMOUNT = 100n
+  async function handleDemoPlay() {
+    if (!contract || !client) return
+    setBusy(true)
+    setError(null)
+    setResult(null)
+    try {
+      const { Fr } = await import('@aztec/aztec.js/fields')
+      const { pedersenHash } = await import('@aztec/foundation/crypto/sync')
+      const periodR = await contract.methods.get_period().simulate({ from: client.address })
+      const per = BigInt(periodR.result as bigint)
+      const commitment = pedersenHash([
+        client.address.toField(),
+        new Fr(DEMO_AMOUNT),
+        new Fr(per),
+      ])
+      // 1) publish the opaque payslip (permissionless demo path)
+      await contract.methods
+        .demo_add_payslip(commitment.toBigInt())
+        .send({ from: client.address, fee: client.feeOpts })
+      // 2) claim it privately — payout to self (use a fresh address for full unlinkability)
+      await contract.methods
+        .claim(DEMO_AMOUNT, per, client.address)
+        .send({ from: client.address, fee: client.feeOpts })
+      setResult(
+        `Published an opaque payslip for ${DEMO_AMOUNT} AZA and claimed it privately — observers saw a commitment + a payout, not that it was you.`,
+      )
+      await refresh(contract, client)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <section className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
       <div className="flex items-center justify-between">
@@ -113,10 +154,10 @@ export function PayrollPanelTestnet({ state, onClose }: Props) {
         observer sees: aggregate counters and opaque commitments, never the salaries.
       </p>
       <p className="mt-2 rounded border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-900">
-        <strong>Why read-only here:</strong> payroll claims are employee-address-gated (commitment =
-        pedersen(employee, amount, period)), so only the registered employee — not an anonymous
-        visitor — can claim a payslip. Switch to <strong>Sandbox</strong> to run the full
-        fund &rarr; publish &rarr; private-claim cycle as both employer and employee.
+        <strong>Try it:</strong> the production claim is employee-address-gated, so this demo gives
+        you a permissionless path — you publish an opaque payslip for yourself and claim it
+        privately, playing both employer and employee. Your identity stays in the private kernel;
+        observers see a commitment get published and a payout happen, not that it was you.
       </p>
 
       {!client ? (
@@ -133,6 +174,27 @@ export function PayrollPanelTestnet({ state, onClose }: Props) {
             <Stat label="payslips published" value={String(published)} />
             <Stat label="claims paid" value={String(claimed)} />
             <Stat label="pay period" value={String(period)} />
+          </div>
+
+          <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/40 p-4">
+            <p className="text-sm font-medium">Run a private payslip (demo)</p>
+            <p className="mt-1 text-xs text-black/55">
+              Publishes an opaque commitment for {Number(DEMO_AMOUNT)} AZA tied to your hidden
+              address, then privately claims it to your account — two real testnet txs (~1–2 min
+              each with proving).
+            </p>
+            <button
+              onClick={handleDemoPlay}
+              disabled={busy}
+              className="mt-3 rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {busy ? 'Proving + claiming…' : `Publish & claim ${Number(DEMO_AMOUNT)} AZA privately`}
+            </button>
+            {result && (
+              <p className="mt-3 rounded border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-900">
+                {result}
+              </p>
+            )}
           </div>
 
           <div className="mt-4 rounded-xl border border-black/10 p-4">
