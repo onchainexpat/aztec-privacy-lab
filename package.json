@@ -39,7 +39,9 @@
     "testnet:swap-l1-private": "tsx scripts/run-testnet-swap-private.ts",
     "testnet:complete-pending-swap": "tsx scripts/complete-testnet-pending-swap.ts",
     "testnet:redeploy-all": "bash scripts/redeploy-all-testnet.sh",
-    "testnet:deploy-anonymous-voting": "tsx scripts/deploy-testnet-anonymous-voting.ts"
+    "testnet:deploy-anonymous-voting": "tsx scripts/deploy-testnet-anonymous-voting.ts",
+    "audit:sandbox": "tsx scripts/audit-contracts.ts sandbox",
+    "audit:testnet": "tsx scripts/audit-contracts.ts testnet"
   },
   "dependencies": {
     "@azguardwallet/client": "^0.9.0",
