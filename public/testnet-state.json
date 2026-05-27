@@ -551,5 +551,36 @@
     "collateralAsset": "AZA",
     "stableCoin": "AZB",
     "loanToValueBps": "8000"
+  },
+  "anonymousVoting": {
+    "address": "0x293fc7b10684b86c3fa99fcd69b55adb67b23ad1a035480e7cfc60fba6138ab7",
+    "instance": {
+      "version": 1,
+      "salt": "0x0e550b8bddab397f4ac0a0eed5df5fd3545da04014851b52414d26dbe4a8b838",
+      "deployer": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+      "currentContractClassId": "0x0804df05c02a1f1c0a9d7e8ed4ca0ad332d042f67800d9d117cb10d9637e62ab",
+      "originalContractClassId": "0x0804df05c02a1f1c0a9d7e8ed4ca0ad332d042f67800d9d117cb10d9637e62ab",
+      "initializationHash": "0x24556bbd9d82d1b3b7b184e3f31b170695cd465a5f44257f28a7a26bcd887c8a",
+      "publicKeys": {
+        "masterNullifierPublicKey": "0x01498945581e0eb9f8427ad6021184c700ef091d570892c437d12c7d90364bbd170ae506787c5c43d6ca9255d571c10fa9ffa9d141666e290c347c5c9ab7e344",
+        "masterIncomingViewingPublicKey": "0x00c044b05b6ca83b9c2dbae79cc1135155956a64e136819136e9947fe5e5866c1c1f0ca244c7cd46b682552bff8ae77dea40b966a71de076ec3b7678f2bdb151",
+        "masterOutgoingViewingPublicKey": "0x1b00316144359e9a3ec8e49c1cdb7eeb0cedd190dfd9dc90eea5115aa779e287080ffc74d7a8b0bccb88ac11f45874172f3847eb8b92654aaa58a3d2b8dc7833",
+        "masterTaggingPublicKey": "0x019c111f36ad3fc1d9b7a7a14344314d2864b94f030594cd67f753ef774a1efb2039907fe37f08d10739255141bb066c506a12f7d1e8dfec21abc58494705b6f"
+      },
+      "address": "0x293fc7b10684b86c3fa99fcd69b55adb67b23ad1a035480e7cfc60fba6138ab7"
+    },
+    "operator": "0x088514542b27167bfbac92c20fb1c4a12f201dc01c80c12dc963bcc3fb50c38a",
+    "numCandidates": 3,
+    "candidates": [
+      "Raise the quorum",
+      "Keep as-is",
+      "Abstain"
+    ],
+    "eligibleRoot": "0x2dd9d5c025e04ed18d140f4f64eaf1dbccebe2b365064f8dd2fd5fe287a0992b",
+    "eligibleSecrets": [
+      "0x04731ca53e1118d400c06e171c6929c4772a2ea6dcdc0540423ce7917faf0ead",
+      "0x12e5a320a4792f32ae249d46ece481117110693dca520df08a6655b552b136e3",
+      "0x09ba5e066a2bba866af2b5bf9d8fc2ecc9401c7e340acefa64df86d413b8f20a"
+    ]
   }
 }
