@@ -38,7 +38,8 @@
     "testnet:plant-mock-router": "tsx scripts/plant-testnet-mock-router.ts",
     "testnet:swap-l1-private": "tsx scripts/run-testnet-swap-private.ts",
     "testnet:complete-pending-swap": "tsx scripts/complete-testnet-pending-swap.ts",
-    "testnet:redeploy-all": "bash scripts/redeploy-all-testnet.sh"
+    "testnet:redeploy-all": "bash scripts/redeploy-all-testnet.sh",
+    "testnet:deploy-anonymous-voting": "tsx scripts/deploy-testnet-anonymous-voting.ts"
   },
   "dependencies": {
     "@azguardwallet/client": "^0.9.0",

@@ -30,6 +30,7 @@ import type { BattleshipPvPContract } from '../contracts/BattleshipPvP'
 import type { PayrollContract } from '../contracts/Payroll'
 import type { RewardsContract } from '../contracts/Rewards'
 import type { BlackjackContract } from '../contracts/Blackjack'
+import type { AnonymousVotingContract } from '../contracts/AnonymousVoting'
 import type { TokenBridgeContract } from '@aztec/noir-contracts.js/TokenBridge'
 import type { UniswapContract } from '@aztec/noir-contracts.js/Uniswap'
 import type { SandboxState } from './sandbox-state'
@@ -59,6 +60,7 @@ export interface BrowserSandbox {
   payroll: PayrollContract | null
   rewards: RewardsContract | null
   blackjack: BlackjackContract | null
+  anonymousVoting: AnonymousVotingContract | null
   lending: LendingContract | null
   ld2: PublicCollateralPrivateDebtContract | null
   l2Bridge: TokenBridgeContract | null
@@ -131,6 +133,7 @@ export function initBrowserSandbox(
     const payrollMod = await import('../contracts/Payroll')
     const rewardsMod = await import('../contracts/Rewards')
     const blackjackMod = await import('../contracts/Blackjack')
+    const anonVotingMod = await import('../contracts/AnonymousVoting')
     const bridgeMod = await import('@aztec/noir-contracts.js/TokenBridge')
     const uniswapMod = await import('@aztec/noir-contracts.js/Uniswap')
 
@@ -274,6 +277,12 @@ export function initBrowserSandbox(
       await wallet.registerContract(
         deserialize(state.blackjack.instance),
         blackjackMod.BlackjackContractArtifact,
+      )
+    }
+    if (state.anonymousVoting) {
+      await wallet.registerContract(
+        deserialize(state.anonymousVoting.instance),
+        anonVotingMod.AnonymousVotingContractArtifact,
       )
     }
     if (state.crossChain?.bridge0Instance) {
@@ -425,6 +434,12 @@ export function initBrowserSandbox(
           wallet,
         )
       : null
+    const anonymousVoting = state.anonymousVoting
+      ? await anonVotingMod.AnonymousVotingContract.at(
+          addressMod.AztecAddress.fromString(state.anonymousVoting.address),
+          wallet,
+        )
+      : null
     const l2Bridge = state.crossChain?.bridge0Instance
       ? await bridgeMod.TokenBridgeContract.at(
           addressMod.AztecAddress.fromString(state.crossChain.bridge0),
@@ -469,6 +484,7 @@ export function initBrowserSandbox(
       payroll,
       rewards,
       blackjack,
+      anonymousVoting,
       lending,
       ld2,
       l2Bridge,

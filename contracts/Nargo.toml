@@ -17,4 +17,5 @@ members = [
   "payroll",
   "rewards",
   "blackjack",
+  "anonymous_voting",
 ]

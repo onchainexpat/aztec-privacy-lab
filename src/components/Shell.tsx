@@ -44,8 +44,8 @@ import { LendingPanel } from './LendingPanel'
 import { LendingPanelTestnet } from './LendingPanelTestnet'
 import { LendingExtrasPanelTestnet } from './LendingExtrasPanelTestnet'
 import { CrossChainCard } from './CrossChainCard'
-import { VotingPanel } from './VotingPanel'
-import { VotingPanelTestnet } from './VotingPanelTestnet'
+import { AnonymousVotingPanel } from './AnonymousVotingPanel'
+import { AnonymousVotingPanelTestnet } from './AnonymousVotingPanelTestnet'
 import { BridgePanel } from './BridgePanel'
 import { loadDeployState, type SandboxState } from '../lib/sandbox-state'
 import type { Variation } from '../data/variations'
@@ -604,14 +604,10 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         </div>
 
         {votingOpen && sandboxState && network === 'testnet' && (
-          <VotingPanelTestnet
-            state={sandboxState}
-            azguardAccount={account}
-            onClose={() => setVotingOpen(false)}
-          />
+          <AnonymousVotingPanelTestnet state={sandboxState} onClose={() => setVotingOpen(false)} />
         )}
         {votingOpen && sandboxState && network === 'sandbox' && (
-          <VotingPanel state={sandboxState} onClose={() => setVotingOpen(false)} />
+          <AnonymousVotingPanel state={sandboxState} onClose={() => setVotingOpen(false)} />
         )}
 
         <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">

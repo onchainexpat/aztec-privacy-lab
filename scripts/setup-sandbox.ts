@@ -37,7 +37,9 @@ import { BattleshipPvPContract } from '../src/contracts/BattleshipPvP'
 import { PayrollContract } from '../src/contracts/Payroll'
 import { RewardsContract } from '../src/contracts/Rewards'
 import { BlackjackContract } from '../src/contracts/Blackjack'
+import { AnonymousVotingContract } from '../src/contracts/AnonymousVoting'
 import { buildRewardsTree, type RewardEntry } from '../src/lib/rewards-merkle'
+import { buildEligibleTree } from '../src/lib/voting-merkle'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 const SANDBOX_URL = process.env.SANDBOX_URL ?? 'http://localhost:8090'
@@ -305,6 +307,23 @@ async function main() {
   }
   log('  pre-issued', attestationSecrets.length, 'credentials')
 
+  log('deploying AnonymousVoting (eligibility-gated, composes with attestation)…')
+  const VOTE_CANDIDATES = ['Raise the quorum', 'Keep as-is', 'Abstain']
+  const { contract: anonVoting } = await AnonymousVotingContract.deploy(
+    wallet,
+    admin,
+    VOTE_CANDIDATES.length,
+  ).send({ from: admin })
+  log('AnonymousVoting at', anonVoting.address.toString())
+  // Eligible voters = holders of the attestation credentials above (same
+  // secrets), so the two primitives genuinely compose. Publish the Merkle root.
+  const eligibleSecrets = attestationSecrets.map((c) => c.secret)
+  const { root: eligibleRoot } = buildEligibleTree(eligibleSecrets)
+  await anonVoting.methods
+    .publish_eligible_root(Fr.fromString(eligibleRoot).toBigInt())
+    .send({ from: admin })
+  log('  published eligible root for', eligibleSecrets.length, 'voters')
+
   log('deploying BatchPay (nested private composability demo)…')
   const { contract: batchPay } = await BatchPayContract.deploy(
     wallet,
@@ -523,6 +542,18 @@ async function main() {
       salt: lotterySalt.toString(),
       seedCommitment: lotterySeedCommitment.toString(),
       maxNumber: '100',
+    },
+    anonymousVoting: {
+      address: anonVoting.address.toString(),
+      instance: await instanceJSON(anonVoting.address),
+      operator: admin.toString(),
+      numCandidates: VOTE_CANDIDATES.length,
+      candidates: VOTE_CANDIDATES,
+      eligibleRoot,
+      // Demo: the eligible voters' secrets, so the sandbox panel can derive a
+      // Merkle proof + vote. In a real deploy these live only in each holder's
+      // wallet (same as the attestation credential secrets).
+      eligibleSecrets,
     },
     attestation: {
       address: attestation.address.toString(),

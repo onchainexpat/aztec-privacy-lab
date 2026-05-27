@@ -128,6 +128,15 @@ export interface SandboxState {
     root: string
     entries: { address: string; amount: string }[]
   }
+  anonymousVoting?: {
+    address: string
+    instance: unknown
+    operator: string
+    numCandidates: number
+    candidates: string[]
+    eligibleRoot: string
+    eligibleSecrets: string[]
+  }
   blackjack?: {
     address: string
     instance: unknown
