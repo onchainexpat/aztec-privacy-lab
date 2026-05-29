@@ -1,3 +1,5 @@
+import { TESTNET_NODE_URL } from './testnet-url'
+
 export type NetworkId = 'sandbox' | 'testnet'
 
 export interface NetworkConfig {
@@ -24,7 +26,9 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
     label: 'Testnet (Alpha v4)',
     // Canonical testnet RPC — L1 settles to Sepolia (chainId 11155111).
     // NOT aztec.drpc.org, which is the mainnet Aztec rollup (L1 chainId 1).
-    nodeUrl: 'https://rpc.testnet.aztec-labs.com',
+    // Override at build time with VITE_TESTNET_NODE_URL to point at a
+    // self-hosted node (e.g. via Tailscale Funnel). See ./testnet-url.ts.
+    nodeUrl: TESTNET_NODE_URL,
     explorerUrl: 'https://testnet.aztecscan.xyz',
     faucetUrl: 'https://aztec-faucet.nethermind.io',
     enabled: true,
