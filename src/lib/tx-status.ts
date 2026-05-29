@@ -47,5 +47,21 @@ export function describeTxError(e: unknown): TxOutcome {
     }
   }
 
+  // Aztec public testnet RPC uses a QuickNode L1 backend that periodically rate-
+  // limits under load. When that 429 bubbles back, dashboard panels would show
+  // the raw viem error — surface it as a friendly retry note instead.
+  if (
+    low.includes('429') ||
+    low.includes('too many requests') ||
+    low.includes('quiknode') ||
+    low.includes('rate limit')
+  ) {
+    return {
+      pending: true,
+      message:
+        'The Aztec public testnet RPC is currently rate-limited by its L1 backend (a transient infra condition on the Aztec team\'s side). Wait ~30 seconds and try again; this typically clears quickly.',
+    }
+  }
+
   return { pending: false, message: raw }
 }
