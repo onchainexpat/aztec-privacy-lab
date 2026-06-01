@@ -1,5 +1,6 @@
 import { createAztecNodeClient, waitForNode, type AztecNode } from '@aztec/aztec.js/node'
 import type { NetworkConfig } from './network'
+import { resolveTestnetNodeUrl } from './testnet-url'
 
 let cached: { url: string; node: AztecNode } | null = null
 
@@ -48,13 +49,16 @@ export class PrivateNetworkUnreachableError extends Error {
 }
 
 export async function getNode(network: NetworkConfig): Promise<AztecNode> {
-  if (isCrossPrivateBoundary(network.nodeUrl)) {
-    throw new PrivateNetworkUnreachableError(network.nodeUrl)
+  // For testnet, resolve with failover (self-hosted node → public RPC) rather
+  // than trusting the static config URL, which may be a node that's down.
+  const url = network.id === 'testnet' ? await resolveTestnetNodeUrl() : network.nodeUrl
+  if (isCrossPrivateBoundary(url)) {
+    throw new PrivateNetworkUnreachableError(url)
   }
-  if (cached && cached.url === network.nodeUrl) return cached.node
-  const node = createAztecNodeClient(network.nodeUrl)
+  if (cached && cached.url === url) return cached.node
+  const node = createAztecNodeClient(url)
   await waitForNode(node)
-  cached = { url: network.nodeUrl, node }
+  cached = { url, node }
   return node
 }
 

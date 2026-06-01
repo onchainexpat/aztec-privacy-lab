@@ -19,7 +19,7 @@ import type { CrowdfundingContract } from '@aztec/noir-contracts.js/Crowdfunding
 import type { PublicCollateralPrivateDebtContract } from '../contracts/PublicCollateralPrivateDebt'
 import type { SandboxState } from './sandbox-state'
 import type { SponsoredFeePaymentMethod } from '@aztec/aztec.js/fee'
-import { TESTNET_NODE_URL } from './testnet-url'
+import { resolveTestnetNodeUrl } from './testnet-url'
 
 export interface TestnetClient {
   wallet: Wallet
@@ -135,10 +135,10 @@ export function initTestnetClient(
     const sponsoredFPCMod = await import('@aztec/noir-contracts.js/SponsoredFPC')
     const constantsMod = await import('@aztec/constants')
 
-    // Prefer the build-time override (VITE_TESTNET_NODE_URL) so we can point
-    // the dashboard at a self-hosted node without rewriting testnet-state.json.
-    // state.sandboxUrl is the historical default baked in by deploy scripts.
-    const testnetUrl = TESTNET_NODE_URL || state.sandboxUrl
+    // Resolve with failover: self-hosted node (VITE_TESTNET_NODE_URL) when it's
+    // reachable, else the public RPC. Falls through to state.sandboxUrl only if
+    // the resolver somehow yields nothing (defensive).
+    const testnetUrl = (await resolveTestnetNodeUrl()) || state.sandboxUrl
     onProgress?.('connecting to ' + testnetUrl + '…')
     const node = nodeMod.createAztecNodeClient(testnetUrl)
     const wallet = (await walletsMod.EmbeddedWallet.create(node, {
