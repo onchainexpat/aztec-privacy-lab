@@ -69,8 +69,8 @@ export const LENDING_VARIATIONS: LendingVariation[] = [
       { label: 'Liquidation trigger', value: 'public' },
     ],
     what_observer_sees:
-      'A liquidation tx with a ZK proof that "some position is under-collateralized at current oracle price" but no information about which one. Requires a ZK oracle proof and a recursive position-scan circuit — open research.',
+      'A liquidation tx with a ZK proof that "some position is under-collateralized at current oracle price" but no information about which one. Requires a fresh in-circuit price and a recursive position-scan circuit — open research.',
     reason:
-      'No production implementation on Aztec yet. The bundled Lending contract supports private positions but not anonymous-liquidator scanning.',
+      'No production implementation on Aztec yet, and the missing primitive is now better understood. Liquidating a hidden position needs a fresh price inside the circuit, but private oracle reads on Aztec face a privacy / freshness / contention trilemma (per Nethermind\'s Q1 2026 oracle exploration): a push oracle (price written to a contract) leaks read patterns and contends on a shared public slot, while a pull oracle (consumer fetches) struggles to prove the price is fresh without revealing the read. Combined with the recursive position-scan circuit an anonymous liquidator would need, this stays research-grade — the bundled Lending contract supports private positions but not anonymous-liquidator scanning.',
   },
 ]
