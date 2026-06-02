@@ -5,6 +5,7 @@ import {
   type TestnetClient,
 } from '../lib/browser-testnet'
 import type { SandboxState } from '../lib/sandbox-state'
+import { resolveTestnetNodeUrl } from '../lib/testnet-url'
 import { PrivacyLeakage } from './ui/PrivacyLeakage'
 import type { WordleContract } from '../contracts/Wordle'
 import { TxResult } from './ui/TxResult'
@@ -69,7 +70,9 @@ export function WordlePanelTestnet({ state, onClose }: Props) {
     let cancelled = false
     async function poll() {
       try {
-        const res = await fetch(state.sandboxUrl, {
+        // Read the L2 header via our node (resolveTestnetNodeUrl) rather than
+        // state.sandboxUrl (the public RPC), so this poll isn't 429-prone.
+        const res = await fetch(await resolveTestnetNodeUrl(), {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
