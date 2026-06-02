@@ -65,3 +65,52 @@ export async function resolveTestnetNodeUrl(): Promise<string> {
   resolved = { url, at: now }
   return url
 }
+
+// AztecNode methods that touch the tx mempool / submission path. Our self-hosted
+// node runs with P2P disabled (archiver/RPC only), so it can serve state reads
+// but has no way to propagate a submitted tx to a sequencer — sends would never
+// mine. So when reads are routed to our node, we route just these methods to the
+// public RPC (which has sequencer connectivity). Everything else — the L1-backed
+// reads that were getting rate-limited (429) — stays on our node.
+//
+// This also keeps your home IP private: reads still go through the Tailscale
+// Funnel (which relays via Tailscale's ingress, never exposing the origin IP),
+// and sends go to the third-party public RPC — at no point is the home IP
+// advertised (unlike re-enabling libp2p, which Funnel can't tunnel).
+const SEND_PATH_METHODS = new Set([
+  'sendTx',
+  'getTxReceipt',
+  'getTxEffect',
+  'getPendingTxs',
+  'getPendingTxCount',
+  'getTxsByHash',
+  'isValidTx',
+])
+
+/**
+ * Build the AztecNode the wallet/PXE should use. When reads resolve to our
+ * self-hosted node, returns a split node: tx submission/tracking → public RPC,
+ * all reads → our node. When reads resolve to the public RPC (fallback), returns
+ * a plain public client (no split needed).
+ *
+ * `createClient` is @aztec's createAztecNodeClient, passed in so this module
+ * stays free of heavy @aztec imports (callers lazy-load it).
+ */
+export function makeTestnetNode<N extends object>(
+  createClient: (url: string) => N,
+  readUrl: string,
+): N {
+  const readNode = createClient(readUrl)
+  if (readUrl === PUBLIC_TESTNET_RPC) return readNode // public handles everything
+  const sendNode = createClient(PUBLIC_TESTNET_RPC)
+  return new Proxy(readNode, {
+    get(target, prop, receiver) {
+      if (typeof prop === 'string' && SEND_PATH_METHODS.has(prop)) {
+        const fn = (sendNode as Record<string, unknown>)[prop]
+        return typeof fn === 'function' ? (fn as (...a: unknown[]) => unknown).bind(sendNode) : fn
+      }
+      const v = Reflect.get(target, prop, receiver)
+      return typeof v === 'function' ? (v as (...a: unknown[]) => unknown).bind(target) : v
+    },
+  }) as N
+}

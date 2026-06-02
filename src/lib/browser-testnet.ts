@@ -19,7 +19,7 @@ import type { CrowdfundingContract } from '@aztec/noir-contracts.js/Crowdfunding
 import type { PublicCollateralPrivateDebtContract } from '../contracts/PublicCollateralPrivateDebt'
 import type { SandboxState } from './sandbox-state'
 import type { SponsoredFeePaymentMethod } from '@aztec/aztec.js/fee'
-import { resolveTestnetNodeUrl } from './testnet-url'
+import { resolveTestnetNodeUrl, makeTestnetNode } from './testnet-url'
 
 export interface TestnetClient {
   wallet: Wallet
@@ -140,7 +140,10 @@ export function initTestnetClient(
     // the resolver somehow yields nothing (defensive).
     const testnetUrl = (await resolveTestnetNodeUrl()) || state.sandboxUrl
     onProgress?.('connecting to ' + testnetUrl + '…')
-    const node = nodeMod.createAztecNodeClient(testnetUrl)
+    // Split node: reads go to testnetUrl (our funnel node — no 429s, IP stays
+    // private behind Tailscale Funnel); tx submission/tracking goes to the public
+    // RPC, because our P2P-disabled node can't propagate sends to a sequencer.
+    const node = makeTestnetNode(nodeMod.createAztecNodeClient, testnetUrl)
     const wallet = (await walletsMod.EmbeddedWallet.create(node, {
       pxe: { proverEnabled: true },
     })) as unknown as Wallet
