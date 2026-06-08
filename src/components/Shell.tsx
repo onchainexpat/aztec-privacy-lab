@@ -297,10 +297,19 @@ export function Shell() {
             ) : sandboxState?.crossChain?.l1UniswapPortal && sandboxState.crossChain.portalsInitialized ? (
               <>
                 <p className="mt-2">
-                  Testnet L1 portals are deployed on Sepolia and wired to the Aztec testnet L2
-                  contracts. Interactive trigger from the dashboard is not yet wired — for now the
-                  flow is driven via the CLI.
+                  Live and verified end to end on Aztec testnet → Sepolia → back: L1 portals are
+                  deployed on Sepolia and wired to the L2 contracts, and the full private swap
+                  (L2 <code className="font-mono">swap_private</code> → L2→L1 messages → Sepolia{' '}
+                  <code className="font-mono">swapPrivate</code> → L1→L2 mint → private claim) runs
+                  via the CLI. It&apos;s CLI-driven on purpose: the L1 leg has to be signed by a
+                  funded Sepolia key, which shouldn&apos;t live in a browser tab — so unlike the
+                  sandbox bridge there&apos;s no in-page trigger here.
                 </p>
+                <pre className="mt-3 overflow-x-auto rounded-lg border border-emerald-300/40 bg-white p-3 font-mono text-[11px]">
+{`TESTNET_SECRET=0x... TESTNET_SALT=0x... TESTNET_SIGNING=0x... \\
+SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
+  npm run testnet:swap-l1-private`}
+                </pre>
                 <div className="mt-3 grid grid-cols-1 gap-2 text-xs">
                   <p>
                     L1 UniswapPortalSepolia:{' '}
@@ -337,12 +346,14 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
   npm run testnet:wire-uniswap`}
                 </pre>
                 <p className="mt-2 text-xs text-emerald-900/70">
-                  Once wired, an interactive testnet flow needs (a) Sepolia ETH for the L1 portal
-                  call and (b) a per-tab Schnorr account deployed via SponsoredFPC. Tracked in the
-                  testnet-interactive blocker note. The CLI run script is{' '}
-                  <strong>not yet written</strong> in this batch — it would mirror{' '}
-                  <code className="font-mono">run-uniswap-swap-private.ts</code> but read the
-                  Sepolia portal addresses from <code>testnet-state.json</code>.
+                  Once wired, the end-to-end CLI run script{' '}
+                  <code className="font-mono">scripts/run-testnet-swap-private.ts</code> (
+                  <code className="font-mono">npm run testnet:swap-l1-private</code>) drives the
+                  whole private swap — it mirrors the sandbox{' '}
+                  <code className="font-mono">run-uniswap-swap-private.ts</code> but reads the
+                  Sepolia portal addresses from <code>testnet-state.json</code>. An{' '}
+                  <em>in-page</em> trigger stays out of scope: the L1 leg needs a funded Sepolia
+                  signer, which doesn&apos;t belong in a browser tab.
                 </p>
               </>
             )}
@@ -840,7 +851,7 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
           <p className="max-w-prose">
             Experimental research dashboard. Not audited. Contracts are demos meant to illustrate
             Aztec's privacy model — do not deposit real funds. Built against{' '}
-            <code className="font-mono">@aztec/aztec.js@4.2.0-rc.1</code> + Aztec Alpha v4 testnet
+            <code className="font-mono">@aztec/aztec.js@4.3.1</code> + Aztec Alpha v4 testnet
             (L1 settles to Sepolia).{' '}
             <span className="whitespace-nowrap">
               build{' '}

@@ -5,7 +5,7 @@
 /* eslint-disable */
 import { AztecAddress, CompleteAddress } from '@aztec/aztec.js/addresses';
 import { type AbiType, type AztecAddressLike, type ContractArtifact, EventSelector, decodeFromAbi, type EthAddressLike, type FieldLike, type FunctionSelectorLike, loadContractArtifact, loadContractArtifactForPublic, type NoirCompiledContract, type OptionLike, type U128Like, type WrappedFieldLike } from '@aztec/aztec.js/abi';
-import { Contract, ContractBase, ContractFunctionInteraction, type ContractMethod, type ContractStorageLayout, DeployMethod } from '@aztec/aztec.js/contracts';
+import { Contract, ContractBase, ContractFunctionInteraction, type ContractMethod, type ContractStorageLayout, type DeployInstantiationOptions, DeployMethod } from '@aztec/aztec.js/contracts';
 import { EthAddress } from '@aztec/aztec.js/addresses';
 import { Fr, Point } from '@aztec/aztec.js/fields';
 import { type PublicKey, PublicKeys } from '@aztec/aztec.js/keys';
@@ -45,32 +45,37 @@ export class LotteryContract extends ContractBase {
   
   /**
    * Creates a tx to deploy a new instance of this contract.
+   * @param instantiation - Optional address-affecting parameters (salt, deployer / universalDeploy, publicKeys).
+   *                       Salt defaults to a random value; the deployer is locked lazily from the first send-time `from`.
    */
-  public static deploy(wallet: Wallet, payment_token: AztecAddressLike, operator: AztecAddressLike, vrf_portal: EthAddressLike, seed_commitment: FieldLike) {
-    return new DeployMethod<LotteryContract>(PublicKeys.default(), wallet, LotteryContractArtifact, (instance, wallet) => LotteryContract.at(instance.address, wallet), Array.from(arguments).slice(1));
-  }
-
-  /**
-   * Creates a tx to deploy a new instance of this contract using the specified public keys hash to derive the address.
-   */
-  public static deployWithPublicKeys(publicKeys: PublicKeys, wallet: Wallet, payment_token: AztecAddressLike, operator: AztecAddressLike, vrf_portal: EthAddressLike, seed_commitment: FieldLike) {
-    return new DeployMethod<LotteryContract>(publicKeys, wallet, LotteryContractArtifact, (instance, wallet) => LotteryContract.at(instance.address, wallet), Array.from(arguments).slice(2));
+  public static deploy(wallet: Wallet, payment_token: AztecAddressLike, operator: AztecAddressLike, vrf_portal: EthAddressLike, seed_commitment: FieldLike, instantiation?: DeployInstantiationOptions) {
+    return DeployMethod.create<LotteryContract>(
+      wallet,
+      {
+        artifact: LotteryContractArtifact,
+        postDeployCtor: (instance, wallet) => LotteryContract.at(instance.address, wallet),
+        args: [payment_token, operator, vrf_portal, seed_commitment],
+      },
+      instantiation,
+    );
   }
 
   /**
    * Creates a tx to deploy a new instance of this contract using the specified constructor method.
    */
   public static deployWithOpts<M extends keyof LotteryContract['methods']>(
-    opts: { publicKeys?: PublicKeys; method?: M; wallet: Wallet },
+    opts: { method?: M; wallet: Wallet; instantiation?: DeployInstantiationOptions },
     ...args: Parameters<LotteryContract['methods'][M]>
   ) {
-    return new DeployMethod<LotteryContract>(
-      opts.publicKeys ?? PublicKeys.default(),
+    return DeployMethod.create<LotteryContract>(
       opts.wallet,
-      LotteryContractArtifact,
-      (instance, wallet) => LotteryContract.at(instance.address, wallet),
-      Array.from(arguments).slice(1),
-      opts.method ?? 'constructor',
+      {
+        artifact: LotteryContractArtifact,
+        postDeployCtor: (instance, wallet) => LotteryContract.at(instance.address, wallet),
+        args,
+        constructorNameOrArtifact: opts.method ?? 'constructor',
+      },
+      opts.instantiation,
     );
   }
   

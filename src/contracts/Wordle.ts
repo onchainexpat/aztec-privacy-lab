@@ -5,7 +5,7 @@
 /* eslint-disable */
 import { AztecAddress, CompleteAddress } from '@aztec/aztec.js/addresses';
 import { type AbiType, type AztecAddressLike, type ContractArtifact, EventSelector, decodeFromAbi, type EthAddressLike, type FieldLike, type FunctionSelectorLike, loadContractArtifact, loadContractArtifactForPublic, type NoirCompiledContract, type OptionLike, type U128Like, type WrappedFieldLike } from '@aztec/aztec.js/abi';
-import { Contract, ContractBase, ContractFunctionInteraction, type ContractMethod, type ContractStorageLayout, DeployMethod } from '@aztec/aztec.js/contracts';
+import { Contract, ContractBase, ContractFunctionInteraction, type ContractMethod, type ContractStorageLayout, type DeployInstantiationOptions, DeployMethod } from '@aztec/aztec.js/contracts';
 import { EthAddress } from '@aztec/aztec.js/addresses';
 import { Fr, Point } from '@aztec/aztec.js/fields';
 import { type PublicKey, PublicKeys } from '@aztec/aztec.js/keys';
@@ -45,32 +45,37 @@ export class WordleContract extends ContractBase {
   
   /**
    * Creates a tx to deploy a new instance of this contract.
+   * @param instantiation - Optional address-affecting parameters (salt, deployer / universalDeploy, publicKeys).
+   *                       Salt defaults to a random value; the deployer is locked lazily from the first send-time `from`.
    */
-  public static deploy(wallet: Wallet, operator: AztecAddressLike, challenge_hash: FieldLike, guess_deadline: (bigint | number), reveal_deadline: (bigint | number)) {
-    return new DeployMethod<WordleContract>(PublicKeys.default(), wallet, WordleContractArtifact, (instance, wallet) => WordleContract.at(instance.address, wallet), Array.from(arguments).slice(1));
-  }
-
-  /**
-   * Creates a tx to deploy a new instance of this contract using the specified public keys hash to derive the address.
-   */
-  public static deployWithPublicKeys(publicKeys: PublicKeys, wallet: Wallet, operator: AztecAddressLike, challenge_hash: FieldLike, guess_deadline: (bigint | number), reveal_deadline: (bigint | number)) {
-    return new DeployMethod<WordleContract>(publicKeys, wallet, WordleContractArtifact, (instance, wallet) => WordleContract.at(instance.address, wallet), Array.from(arguments).slice(2));
+  public static deploy(wallet: Wallet, operator: AztecAddressLike, challenge_hash: FieldLike, guess_deadline: (bigint | number), reveal_deadline: (bigint | number), instantiation?: DeployInstantiationOptions) {
+    return DeployMethod.create<WordleContract>(
+      wallet,
+      {
+        artifact: WordleContractArtifact,
+        postDeployCtor: (instance, wallet) => WordleContract.at(instance.address, wallet),
+        args: [operator, challenge_hash, guess_deadline, reveal_deadline],
+      },
+      instantiation,
+    );
   }
 
   /**
    * Creates a tx to deploy a new instance of this contract using the specified constructor method.
    */
   public static deployWithOpts<M extends keyof WordleContract['methods']>(
-    opts: { publicKeys?: PublicKeys; method?: M; wallet: Wallet },
+    opts: { method?: M; wallet: Wallet; instantiation?: DeployInstantiationOptions },
     ...args: Parameters<WordleContract['methods'][M]>
   ) {
-    return new DeployMethod<WordleContract>(
-      opts.publicKeys ?? PublicKeys.default(),
+    return DeployMethod.create<WordleContract>(
       opts.wallet,
-      WordleContractArtifact,
-      (instance, wallet) => WordleContract.at(instance.address, wallet),
-      Array.from(arguments).slice(1),
-      opts.method ?? 'constructor',
+      {
+        artifact: WordleContractArtifact,
+        postDeployCtor: (instance, wallet) => WordleContract.at(instance.address, wallet),
+        args,
+        constructorNameOrArtifact: opts.method ?? 'constructor',
+      },
+      opts.instantiation,
     );
   }
   
