@@ -12,6 +12,17 @@
  *
  *   TESTNET_URL=https://fervor.tail3e3a0c.ts.net:8443 npx tsx scripts/verify-testnet-fpc.ts
  *   # (defaults to the public RPC if TESTNET_URL unset)
+ *
+ * STATUS (2026-06-07): PARKED on upstream. Our client path is healthy — the
+ * ephemeral account proves and SENDS on the live 4.3.1 testnet. It then fails at
+ * the first attach(): the vendored Nethermind FPC artifacts (June-1, ~4.2.0)
+ * compute class id 0x10e31a… for the Faucet while the deployed instance refers to
+ * 0x18c66f… — i.e. the staging deployment was recompiled for 4.3.1 but the
+ * artifacts we have weren't re-vendored. Their discovery doc
+ * (/.well-known/fpc.json on the attestation host) also 404s. Re-vendoring needs
+ * 4.3.1-matching artifacts AND a healthy attestation host; the durable fix is to
+ * self-host our own token-accepting FPC + signer. Surfaced honestly in the UI as
+ * the "Multi-asset fees (FPC)" card in Shell.tsx.
  */
 import { EmbeddedWallet } from '@aztec/wallets/embedded'
 import { createAztecNodeClient } from '@aztec/aztec.js/node'
@@ -21,6 +32,7 @@ import { SponsoredFPCContract } from '@aztec/noir-contracts.js/SponsoredFPC'
 import { SponsoredFeePaymentMethod } from '@aztec/aztec.js/fee'
 import { getContractInstanceFromInstantiationParams } from '@aztec/aztec.js/contracts'
 import { SPONSORED_FPC_SALT } from '@aztec/constants'
+import { NO_FROM } from '@aztec/aztec.js/account'
 
 import { FpcClient } from '../src/lib/fpc/index.js'
 import { FPCMultiAssetContract } from '../src/contracts/fpc/FPCMultiAsset.js'
@@ -76,9 +88,13 @@ async function run() {
   await wallet.registerContract(sponsored, SponsoredFPCContract.artifact)
   const sponsoredFee = { paymentMethod: new SponsoredFeePaymentMethod(sponsored.address) }
 
-  const account = await wallet.createSchnorrAccount(Fr.random(), Fr.random(), Fq.random())
-  const me = account.getAddress()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const account: any = await (wallet as any).createSchnorrAccount(Fr.random(), Fr.random(), Fq.random())
+  const me = account.address
   log('ephemeral account', me.toString())
+  log('deploying account on testnet (SponsoredFPC pays)…')
+  const deploy = await account.getDeployMethod()
+  await deploy.send({ from: NO_FROM, fee: sponsoredFee })
 
   // Attach the deployed contracts.
   const faucet = await attach(FAUCET, FaucetContract, wallet, node)

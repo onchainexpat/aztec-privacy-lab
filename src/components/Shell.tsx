@@ -757,6 +757,63 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
           <RewardsPanelTestnet state={sandboxState} onClose={() => setRewardsOpen(false)} />
         )}
 
+        {/* Multi-asset fee abstraction (FPC). The primitive is buildable on Aztec
+            and our client path is verified on 4.3.1; the only public multi-asset
+            FPC (Nethermind staging) has drifted out of sync, so the live demo is
+            parked rather than faked. Honest boundary, not a hidden failure. */}
+        <section className="mt-16 rounded-2xl border border-amber-200 bg-amber-50/70 p-6 text-sm text-amber-900">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-lg font-semibold text-amber-950">
+              Multi-asset fees · pay gas in any accepted token (FPC)
+            </h3>
+            <span className="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs font-medium">
+              buildable · live demo parked on upstream
+            </span>
+          </div>
+          <p className="mt-3 max-w-prose">
+            A Fee-Paying Contract lets a user pay transaction gas in an accepted ERC-20 (not
+            just fee-juice/ETH): the FPC fronts the fee and pulls the token from the user via an
+            authwit. The mechanism itself works on Aztec today — what&apos;s missing is a healthy
+            public deployment to point at.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                Verified on our side
+              </div>
+              <p className="mt-1 text-xs">
+                <code className="font-mono">scripts/verify-testnet-fpc.ts</code> spins up a fresh
+                ephemeral account, proves it, and sends it on the live 4.3.1 testnet — the
+                wallet/PXE/split-node path is healthy end to end.
+              </p>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                Why it&apos;s parked
+              </div>
+              <p className="mt-1 text-xs">
+                The only public multi-asset FPC (Nethermind staging) is out of sync with 4.3.1.
+                Its vendored artifacts compute a different class id than the deployed contract, so
+                attaching the Faucet rejects before any fee tx runs.
+              </p>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                What unblocks it
+              </div>
+              <p className="mt-1 text-xs">
+                4.3.1-matching artifacts + a live attestation host, or we self-host our own
+                token-accepting FPC + signer so the demo no longer depends on a third-party
+                staging environment.
+              </p>
+            </div>
+          </div>
+          <p className="mt-3 font-mono text-[11px] text-amber-900/70">
+            Faucet artifact class 0x10e31a… (vendored) ≠ on-chain 0x18c66f… · attestation host
+            /.well-known/fpc.json → 404
+          </p>
+        </section>
+
         {network === 'sandbox' && (
           <div className="mt-16" data-cross-chain-card>
             <CrossChainCard />
