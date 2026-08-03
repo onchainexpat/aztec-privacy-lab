@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NETWORKS, type NetworkId } from '../lib/network'
 import { getBlockNumber, isCrossPrivateBoundary } from '../lib/aztec'
-import { loadSandboxState, type SandboxState } from '../lib/sandbox-state'
+import { loadDeployState, type SandboxState } from '../lib/sandbox-state'
 
 interface Props {
   network: NetworkId
@@ -46,13 +46,13 @@ export function StatsStrip({ network }: Props) {
 
   useEffect(() => {
     let cancelled = false
-    loadSandboxState().then((s) => {
+    loadDeployState(network).then((s) => {
       if (!cancelled) setState(s)
     })
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [network])
 
   const unreachable = isCrossPrivateBoundary(cfg.nodeUrl)
 
