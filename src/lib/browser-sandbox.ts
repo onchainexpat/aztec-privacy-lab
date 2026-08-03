@@ -305,156 +305,156 @@ export function initBrowserSandbox(
     }
 
     const token0 = await tokenMod.TokenContract.at(
-      addressMod.AztecAddress.fromString(state.token0.address),
+      addressMod.AztecAddress.fromStringUnsafe(state.token0.address),
       wallet,
     )
     const token1 = await tokenMod.TokenContract.at(
-      addressMod.AztecAddress.fromString(state.token1.address),
+      addressMod.AztecAddress.fromStringUnsafe(state.token1.address),
       wallet,
     )
     const lpToken = await tokenMod.TokenContract.at(
-      addressMod.AztecAddress.fromString(state.lpToken.address),
+      addressMod.AztecAddress.fromStringUnsafe(state.lpToken.address),
       wallet,
     )
     const amm = await ammMod.AMMContract.at(
-      addressMod.AztecAddress.fromString(state.amm.address),
+      addressMod.AztecAddress.fromStringUnsafe(state.amm.address),
       wallet,
     )
     const wrapper = state.privateSwapWrapper
       ? await wrapperMod.PrivateSwapWrapperContract.at(
-          addressMod.AztecAddress.fromString(state.privateSwapWrapper.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.privateSwapWrapper.address),
           wallet,
         )
       : null
     const crowdfunding = state.crowdfunding
       ? await crowdfundingMod.CrowdfundingContract.at(
-          addressMod.AztecAddress.fromString(state.crowdfunding.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.crowdfunding.address),
           wallet,
         )
       : null
     const lending = state.lending
       ? await lendingMod.LendingContract.at(
-          addressMod.AztecAddress.fromString(state.lending.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.lending.address),
           wallet,
         )
       : null
     const ld2 = state.publicCollateralPrivateDebt
       ? await ld2Mod.PublicCollateralPrivateDebtContract.at(
-          addressMod.AztecAddress.fromString(state.publicCollateralPrivateDebt.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.publicCollateralPrivateDebt.address),
           wallet,
         )
       : null
     const publicCrowdfunding = state.publicCrowdfunding
       ? await publicCrowdfundingMod.PublicTotalCrowdfundingContract.at(
-          addressMod.AztecAddress.fromString(state.publicCrowdfunding.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.publicCrowdfunding.address),
           wallet,
         )
       : null
     const perDonorReceipts = state.perDonorReceipts
       ? await perDonorReceiptsMod.PerDonorReceiptsContract.at(
-          addressMod.AztecAddress.fromString(state.perDonorReceipts.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.perDonorReceipts.address),
           wallet,
         )
       : null
     const voting = state.voting
       ? await votingMod.PrivateVotingContract.at(
-          addressMod.AztecAddress.fromString(state.voting.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.voting.address),
           wallet,
         )
       : null
     const minesweeper = state.minesweeper
       ? await minesweeperMod.MinesweeperContract.at(
-          addressMod.AztecAddress.fromString(state.minesweeper.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.minesweeper.address),
           wallet,
         )
       : null
     const battleship = state.battleship
       ? await battleshipMod.BattleshipContract.at(
-          addressMod.AztecAddress.fromString(state.battleship.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.battleship.address),
           wallet,
         )
       : null
     const sealedBidAuction = state.sealedBidAuction
       ? await auctionMod.SealedBidAuctionContract.at(
-          addressMod.AztecAddress.fromString(state.sealedBidAuction.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.sealedBidAuction.address),
           wallet,
         )
       : null
     const wordle = state.wordle
       ? await wordleMod.WordleContract.at(
-          addressMod.AztecAddress.fromString(state.wordle.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.wordle.address),
           wallet,
         )
       : null
     const lottery = state.lottery
       ? await lotteryMod.LotteryContract.at(
-          addressMod.AztecAddress.fromString(state.lottery.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.lottery.address),
           wallet,
         )
       : null
     const attestation = state.attestation
       ? await attestationMod.IdentityAttestationContract.at(
-          addressMod.AztecAddress.fromString(state.attestation.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.attestation.address),
           wallet,
         )
       : null
     const batchPay = state.batchPay
       ? await batchPayMod.BatchPayContract.at(
-          addressMod.AztecAddress.fromString(state.batchPay.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.batchPay.address),
           wallet,
         )
       : null
     const goodsEscrow = state.goodsEscrow
       ? await goodsEscrowMod.GoodsEscrowContract.at(
-          addressMod.AztecAddress.fromString(state.goodsEscrow.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.goodsEscrow.address),
           wallet,
         )
       : null
     const battleshipPvp = state.battleshipPvp
       ? await battleshipPvpMod.BattleshipPvPContract.at(
-          addressMod.AztecAddress.fromString(state.battleshipPvp.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.battleshipPvp.address),
           wallet,
         )
       : null
     const payroll = state.payroll
       ? await payrollMod.PayrollContract.at(
-          addressMod.AztecAddress.fromString(state.payroll.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.payroll.address),
           wallet,
         )
       : null
     const rewards = state.rewards
       ? await rewardsMod.RewardsContract.at(
-          addressMod.AztecAddress.fromString(state.rewards.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.rewards.address),
           wallet,
         )
       : null
     const blackjack = state.blackjack
       ? await blackjackMod.BlackjackContract.at(
-          addressMod.AztecAddress.fromString(state.blackjack.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.blackjack.address),
           wallet,
         )
       : null
     const anonymousVoting = state.anonymousVoting
       ? await anonVotingMod.AnonymousVotingContract.at(
-          addressMod.AztecAddress.fromString(state.anonymousVoting.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.anonymousVoting.address),
           wallet,
         )
       : null
     const l2Bridge = state.crossChain?.bridge0Instance
       ? await bridgeMod.TokenBridgeContract.at(
-          addressMod.AztecAddress.fromString(state.crossChain.bridge0),
+          addressMod.AztecAddress.fromStringUnsafe(state.crossChain.bridge0),
           wallet,
         )
       : null
     const l2BridgeB = state.crossChain?.l2BridgeBInstance && state.crossChain.l2BridgeB
       ? await bridgeMod.TokenBridgeContract.at(
-          addressMod.AztecAddress.fromString(state.crossChain.l2BridgeB),
+          addressMod.AztecAddress.fromStringUnsafe(state.crossChain.l2BridgeB),
           wallet,
         )
       : null
     const l2Uniswap = state.crossChain?.l2UniswapInstance && state.crossChain.l2Uniswap
       ? await uniswapMod.UniswapContract.at(
-          addressMod.AztecAddress.fromString(state.crossChain.l2Uniswap),
+          addressMod.AztecAddress.fromStringUnsafe(state.crossChain.l2Uniswap),
           wallet,
         )
       : null

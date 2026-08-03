@@ -48,7 +48,7 @@ export function AnonymousVotingPanelTestnet({ state, onClose }: Props) {
         await (client.wallet as unknown as {
           registerContract: (i: unknown, a: unknown) => Promise<void>
         }).registerContract(inst, mod.AnonymousVotingContractArtifact)
-        const c = await mod.AnonymousVotingContract.at(AztecAddress.fromString(cfg.address), client.wallet)
+        const c = await mod.AnonymousVotingContract.at(AztecAddress.fromStringUnsafe(cfg.address), client.wallet)
         if (!cancelled) setContract(c as unknown as AnonymousVotingContract)
       } catch (e) {
         if (!cancelled) setError(formatError(e))

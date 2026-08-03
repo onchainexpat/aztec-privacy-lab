@@ -76,13 +76,13 @@ export function WordlePanelTestnet({ state, onClose }: Props) {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
-            jsonrpc: '2.0', id: 1, method: 'node_getBlockHeader', params: [],
+            jsonrpc: '2.0', id: 1, method: 'node_getBlockData', params: ['latest'],
           }),
         })
         const data = (await res.json()) as {
-          result?: { globalVariables?: { timestamp?: string | number | bigint } }
+          result?: { header?: { globalVariables?: { timestamp?: string | number | bigint } } }
         }
-        const ts = data?.result?.globalVariables?.timestamp
+        const ts = data?.result?.header?.globalVariables?.timestamp
         if (ts != null && !cancelled) {
           setNow(Number(ts))
           return
@@ -120,7 +120,7 @@ export function WordlePanelTestnet({ state, onClose }: Props) {
         await (client.wallet as unknown as {
           registerContract: (i: unknown, a: unknown) => Promise<void>
         }).registerContract(inst, mod.WordleContractArtifact)
-        const c = await mod.WordleContract.at(AztecAddress.fromString(cfg.address), client.wallet)
+        const c = await mod.WordleContract.at(AztecAddress.fromStringUnsafe(cfg.address), client.wallet)
         if (!cancelled) setContract(c as unknown as WordleContract)
       } catch (e) {
         if (!cancelled) setError(formatError(e))

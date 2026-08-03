@@ -2,7 +2,7 @@
  * End-to-end PRIVATE Uniswap-from-L2 swap on Aztec testnet -> Sepolia -> back.
  *
  * Same flow as scripts/run-uniswap-swap-private.ts but talks to:
- *   - Aztec testnet L2 (https://rpc.testnet.aztec-labs.com), fees via SponsoredFPC
+ *   - Aztec testnet L2 (https://v5.testnet.rpc.aztec-labs.com), fees via SponsoredFPC
  *   - Sepolia L1 (env SEPOLIA_RPC), fees from env SEPOLIA_PRIVATE_KEY
  *
  * Pre-reqs:
@@ -46,7 +46,7 @@ import { sepolia } from 'viem/chains'
 import { createPublicClient, decodeEventLog, getContract, http } from 'viem'
 import { createExtendedL1Client } from '@aztec/ethereum/client'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const SEPOLIA_RPC = process.env.SEPOLIA_RPC
 const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY as `0x${string}` | undefined
 
@@ -108,7 +108,7 @@ async function main() {
   const salt = fr('TESTNET_SALT', process.env.TESTNET_SALT)
   const signing = fq('TESTNET_SIGNING', process.env.TESTNET_SIGNING)
   await wallet.createSchnorrAccount(secret, salt, signing)
-  const depositorAddr = AztecAddress.fromString(state.deployer)
+  const depositorAddr = AztecAddress.fromStringUnsafe(state.deployer)
   // Testnet has only one funded admin in our setup. The privacy property still
   // holds: the depositor->recipient link is sealed by the claim secret, even
   // though both addresses happen to be the same here.
@@ -125,17 +125,17 @@ async function main() {
   await wallet.registerContract(deser(state.crossChain.l2BridgeBInstance), TokenBridgeContract.artifact)
   await wallet.registerContract(deser(state.crossChain.l2UniswapInstance), UniswapContract.artifact)
 
-  const tokenA = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
+  const tokenA = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
   const bridgeA = await TokenBridgeContract.at(
-    AztecAddress.fromString(state.crossChain.bridge0),
+    AztecAddress.fromStringUnsafe(state.crossChain.bridge0),
     wallet,
   )
   const bridgeB = await TokenBridgeContract.at(
-    AztecAddress.fromString(state.crossChain.l2BridgeB),
+    AztecAddress.fromStringUnsafe(state.crossChain.l2BridgeB),
     wallet,
   )
   const l2Uniswap = await UniswapContract.at(
-    AztecAddress.fromString(state.crossChain.l2Uniswap),
+    AztecAddress.fromStringUnsafe(state.crossChain.l2Uniswap),
     wallet,
   )
 

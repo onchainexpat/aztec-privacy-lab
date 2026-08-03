@@ -257,12 +257,23 @@ export function BridgePanel({ state, onClose }: Props) {
       const { TxHash } = await import('@aztec/stdlib/tx')
       const { createLogger } = await import('@aztec/foundation/log')
 
+      const { OutboxContract } = await import('@aztec/ethereum/contracts')
       const node = createAztecNodeClient(state.sandboxUrl)
       const info = await node.getNodeInfo()
       const outboxAddress = EthAddress.fromString(info.l1ContractAddresses.outboxAddress.toString())
 
+      const l1Client = createExtendedL1Client(
+        [cc.l1Rpc ?? 'http://localhost:8545'],
+        ANVIL_MNEMONIC,
+        foundry,
+      )
+      // 5.x: computeL2ToL1MembershipWitness reads per-epoch roots from the L1
+      // Outbox (checkpoint-based proofs), so it needs an OutboxRootsReader.
+      const outbox = new OutboxContract(l1Client, outboxAddress)
+
       const witness = await computeL2ToL1MembershipWitness(
         node,
+        outbox,
         new Fr(BigInt(pendingWithdraw.messageHash)),
         TxHash.fromString(pendingWithdraw.txHash),
       )
@@ -271,11 +282,6 @@ export function BridgePanel({ state, onClose }: Props) {
         return
       }
 
-      const l1Client = createExtendedL1Client(
-        [cc.l1Rpc ?? 'http://localhost:8545'],
-        ANVIL_MNEMONIC,
-        foundry,
-      )
       const portalMgr = new L1TokenPortalManager(
         EthAddress.fromString(cc.l1Portal),
         EthAddress.fromString(cc.l1Token),
@@ -288,6 +294,7 @@ export function BridgePanel({ state, onClose }: Props) {
         pendingWithdraw.amount,
         EthAddress.fromString(pendingWithdraw.recipient),
         witness.epochNumber,
+        witness.numCheckpointsInEpoch,
         witness.leafIndex,
         witness.siblingPath,
       )
@@ -392,7 +399,16 @@ export function BridgePanel({ state, onClose }: Props) {
       const { foundry } = await import('viem/chains')
       const { getContract, decodeEventLog } = await import('viem')
 
+      const { EthAddress } = await import('@aztec/aztec.js/addresses')
+      const { OutboxContract } = await import('@aztec/ethereum/contracts')
       const node = createAztecNodeClient(state.sandboxUrl)
+      const info = await node.getNodeInfo()
+      const outboxAddress = EthAddress.fromString(info.l1ContractAddresses.outboxAddress.toString())
+      // 5.x: witness computation reads per-epoch roots from the L1 Outbox.
+      const outbox = new OutboxContract(
+        createExtendedL1Client([cc.l1Rpc ?? 'http://localhost:8545'], ANVIL_MNEMONIC, foundry),
+        outboxAddress,
+      )
       const txhash = TxHash.fromString(pendingSwap.txHash)
       setResult('reading L2→L1 messages from the swap tx effect…')
       let effect: Awaited<ReturnType<typeof node.getTxEffect>>
@@ -405,17 +421,23 @@ export function BridgePanel({ state, onClose }: Props) {
         throw new Error('expected 2 L2→L1 msgs, got ' + (effect?.data.l2ToL1Msgs.length ?? 0))
 
       setResult('computing membership witnesses (waits for outbox to advance)…')
-      const witnesses: { epochNumber: number; leafIndex: bigint; siblingPath: unknown }[] = []
+      const witnesses: {
+        epochNumber: number
+        numCheckpointsInEpoch: number
+        leafIndex: bigint
+        siblingPath: unknown
+      }[] = []
       for (const msg of effect.data.l2ToL1Msgs) {
         let w: Awaited<ReturnType<typeof computeL2ToL1MembershipWitness>>
         for (let i = 0; i < 30; i++) {
-          w = await computeL2ToL1MembershipWitness(node, msg, txhash)
+          w = await computeL2ToL1MembershipWitness(node, outbox, msg, txhash)
           if (w) break
           await new Promise((r) => setTimeout(r, 3000))
         }
         if (!w) throw new Error(`no witness for message ${msg.toString()}`)
         witnesses.push({
           epochNumber: w.epochNumber,
+          numCheckpointsInEpoch: w.numCheckpointsInEpoch,
           leafIndex: w.leafIndex,
           siblingPath: w.siblingPath,
         })
@@ -437,6 +459,7 @@ export function BridgePanel({ state, onClose }: Props) {
         const sp = (w.siblingPath as unknown as SibPath).toBufferArray()
         return {
           _epoch: BigInt(w.epochNumber),
+          _numCheckpointsInEpoch: BigInt(w.numCheckpointsInEpoch),
           _leafIndex: w.leafIndex,
           _path: sp.map((b) => `0x${b.toString('hex')}` as `0x${string}`),
         }
@@ -625,7 +648,16 @@ export function BridgePanel({ state, onClose }: Props) {
       const { foundry } = await import('viem/chains')
       const { getContract, decodeEventLog } = await import('viem')
 
+      const { EthAddress } = await import('@aztec/aztec.js/addresses')
+      const { OutboxContract } = await import('@aztec/ethereum/contracts')
       const node = createAztecNodeClient(state.sandboxUrl)
+      const info = await node.getNodeInfo()
+      const outboxAddress = EthAddress.fromString(info.l1ContractAddresses.outboxAddress.toString())
+      // 5.x: witness computation reads per-epoch roots from the L1 Outbox.
+      const outbox = new OutboxContract(
+        createExtendedL1Client([cc.l1Rpc ?? 'http://localhost:8545'], ANVIL_MNEMONIC, foundry),
+        outboxAddress,
+      )
       const txhash = TxHash.fromString(pendingPrivateSwap.txHash)
       setResult('reading L2→L1 messages from the private swap tx effect…')
       let effect: Awaited<ReturnType<typeof node.getTxEffect>>
@@ -638,17 +670,23 @@ export function BridgePanel({ state, onClose }: Props) {
         throw new Error('expected 2 L2→L1 msgs, got ' + (effect?.data.l2ToL1Msgs.length ?? 0))
 
       setResult('computing membership witnesses (waits for outbox to advance)…')
-      const witnesses: { epochNumber: number; leafIndex: bigint; siblingPath: unknown }[] = []
+      const witnesses: {
+        epochNumber: number
+        numCheckpointsInEpoch: number
+        leafIndex: bigint
+        siblingPath: unknown
+      }[] = []
       for (const msg of effect.data.l2ToL1Msgs) {
         let w: Awaited<ReturnType<typeof computeL2ToL1MembershipWitness>>
         for (let i = 0; i < 30; i++) {
-          w = await computeL2ToL1MembershipWitness(node, msg, txhash)
+          w = await computeL2ToL1MembershipWitness(node, outbox, msg, txhash)
           if (w) break
           await new Promise((r) => setTimeout(r, 3000))
         }
         if (!w) throw new Error(`no witness for message ${msg.toString()}`)
         witnesses.push({
           epochNumber: w.epochNumber,
+          numCheckpointsInEpoch: w.numCheckpointsInEpoch,
           leafIndex: w.leafIndex,
           siblingPath: w.siblingPath,
         })
@@ -691,6 +729,7 @@ export function BridgePanel({ state, onClose }: Props) {
         const sp = (w.siblingPath as unknown as SibPath).toBufferArray()
         return {
           _epoch: BigInt(w.epochNumber),
+          _numCheckpointsInEpoch: BigInt(w.numCheckpointsInEpoch),
           _leafIndex: w.leafIndex,
           _path: sp.map((b) => `0x${b.toString('hex')}` as `0x${string}`),
         }

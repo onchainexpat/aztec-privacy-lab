@@ -67,13 +67,13 @@ export function WordlePanel({ state, onClose }: Props) {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
-            jsonrpc: '2.0', id: 1, method: 'node_getBlockHeader', params: [],
+            jsonrpc: '2.0', id: 1, method: 'node_getBlockData', params: ['latest'],
           }),
         })
         const data = (await res.json()) as {
-          result?: { globalVariables?: { timestamp?: string | number | bigint } }
+          result?: { header?: { globalVariables?: { timestamp?: string | number | bigint } } }
         }
-        const ts = data?.result?.globalVariables?.timestamp
+        const ts = data?.result?.header?.globalVariables?.timestamp
         if (ts != null && !cancelled) {
           setNow(Number(ts))
           return

@@ -41,7 +41,7 @@ import { createPublicClient, getContract, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createExtendedL1Client } from '@aztec/ethereum/client'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const SEPOLIA_RPC = process.env.SEPOLIA_RPC
 const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY as `0x${string}` | undefined
 
@@ -105,7 +105,7 @@ async function main() {
   await wallet.createSchnorrAccount(secret, salt, signing)
   // The same admin that ran testnet:setup must be deployer here, so the L2
   // bridges + Uniswap contract land under the same operator that minted AZA/AZB.
-  const admin = AztecAddress.fromString(state.deployer)
+  const admin = AztecAddress.fromStringUnsafe(state.deployer)
   log('admin =', admin.toString())
 
   // Rehydrate the L2 token contracts (AZA + AZB).
@@ -114,14 +114,14 @@ async function main() {
   }
   await wallet.registerContract(deser(state.token0.instance), TokenContract.artifact)
   await wallet.registerContract(deser(state.token1.instance), TokenContract.artifact)
-  const tokenAzb = await TokenContract.at(AztecAddress.fromString(state.token1.address), wallet)
+  const tokenAzb = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token1.address), wallet)
 
   // ---- 1 + 2: L2 TokenBridges + L2 Uniswap ----
   log('1. deploying L2 TokenBridge for AZA pointing at input portal…')
   const inputPortalEth = EthAddress.fromString(state.crossChain.l1Portal)
   const { contract: l2BridgeA } = await TokenBridgeContract.deploy(
     wallet,
-    AztecAddress.fromString(state.token0.address),
+    AztecAddress.fromStringUnsafe(state.token0.address),
     inputPortalEth,
   ).send({ from: admin, fee: feeOpts })
   log('   L2 BridgeA at', l2BridgeA.address.toString())
@@ -130,7 +130,7 @@ async function main() {
   const outputPortalEth = EthAddress.fromString(state.crossChain.l1OutputPortal)
   const { contract: l2BridgeB } = await TokenBridgeContract.deploy(
     wallet,
-    AztecAddress.fromString(state.token1.address),
+    AztecAddress.fromStringUnsafe(state.token1.address),
     outputPortalEth,
   ).send({ from: admin, fee: feeOpts })
   log('   L2 BridgeB at', l2BridgeB.address.toString())
@@ -209,7 +209,7 @@ async function main() {
   async function instanceJSON(address: typeof admin) {
     const meta = await wallet.getContractMetadata(address)
     if (!meta.instance) throw new Error('instance missing for ' + address.toString())
-    return JSON.parse(jsonStringify(meta.instance))
+    const _inst = JSON.parse(jsonStringify(meta.instance)); if (_inst.currentContractClassId == null && _inst.originalContractClassId != null) _inst.currentContractClassId = _inst.originalContractClassId; return _inst
   }
 
   state.crossChain = {

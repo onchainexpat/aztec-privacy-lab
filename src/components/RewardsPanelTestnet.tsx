@@ -54,7 +54,7 @@ export function RewardsPanelTestnet({ state, onClose }: Props) {
         await (client.wallet as unknown as {
           registerContract: (i: unknown, a: unknown) => Promise<void>
         }).registerContract(inst, mod.RewardsContractArtifact)
-        const c = await mod.RewardsContract.at(AztecAddress.fromString(cfg.address), client.wallet)
+        const c = await mod.RewardsContract.at(AztecAddress.fromStringUnsafe(cfg.address), client.wallet)
         if (!cancelled) setContract(c as unknown as RewardsContract)
       } catch (e) {
         if (!cancelled) setError(formatError(e))
@@ -69,7 +69,7 @@ export function RewardsPanelTestnet({ state, onClose }: Props) {
     const { AztecAddress } = await import('@aztec/aztec.js/addresses')
     const [pool, pR, tcR, rootR] = await Promise.all([
       cl.token0.methods
-        .balance_of_public(AztecAddress.fromString(cfg!.address))
+        .balance_of_public(AztecAddress.fromStringUnsafe(cfg!.address))
         .simulate({ from: cl.address }),
       c.methods.get_period().simulate({ from: cl.address }),
       c.methods.get_total_claimed().simulate({ from: cl.address }),

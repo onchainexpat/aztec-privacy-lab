@@ -85,14 +85,14 @@ async function main() {
   log('re-deploying L2 TokenBridge with real portal address…')
   const { contract: l2Bridge } = await TokenBridgeContract.deploy(
     wallet,
-    AztecAddress.fromString(state.token0.address),
+    AztecAddress.fromStringUnsafe(state.token0.address),
     portalDeploy.address,
   ).send({ from: admin })
   log('L2 TokenBridge(real portal) at', l2Bridge.address.toString())
 
   // L2 bridge needs to be a minter of AZA so it can mint tokens for users on claim.
   log('granting bridge minter rights on AZA…')
-  const token0 = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
+  const token0 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
   await token0.methods.set_minter(l2Bridge.address, true).send({ from: admin })
 
   const registry = state.crossChain?.registryAddress

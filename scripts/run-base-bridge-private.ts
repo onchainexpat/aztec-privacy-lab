@@ -81,13 +81,13 @@ async function main() {
   await wallet.registerContract(deser(state.crossChain.bridge0Instance), TokenBridgeContract.artifact)
   await wallet.registerContract(deser(state.baseBridge.l2Instance), BaseBridgeContract.artifact)
 
-  const tokenA = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
+  const tokenA = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
   const bridgeA = await TokenBridgeContract.at(
-    AztecAddress.fromString(state.baseBridge.inputBridge),
+    AztecAddress.fromStringUnsafe(state.baseBridge.inputBridge),
     wallet,
   )
   const l2BaseBridge = await BaseBridgeContract.at(
-    AztecAddress.fromString(state.baseBridge.l2Address),
+    AztecAddress.fromStringUnsafe(state.baseBridge.l2Address),
     wallet,
   )
 

@@ -51,9 +51,9 @@ async function main() {
   await wallet.registerContract(deserialize(state.lpToken.instance), TokenContract.artifact)
   await wallet.registerContract(deserialize(state.amm.instance), AMMContract.artifact)
 
-  const token0 = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
-  const token1 = await TokenContract.at(AztecAddress.fromString(state.token1.address), wallet)
-  const amm = await AMMContract.at(AztecAddress.fromString(state.amm.address), wallet)
+  const token0 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
+  const token1 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token1.address), wallet)
+  const amm = await AMMContract.at(AztecAddress.fromStringUnsafe(state.amm.address), wallet)
 
   const AMOUNT0 = 100_000n
   const AMOUNT1 = 200_000n // initial price: 1 AZA = 2 AZB

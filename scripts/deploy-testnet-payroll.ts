@@ -29,7 +29,7 @@ import { TokenContract } from '@aztec/noir-contracts.js/Token'
 
 import { PayrollContract } from '../src/contracts/Payroll'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
 
@@ -78,14 +78,14 @@ async function main() {
   const salt = fr('TESTNET_SALT', process.env.TESTNET_SALT)
   const signing = fq('TESTNET_SIGNING', process.env.TESTNET_SIGNING)
   await wallet.createSchnorrAccount(secret, salt, signing)
-  const admin = AztecAddress.fromString(state.deployer)
-  const aza = AztecAddress.fromString(azaAddress)
+  const admin = AztecAddress.fromStringUnsafe(state.deployer)
+  const aza = AztecAddress.fromStringUnsafe(azaAddress)
   log('admin', admin.toString())
 
   async function instanceJSON(address: AztecAddress) {
     const meta = await wallet.getContractMetadata(address)
     if (!meta.instance) throw new Error('instance missing for ' + address.toString())
-    return JSON.parse(jsonStringify(meta.instance))
+    const _inst = JSON.parse(jsonStringify(meta.instance)); if (_inst.currentContractClassId == null && _inst.originalContractClassId != null) _inst.currentContractClassId = _inst.originalContractClassId; return _inst
   }
 
   log('deploying Payroll…')

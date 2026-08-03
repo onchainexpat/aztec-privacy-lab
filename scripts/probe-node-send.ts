@@ -19,7 +19,7 @@ import { SPONSORED_FPC_SALT } from '@aztec/constants'
 import { NO_FROM } from '@aztec/aztec.js/account'
 
 const OUR_NODE = process.env.OUR_NODE ?? 'http://localhost:8091'
-const PUBLIC = 'https://rpc.testnet.aztec-labs.com'
+const PUBLIC = 'https://v5.testnet.rpc.aztec-labs.com'
 const MODE = (process.env.MODE ?? 'public') as 'ours' | 'split' | 'public'
 const WAIT_SECONDS = Number(process.env.WAIT_SECONDS ?? 150)
 

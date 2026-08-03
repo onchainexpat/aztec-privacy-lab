@@ -220,7 +220,7 @@ async function main() {
   // L2 block timestamps drift ahead of wall-clock on a sandbox that's been
   // running for a while — use the latest L2 block ts as the baseline so the
   // contract's `self.context.timestamp()` check matches our expectations.
-  const latestHeader = await node.getBlockHeader()
+  const latestHeader = (await node.getBlockData('latest'))?.header
   const l2NowSec =
     latestHeader && latestHeader.globalVariables
       ? Number((latestHeader.globalVariables as { timestamp: bigint }).timestamp)
@@ -422,7 +422,7 @@ async function main() {
   async function instanceJSON(address: typeof admin) {
     const meta = await wallet.getContractMetadata(address)
     if (!meta.instance) throw new Error('instance missing for ' + address.toString())
-    return JSON.parse(jsonStringify(meta.instance))
+    const _inst = JSON.parse(jsonStringify(meta.instance)); if (_inst.currentContractClassId == null && _inst.originalContractClassId != null) _inst.currentContractClassId = _inst.originalContractClassId; return _inst
   }
 
   const state = {

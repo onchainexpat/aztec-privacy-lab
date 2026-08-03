@@ -71,7 +71,7 @@ async function main() {
     ContractInstanceWithAddressSchema,
   )
   await wallet.registerContract(tokenAzbInstance, TokenContract.artifact)
-  const azbAddr = AztecAddress.fromString(state.token1.address)
+  const azbAddr = AztecAddress.fromStringUnsafe(state.token1.address)
   const tokenAzb = await TokenContract.at(azbAddr, wallet)
 
   // ----- L1: TestERC20-B + portals -----

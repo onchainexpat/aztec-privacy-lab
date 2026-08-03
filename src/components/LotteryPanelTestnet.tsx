@@ -74,7 +74,7 @@ export function LotteryPanelTestnet({ state, onClose }: Props) {
         await (client.wallet as unknown as {
           registerContract: (i: unknown, a: unknown) => Promise<void>
         }).registerContract(inst, mod.LotteryContractArtifact)
-        const c = await mod.LotteryContract.at(AztecAddress.fromString(cfg.address), client.wallet)
+        const c = await mod.LotteryContract.at(AztecAddress.fromStringUnsafe(cfg.address), client.wallet)
         if (!cancelled) setContract(c as unknown as LotteryContract)
       } catch (e) {
         if (!cancelled) setError(formatError(e))

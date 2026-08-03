@@ -23,7 +23,7 @@ import { jsonStringify } from '@aztec/foundation/json-rpc'
 import { AnonymousVotingContract } from '../src/contracts/AnonymousVoting'
 import { buildEligibleTree } from '../src/lib/voting-merkle'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
 const CANDIDATES = ['Raise the quorum', 'Keep as-is', 'Abstain']
@@ -59,7 +59,7 @@ async function main() {
     fr('TESTNET_SALT', process.env.TESTNET_SALT),
     fq('TESTNET_SIGNING', process.env.TESTNET_SIGNING),
   )
-  const admin = AztecAddress.fromString(state.deployer)
+  const admin = AztecAddress.fromStringUnsafe(state.deployer)
   log('admin', admin.toString())
 
   log('deploying AnonymousVoting…')

@@ -79,7 +79,7 @@ export function BattleshipPvPPanelTestnet({ state, onClose }: Props) {
           registerContract: (i: unknown, a: unknown) => Promise<void>
         }).registerContract(inst, mod.BattleshipPvPContractArtifact)
         const c = await mod.BattleshipPvPContract.at(
-          AztecAddress.fromString(cfg.address),
+          AztecAddress.fromStringUnsafe(cfg.address),
           client.wallet,
         )
         if (!cancelled) setContract(c as unknown as BattleshipPvPContract)

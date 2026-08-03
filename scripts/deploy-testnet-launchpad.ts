@@ -24,7 +24,7 @@ import { CrowdfundingContract } from '@aztec/noir-contracts.js/Crowdfunding'
 import { SPONSORED_FPC_SALT } from '@aztec/constants'
 import { jsonStringify } from '@aztec/foundation/json-rpc'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const DEADLINE_DAYS = 30n
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -70,7 +70,7 @@ async function main() {
   const admin = accountManager.address
   log('admin', admin.toString())
 
-  const donationToken = AztecAddress.fromString(state.token0.address)
+  const donationToken = AztecAddress.fromStringUnsafe(state.token0.address)
   const deadlineSec = BigInt(Math.floor(Date.now() / 1000)) + DEADLINE_DAYS * 24n * 60n * 60n
 
   log(
@@ -88,7 +88,7 @@ async function main() {
   async function instanceJSON(address: AztecAddress) {
     const meta = await wallet.getContractMetadata(address)
     if (!meta.instance) throw new Error('instance missing for ' + address.toString())
-    return JSON.parse(jsonStringify(meta.instance))
+    const _inst = JSON.parse(jsonStringify(meta.instance)); if (_inst.currentContractClassId == null && _inst.originalContractClassId != null) _inst.currentContractClassId = _inst.originalContractClassId; return _inst
   }
 
   state.crowdfunding = {

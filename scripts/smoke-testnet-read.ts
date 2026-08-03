@@ -22,7 +22,7 @@ import { AMMContract } from '@aztec/noir-contracts.js/AMM'
 import { jsonParseWithSchema } from '@aztec/foundation/json-rpc'
 import { ContractInstanceWithAddressSchema } from '@aztec/stdlib/contract'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
 
@@ -41,7 +41,7 @@ async function main() {
   log('node', info.nodeVersion, '· reading from', TESTNET_URL)
 
   const wallet = await EmbeddedWallet.create(node, { ephemeral: true, pxe: { proverEnabled: false } })
-  const deployer = AztecAddress.fromString(state.deployer)
+  const deployer = AztecAddress.fromStringUnsafe(state.deployer)
 
   // The class-id checks: these throw if the 4.3.1 artifact != deployed class.
   log('registering deployed token0/token1/amm with current artifacts…')
@@ -55,7 +55,7 @@ async function main() {
   // Bonus: exercise the read path. A fresh PXE can't see the deployer's notes,
   // so the value may be 0 — we only care that the simulate runs without error
   // under the new SDK (utility-fn ABI + node round-trip still line up).
-  const token0 = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
+  const token0 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
   try {
     const { result: bal } = await token0.methods.balance_of_private(deployer).simulate({ from: deployer })
     log('token0 balance_of_private(deployer) simulate =', (bal as bigint).toString(), '(0 expected: no keys in this PXE)')

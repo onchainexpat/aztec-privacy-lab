@@ -32,7 +32,7 @@ import { SPONSORED_FPC_SALT } from '@aztec/constants'
 import { jsonParseWithSchema } from '@aztec/foundation/json-rpc'
 import { ContractInstanceWithAddressSchema } from '@aztec/stdlib/contract'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const TARGET_ETH = 200n
 const TARGET_USDC = 500_000n
 
@@ -87,10 +87,10 @@ async function main() {
   await wallet.registerContract(deserialize(state.lpToken.instance), TokenContract.artifact)
   await wallet.registerContract(deserialize(state.amm.instance), AMMContract.artifact)
 
-  const token0 = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
-  const token1 = await TokenContract.at(AztecAddress.fromString(state.token1.address), wallet)
-  const lpToken = await TokenContract.at(AztecAddress.fromString(state.lpToken.address), wallet)
-  const amm = await AMMContract.at(AztecAddress.fromString(state.amm.address), wallet)
+  const token0 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
+  const token1 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token1.address), wallet)
+  const lpToken = await TokenContract.at(AztecAddress.fromStringUnsafe(state.lpToken.address), wallet)
+  const amm = await AMMContract.at(AztecAddress.fromStringUnsafe(state.amm.address), wallet)
 
   async function bigintBal(contract: TokenContract, fn: 'balance_of_private' | 'balance_of_public', who: AztecAddress) {
     return (await contract.methods[fn](who).simulate({ from: admin })).result as bigint

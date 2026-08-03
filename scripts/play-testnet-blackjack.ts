@@ -36,7 +36,7 @@ import {
   DECK_DEPTH,
 } from '../src/lib/blackjack-deck'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
 const OUTCOMES = ['Dealer wins', 'Player wins', 'Push']
@@ -76,13 +76,13 @@ async function main() {
     fr('TESTNET_SALT', process.env.TESTNET_SALT),
     fq('TESTNET_SIGNING', process.env.TESTNET_SIGNING),
   )
-  const me = AztecAddress.fromString(state.deployer)
+  const me = AztecAddress.fromStringUnsafe(state.deployer)
   log('playing as deployer (player + dealer):', me.toString())
 
   // Attach the deployed Blackjack contract.
   const inst = jsonParseWithSchema(JSON.stringify(state.blackjack.instance), ContractInstanceWithAddressSchema)
   await wallet.registerContract(inst, BlackjackContract.artifact)
-  const bj = await BlackjackContract.at(AztecAddress.fromString(state.blackjack.address), wallet)
+  const bj = await BlackjackContract.at(AztecAddress.fromStringUnsafe(state.blackjack.address), wallet)
 
   // Build a fresh game.
   const gameId = Fr.random()

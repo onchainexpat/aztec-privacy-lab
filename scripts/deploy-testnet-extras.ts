@@ -37,7 +37,7 @@ import { LotteryContract } from '../src/contracts/Lottery'
 import { GoodsEscrowContract } from '../src/contracts/GoodsEscrow'
 import { BatchPayContract } from '../src/contracts/BatchPay'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
 
@@ -88,12 +88,13 @@ async function main() {
   const salt = fr('TESTNET_SALT', process.env.TESTNET_SALT)
   const signing = fq('TESTNET_SIGNING', process.env.TESTNET_SIGNING)
   await wallet.createSchnorrAccount(secret, salt, signing)
-  const admin = AztecAddress.fromString(state.deployer)
-  const aza = AztecAddress.fromString(azaAddress)
+  const admin = AztecAddress.fromStringUnsafe(state.deployer)
+  const aza = AztecAddress.fromStringUnsafe(azaAddress)
   log('admin', admin.toString())
 
   // L2 timestamp baseline for time-windowed contracts.
-  const header = await node.getBlockHeader()
+  // 5.x removed node.getBlockHeader(); read the latest block via getBlockData.
+  const header = (await node.getBlockData('latest'))?.header
   const l2Now =
     header && header.globalVariables
       ? Number((header.globalVariables as { timestamp: bigint }).timestamp)
@@ -103,7 +104,7 @@ async function main() {
   async function instanceJSON(address: AztecAddress) {
     const meta = await wallet.getContractMetadata(address)
     if (!meta.instance) throw new Error('instance missing for ' + address.toString())
-    return JSON.parse(jsonStringify(meta.instance))
+    const _inst = JSON.parse(jsonStringify(meta.instance)); if (_inst.currentContractClassId == null && _inst.originalContractClassId != null) _inst.currentContractClassId = _inst.originalContractClassId; return _inst
   }
 
   // --- IdentityAttestation ---

@@ -85,7 +85,7 @@ export function LaunchpadExtrasPanelTestnet({ variant, state, onClose }: Props) 
           'PublicTotalCrowdfundingContract' in mod
             ? mod.PublicTotalCrowdfundingContract
             : mod.PerDonorReceiptsContract
-        const c = await ContractClass.at(AztecAddress.fromString(cfg.address), client.wallet)
+        const c = await ContractClass.at(AztecAddress.fromStringUnsafe(cfg.address), client.wallet)
         if (!cancelled) setContract(c as unknown as DonationContract)
       } catch (e) {
         if (!cancelled) setError(formatError(e))

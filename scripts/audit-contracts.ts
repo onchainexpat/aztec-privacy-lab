@@ -20,7 +20,7 @@ async function main() {
   const state = JSON.parse(readFileSync(stateFile, 'utf8'))
   const url =
     net === 'testnet'
-      ? process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+      ? process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
       : state.sandboxUrl ?? 'http://localhost:8090'
 
   const node = createAztecNodeClient(url)
@@ -36,7 +36,7 @@ async function main() {
   let dead = 0
   for (const [name, addr] of entries) {
     try {
-      const c = await node.getContract(AztecAddress.fromString(addr))
+      const c = await node.getContract(AztecAddress.fromStringUnsafe(addr))
       if (c) {
         live++
         console.log(`  ✓ ${name.padEnd(26)} ${addr.slice(0, 14)}…`)

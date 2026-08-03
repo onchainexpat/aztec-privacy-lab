@@ -55,8 +55,8 @@ export function BatchPayPanel({ state, onClose }: Props) {
     try {
       const { Fr } = await import('@aztec/aztec.js/fields')
       const { AztecAddress } = await import('@aztec/aztec.js/addresses')
-      const r1 = AztecAddress.fromString(to1)
-      const r2 = AztecAddress.fromString(to2)
+      const r1 = AztecAddress.fromStringUnsafe(to1)
+      const r2 = AztecAddress.fromStringUnsafe(to2)
       const a1 = BigInt(amt1)
       const a2 = BigInt(amt2)
       const nonce1 = Fr.random()

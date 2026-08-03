@@ -52,7 +52,7 @@ export function AttestationPanelTestnet({ state, onClose }: Props) {
           registerContract: (i: unknown, a: unknown) => Promise<void>
         }).registerContract(inst, mod.IdentityAttestationContractArtifact)
         const c = await mod.IdentityAttestationContract.at(
-          AztecAddress.fromString(cfg.address),
+          AztecAddress.fromStringUnsafe(cfg.address),
           client.wallet,
         )
         if (!cancelled) {

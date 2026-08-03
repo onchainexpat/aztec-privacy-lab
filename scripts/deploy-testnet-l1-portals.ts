@@ -36,7 +36,7 @@ import { createPublicClient, getContract, http, parseAbi } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createExtendedL1Client } from '@aztec/ethereum/client'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const SEPOLIA_RPC = process.env.SEPOLIA_RPC
 const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY as `0x${string}` | undefined
 // Sepolia V3 SwapRouter02 per Uniswap docs; override if Uniswap drifts.

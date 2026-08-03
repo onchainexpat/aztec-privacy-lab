@@ -47,7 +47,7 @@ const ATTESTATION_BASE_URL = 'https://aztec-fpc-testnet.staging-nethermind.xyz/'
 const ACCEPTED_TOKEN = '0x07348d12aae72d1c2ff67cb2bf6b0e54f2ac39484f21cad7247d4e27b4822afb'
 const FAUCET = '0x291b988c66f0314b3e2758fe7c85b85f39c3007a9478ccc46f443f8b48783db4'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 
 function log(...a: unknown[]) {
   // eslint-disable-next-line no-console
@@ -65,7 +65,7 @@ async function attach(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   node: any,
 ) {
-  const addr = AztecAddress.fromString(addrStr)
+  const addr = AztecAddress.fromStringUnsafe(addrStr)
   const instance = await node.getContract(addr)
   if (!instance) throw new Error(`contract not deployed on testnet: ${addrStr}`)
   await wallet.registerContract(instance, ContractClass.artifact)
@@ -126,8 +126,8 @@ async function run() {
 
   // 4) get a signed quote + token-fee payment method from the FPC
   const fpcClient = new FpcClient({
-    fpcAddress: AztecAddress.fromString(FPC_ADDRESS),
-    operator: AztecAddress.fromString(OPERATOR),
+    fpcAddress: AztecAddress.fromStringUnsafe(FPC_ADDRESS),
+    operator: AztecAddress.fromStringUnsafe(OPERATOR),
     node,
     attestationBaseUrl: ATTESTATION_BASE_URL,
   })
@@ -135,7 +135,7 @@ async function run() {
   const { fee, quote } = await fpcClient.createPaymentMethod({
     wallet,
     user: me,
-    tokenAddress: AztecAddress.fromString(ACCEPTED_TOKEN),
+    tokenAddress: AztecAddress.fromStringUnsafe(ACCEPTED_TOKEN),
     estimatedGas,
   })
   log('quote:', quote)

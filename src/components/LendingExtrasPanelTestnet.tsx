@@ -94,7 +94,7 @@ export function LendingExtrasPanelTestnet({ variant, state, onClose }: Props) {
             registerContract: (i: unknown, a: unknown) => Promise<void>
           }
         ).registerContract(inst, LendingContract.artifact)
-        const c = await LendingContract.at(AztecAddress.fromString(cfg.address), client.wallet)
+        const c = await LendingContract.at(AztecAddress.fromStringUnsafe(cfg.address), client.wallet)
         if (!cancelled) setContract(c as unknown as LendingLike)
       } catch (e) {
         if (!cancelled) setError(formatError(e))

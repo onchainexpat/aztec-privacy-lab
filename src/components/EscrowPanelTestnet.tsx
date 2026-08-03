@@ -77,7 +77,7 @@ export function EscrowPanelTestnet({ state, onClose }: Props) {
         await (client.wallet as unknown as {
           registerContract: (i: unknown, a: unknown) => Promise<void>
         }).registerContract(inst, mod.GoodsEscrowContractArtifact)
-        const c = await mod.GoodsEscrowContract.at(AztecAddress.fromString(cfg.address), client.wallet)
+        const c = await mod.GoodsEscrowContract.at(AztecAddress.fromStringUnsafe(cfg.address), client.wallet)
         if (!cancelled) setContract(c as unknown as GoodsEscrowContract)
       } catch (e) {
         if (!cancelled) setError(formatError(e))

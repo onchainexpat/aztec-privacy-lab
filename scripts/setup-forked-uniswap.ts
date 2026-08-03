@@ -116,8 +116,8 @@ async function main() {
   }
   await wallet.registerContract(deser(state.token0.instance), TokenContract.artifact)
   await wallet.registerContract(deser(state.token1.instance), TokenContract.artifact)
-  const tokenA = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
-  const tokenB = await TokenContract.at(AztecAddress.fromString(state.token1.address), wallet)
+  const tokenA = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
+  const tokenB = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token1.address), wallet)
 
   log('2. deploying L1 input TokenPortal (WETH)…')
   const inputPortal = await deployL1Contract(l1Client, TokenPortalAbi, TokenPortalBytecode, [])

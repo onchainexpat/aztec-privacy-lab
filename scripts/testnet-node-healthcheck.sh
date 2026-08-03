@@ -23,7 +23,7 @@
 set -uo pipefail
 
 FUNNEL="${FUNNEL_URL:-https://fervor.tail3e3a0c.ts.net:8443}"
-PUBLIC="${PUBLIC_RPC:-https://rpc.testnet.aztec-labs.com}"
+PUBLIC="${PUBLIC_RPC:-https://v5.testnet.rpc.aztec-labs.com}"
 BEACON="${BEACON_URL:-http://192.168.99.95:5152}"
 EXEC="${EXEC_URL:-http://192.168.99.95:8546}"
 STALE_THRESHOLD="${STALE_THRESHOLD:-25}"   # L2 blocks behind tip ⇒ stale

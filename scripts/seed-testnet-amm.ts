@@ -27,7 +27,7 @@ import { SPONSORED_FPC_SALT } from '@aztec/constants'
 import { jsonParseWithSchema } from '@aztec/foundation/json-rpc'
 import { ContractInstanceWithAddressSchema } from '@aztec/stdlib/contract'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
@@ -82,9 +82,9 @@ async function main() {
   await wallet.registerContract(deserialize(state.lpToken.instance), TokenContract.artifact)
   await wallet.registerContract(deserialize(state.amm.instance), AMMContract.artifact)
 
-  const token0 = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
-  const token1 = await TokenContract.at(AztecAddress.fromString(state.token1.address), wallet)
-  const amm = await AMMContract.at(AztecAddress.fromString(state.amm.address), wallet)
+  const token0 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
+  const token1 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token1.address), wallet)
+  const amm = await AMMContract.at(AztecAddress.fromStringUnsafe(state.amm.address), wallet)
 
   // Check existing reserves — skip if already seeded.
   const r0 = (await token0.methods.balance_of_public(amm.address).simulate({ from: admin }))

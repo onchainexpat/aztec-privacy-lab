@@ -16,7 +16,7 @@
 // .env.local:
 //   VITE_TESTNET_NODE_URL=https://fervor.tail3e3a0c.ts.net:8443
 
-export const PUBLIC_TESTNET_RPC = 'https://rpc.testnet.aztec-labs.com'
+export const PUBLIC_TESTNET_RPC = 'https://v5.testnet.rpc.aztec-labs.com'
 
 // The configured primary. Vite inlines import.meta.env at build time.
 const PRIMARY =

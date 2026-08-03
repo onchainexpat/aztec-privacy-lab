@@ -40,7 +40,7 @@ import { sepolia } from 'viem/chains'
 import { createPublicClient, decodeEventLog, getContract, http } from 'viem'
 import { createExtendedL1Client } from '@aztec/ethereum/client'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const SEPOLIA_RPC = process.env.SEPOLIA_RPC
 const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY as `0x${string}` | undefined
 const L2_TX_HASH = process.env.L2_TX_HASH
@@ -106,7 +106,7 @@ async function main() {
   const salt = fr('TESTNET_SALT', process.env.TESTNET_SALT)
   const signing = fq('TESTNET_SIGNING', process.env.TESTNET_SIGNING)
   await wallet.createSchnorrAccount(secret, salt, signing)
-  const depositorAddr = AztecAddress.fromString(state.deployer)
+  const depositorAddr = AztecAddress.fromStringUnsafe(state.deployer)
   const recipientAddr = depositorAddr
 
   function deser(raw: unknown) {
@@ -119,7 +119,7 @@ async function main() {
   await wallet.registerContract(deser(state.crossChain.l2UniswapInstance), UniswapContract.artifact)
 
   const bridgeB = await TokenBridgeContract.at(
-    AztecAddress.fromString(state.crossChain.l2BridgeB),
+    AztecAddress.fromStringUnsafe(state.crossChain.l2BridgeB),
     wallet,
   )
 

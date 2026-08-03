@@ -25,7 +25,7 @@ import { jsonStringify } from '@aztec/foundation/json-rpc'
 
 import { BlackjackContract } from '../src/contracts/Blackjack'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const stateFile = resolve(__dirname, '..', 'public', 'testnet-state.json')
 
@@ -65,7 +65,7 @@ async function main() {
   const salt = fr('TESTNET_SALT', process.env.TESTNET_SALT)
   const signing = fq('TESTNET_SIGNING', process.env.TESTNET_SIGNING)
   await wallet.createSchnorrAccount(secret, salt, signing)
-  const admin = AztecAddress.fromString(state.deployer)
+  const admin = AztecAddress.fromStringUnsafe(state.deployer)
   log('admin', admin.toString())
 
   log('deploying Blackjack…')

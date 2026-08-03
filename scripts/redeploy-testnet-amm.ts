@@ -29,7 +29,7 @@ import { SPONSORED_FPC_SALT } from '@aztec/constants'
 import { jsonStringify, jsonParseWithSchema } from '@aztec/foundation/json-rpc'
 import { ContractInstanceWithAddressSchema } from '@aztec/stdlib/contract'
 
-const TESTNET_URL = process.env.TESTNET_URL ?? 'https://rpc.testnet.aztec-labs.com'
+const TESTNET_URL = process.env.TESTNET_URL ?? 'https://v5.testnet.rpc.aztec-labs.com'
 const TARGET_ETH = 200n
 const TARGET_USDC = 500_000n
 
@@ -82,8 +82,8 @@ async function main() {
   await wallet.registerContract(deserialize(state.token0.instance), TokenContract.artifact)
   await wallet.registerContract(deserialize(state.token1.instance), TokenContract.artifact)
 
-  const token0 = await TokenContract.at(AztecAddress.fromString(state.token0.address), wallet)
-  const token1 = await TokenContract.at(AztecAddress.fromString(state.token1.address), wallet)
+  const token0 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token0.address), wallet)
+  const token1 = await TokenContract.at(AztecAddress.fromStringUnsafe(state.token1.address), wallet)
 
   async function bigintBal(contract: TokenContract, fn: 'balance_of_private' | 'balance_of_public', who: AztecAddress) {
     return (await contract.methods[fn](who).simulate({ from: admin })).result as bigint
@@ -160,7 +160,7 @@ async function main() {
   async function instanceJSON(address: AztecAddress) {
     const meta = await wallet.getContractMetadata(address)
     if (!meta.instance) throw new Error('instance missing for ' + address.toString())
-    return JSON.parse(jsonStringify(meta.instance))
+    const _inst = JSON.parse(jsonStringify(meta.instance)); if (_inst.currentContractClassId == null && _inst.originalContractClassId != null) _inst.currentContractClassId = _inst.originalContractClassId; return _inst
   }
 
   state.lpToken = {

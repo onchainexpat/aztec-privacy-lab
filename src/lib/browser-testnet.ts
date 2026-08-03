@@ -244,37 +244,37 @@ export function initTestnetClient(
     }
 
     const token0 = await tokenMod.TokenContract.at(
-      addressMod.AztecAddress.fromString(state.token0.address),
+      addressMod.AztecAddress.fromStringUnsafe(state.token0.address),
       wallet,
     )
     const token1 = await tokenMod.TokenContract.at(
-      addressMod.AztecAddress.fromString(state.token1.address),
+      addressMod.AztecAddress.fromStringUnsafe(state.token1.address),
       wallet,
     )
     const lpToken = state.lpToken
       ? await tokenMod.TokenContract.at(
-          addressMod.AztecAddress.fromString(state.lpToken.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.lpToken.address),
           wallet,
         )
       : null
     const amm = state.amm
-      ? await ammMod.AMMContract.at(addressMod.AztecAddress.fromString(state.amm.address), wallet)
+      ? await ammMod.AMMContract.at(addressMod.AztecAddress.fromStringUnsafe(state.amm.address), wallet)
       : null
     const ld2 = state.publicCollateralPrivateDebt
       ? await ld2Mod.PublicCollateralPrivateDebtContract.at(
-          addressMod.AztecAddress.fromString(state.publicCollateralPrivateDebt.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.publicCollateralPrivateDebt.address),
           wallet,
         )
       : null
     const voting = state.voting
       ? await votingMod.PrivateVotingContract.at(
-          addressMod.AztecAddress.fromString(state.voting.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.voting.address),
           wallet,
         )
       : null
     const crowdfunding = state.crowdfunding
       ? await crowdfundingMod.CrowdfundingContract.at(
-          addressMod.AztecAddress.fromString(state.crowdfunding.address),
+          addressMod.AztecAddress.fromStringUnsafe(state.crowdfunding.address),
           wallet,
         )
       : null
