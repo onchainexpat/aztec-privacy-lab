@@ -1,6 +1,6 @@
 // Classify an error thrown by a testnet transaction send.
 //
-// On Aztec Alpha v4 testnet, block inclusion can lag past the aztec.js
+// On Aztec v5 testnet, block inclusion can lag past the aztec.js
 // mine-wait (DefaultWaitOpts.timeout = 300s), so `interaction.send(...)` can
 // throw `Timeout awaiting isMined` even though the tx was accepted and will
 // land a bit later (observed repeatedly: txs that "timed out" still mined).

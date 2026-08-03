@@ -111,7 +111,7 @@ export function VotingPanelTestnet({ state, azguardAccount, onClose }: Props) {
 
       <p className="mt-2 text-sm text-black/60">
         Bundled <code className="font-mono text-xs">PrivateVoting</code> contract on Aztec
-        Alpha v4 testnet. Each address gets at most one vote per election — enforced by a
+        v5 testnet. Each address gets at most one vote per election — enforced by a
         nullifier keyed on (election_id, voter), emitted from a private function.
         Observers see the tally tick up; they cannot link a vote to a wallet.
       </p>

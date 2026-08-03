@@ -15,19 +15,12 @@ interface Counts {
 
 function deriveCounts(state: SandboxState | null): Counts {
   if (!state) return { liveSections: 0, customContracts: 0, deployedContracts: 0 }
-  let deployed = 0
-  if (state.token0) deployed += 1
-  if (state.token1) deployed += 1
-  if (state.lpToken) deployed += 1
-  if (state.amm) deployed += 1
-  if (state.privateSwapWrapper) deployed += 1
-  if (state.crowdfunding) deployed += 1
-  if (state.publicCrowdfunding) deployed += 1
-  if (state.perDonorReceipts) deployed += 1
-  if (state.voting) deployed += 1
-  if (state.priceFeed) deployed += 1
-  if (state.lending) deployed += 1
-  if (state.publicCollateralPrivateDebt) deployed += 1
+  // Count every deployed contract in state (any top-level entry exposing an
+  // `.address`), plus the sandbox cross-chain L2 contracts nested under crossChain.
+  let deployed = Object.values(state).filter(
+    (v): v is { address: string } =>
+      !!v && typeof v === 'object' && typeof (v as { address?: unknown }).address === 'string',
+  ).length
   if (state.crossChain?.bridge0) deployed += 1
   if (state.crossChain?.l2BridgeB) deployed += 1
   if (state.crossChain?.l2Uniswap) deployed += 1

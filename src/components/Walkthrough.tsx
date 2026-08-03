@@ -48,7 +48,7 @@ export function Walkthrough({ network, hasSandboxDeployment, hasUniswapStack }: 
         <div>
           <h2 className="text-lg font-semibold">How to use this playground</h2>
           <p className="mt-1 max-w-prose text-sm text-black/60">
-            Four interactive demos on Aztec Alpha v4 testnet — AMM swap, lending (ld2),
+            Four interactive demos on Aztec v5 testnet — AMM swap, lending (ld2),
             anonymous voting, and shield/unshield in the wallet panel below. Each one
             generates a real ClientIVC proof in your browser. No wallet install required.
           </p>

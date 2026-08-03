@@ -106,7 +106,7 @@ export function LaunchpadPanelTestnet({ state, onClose }: Props) {
       </div>
 
       <p className="mt-2 text-sm text-black/60">
-        Bundled <code className="font-mono text-xs">Crowdfunding</code> contract on Aztec Alpha v4
+        Bundled <code className="font-mono text-xs">Crowdfunding</code> contract on Aztec v5
         testnet. Donations move private notes from the donor to the operator — donor identity,
         amount, and running total all stay encrypted. Only the operator can decrypt and sum the
         notes at withdrawal.

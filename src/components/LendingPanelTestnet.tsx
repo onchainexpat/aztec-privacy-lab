@@ -239,7 +239,7 @@ export function LendingPanelTestnet({ state, azguardAccount, onClose }: Props) {
 
       <p className="mt-2 text-sm text-black/60">
         Custom <code className="font-mono text-xs">PublicCollateralPrivateDebt</code> contract
-        deployed on Aztec Alpha v4 testnet. Fees on every tx paid by the canonical
+        deployed on Aztec v5 testnet. Fees on every tx paid by the canonical
         SponsoredFPC paymaster — no fee-juice claim needed.
       </p>
 

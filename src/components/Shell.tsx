@@ -769,7 +769,7 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
         )}
 
         {/* Multi-asset fee abstraction (FPC). The primitive is buildable on Aztec
-            and our client path is verified on 4.3.1; the only public multi-asset
+            and our client path is verified on 5.1.0; the only public multi-asset
             FPC (Nethermind staging) has drifted out of sync, so the live demo is
             parked rather than faked. Honest boundary, not a hidden failure. */}
         <section className="mt-16 rounded-2xl border border-amber-200 bg-amber-50/70 p-6 text-sm text-amber-900">
@@ -794,7 +794,7 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
               </div>
               <p className="mt-1 text-xs">
                 <code className="font-mono">scripts/verify-testnet-fpc.ts</code> spins up a fresh
-                ephemeral account, proves it, and sends it on the live 4.3.1 testnet — the
+                ephemeral account, proves it, and sends it on the live 5.1.0 testnet — the
                 wallet/PXE/split-node path is healthy end to end.
               </p>
             </div>
@@ -803,7 +803,7 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
                 Why it&apos;s parked
               </div>
               <p className="mt-1 text-xs">
-                The only public multi-asset FPC (Nethermind staging) is out of sync with 4.3.1.
+                The only public multi-asset FPC (Nethermind staging) is out of sync with 5.1.0.
                 Its vendored artifacts compute a different class id than the deployed contract, so
                 attaching the Faucet rejects before any fee tx runs.
               </p>
@@ -813,7 +813,7 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
                 What unblocks it
               </div>
               <p className="mt-1 text-xs">
-                4.3.1-matching artifacts + a live attestation host, or we self-host our own
+                5.1.0-matching artifacts + a live attestation host, or we self-host our own
                 token-accepting FPC + signer so the demo no longer depends on a third-party
                 staging environment.
               </p>
@@ -851,7 +851,7 @@ SEPOLIA_RPC=https://... SEPOLIA_PRIVATE_KEY=0x... \\
           <p className="max-w-prose">
             Experimental research dashboard. Not audited. Contracts are demos meant to illustrate
             Aztec's privacy model — do not deposit real funds. Built against{' '}
-            <code className="font-mono">@aztec/aztec.js@4.3.1</code> + Aztec Alpha v4 testnet
+            <code className="font-mono">@aztec/aztec.js@5.1.0</code> + Aztec v5 testnet
             (L1 settles to Sepolia).{' '}
             <span className="whitespace-nowrap">
               build{' '}

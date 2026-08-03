@@ -38,7 +38,7 @@ const TESTNET_CHAIN = 'aztec:4138294185'
 
 const DAPP_METADATA = {
   name: 'Aztec Privacy Lab',
-  description: 'Noir privacy-variation playground on Aztec Alpha v4',
+  description: 'Noir privacy-variation playground on Aztec v5',
   url: typeof window !== 'undefined' ? window.location.origin : '',
 }
 

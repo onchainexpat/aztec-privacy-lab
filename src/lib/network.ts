@@ -23,7 +23,7 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
   },
   testnet: {
     id: 'testnet',
-    label: 'Testnet (Alpha v4)',
+    label: 'Testnet (v5)',
     // Canonical testnet RPC — L1 settles to Sepolia (chainId 11155111).
     // NOT aztec.drpc.org, which is the mainnet Aztec rollup (L1 chainId 1).
     // Override at build time with VITE_TESTNET_NODE_URL to point at a
