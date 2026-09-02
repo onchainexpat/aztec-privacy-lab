@@ -57,9 +57,10 @@ echo "  L1 RPC:    $L1_RPC_URL"
 echo "  L1 beacon: $L1_BEACON_URL"
 echo
 
+# Aztec 5.x folded the archiver into --node (it's now a config namespace,
+# --archiver.*, not a boolean flag). Passing --archiver errors out on 5.x.
 exec "$AZTEC_BIN" start \
   --node \
-  --archiver \
   --network alpha-testnet \
   --port "$AZTEC_PORT" \
   --admin-port "$AZTEC_ADMIN_PORT" \

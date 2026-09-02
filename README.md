@@ -4,6 +4,17 @@ Dashboard for trying privacy-varied Noir contracts on Aztec — see what stays h
 
 **Phase 1 status:** AMM (Uniswap V2 in Noir) deployed end-to-end on the local Aztec sandbox using the bundled `@aztec/noir-contracts.js` reference contracts. Dashboard renders the full 7-variation privacy matrix and the live deployment state (AMM/Token/LP addresses + admin's private balances).
 
+> **Parked as of 2026-09-02.** Active development has stopped. The self-hosted
+> testnet node stack has been wound down: the 5-minute Telegram healthcheck cron
+> is removed, the Tailscale Funnel mapping on `:8443` is deleted, and the
+> `aztec-faucet` container is stopped with its restart policy disabled. The
+> hosted dashboard at https://aztec-privacy-lab.vercel.app is still live and
+> serves testnet panels from the public RPC fallback, so it works without the
+> local node. Node world state is retained at `/mnt/nodes/aztec-testnet-v4`
+> (21 GB) and the LAN Sepolia stack on `192.168.99.95` is still running.
+>
+> To resume, see [Winding back up](#winding-back-up) at the bottom.
+
 ## Run it
 
 Three steps — node, deploy, dashboard.
@@ -155,3 +166,38 @@ Phased rollout, in order:
 ## Not for production
 
 Research/demo code. Not audited. Do not deposit real funds.
+
+## Winding back up
+
+The project was parked on 2026-09-02. To bring the self-hosted testnet node
+back, in order:
+
+1. **Match the network's protocol version.** Aztec Labs redeployed alpha-testnet
+   to 5.x on 2026-07-04; the branch `chore/aztec-4.3.1-upgrade` predates that and
+   is behind the network. Check the current version and install it with
+   `aztec-up install <ver>` before starting anything, or the node boots into
+   standby and serves nothing.
+2. **Start the node.** `scripts/aztec-testnet-node.service` is a systemd unit
+   that fixes the reboot-fragility of the old tmux setup — it was written but
+   never installed, which is why the 2026-09-02 reboot took the node down for
+   good. Install it rather than relaunching by hand:
+   ```bash
+   sudo cp scripts/aztec-testnet-node.service /etc/systemd/system/
+   sudo systemctl daemon-reload && sudo systemctl enable --now aztec-testnet-node
+   ```
+3. **Re-publish the funnel** so the dashboard can reach it:
+   ```bash
+   tailscale funnel --bg --https=8443 http://127.0.0.1:8091
+   ```
+4. **Restore monitoring** — re-add to `crontab -e`:
+   ```
+   */5 * * * * /home/fervor/projects/aztec-experiments/scripts/testnet-node-healthcheck.sh >/dev/null 2>&1
+   ```
+5. **Faucet (optional):** `docker start aztec-faucet`, or rebuild from
+   `faucet/docker-compose.yml`. Re-enable auto-restart with
+   `docker update --restart=unless-stopped aztec-faucet`.
+
+Prerequisite for all of the above: the LAN Sepolia stack (Nethermind execution
+on `:8546` + Lighthouse supernode beacon on `:5152`, host `192.168.99.95`) must
+be up and synced. The beacon must run with `--supernode` so it custodies enough
+data columns to reconstruct EIP-4844 blobs.

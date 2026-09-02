@@ -1,0 +1,46 @@
+[Unit]
+# Aztec alpha-testnet archiver node — the RPC backend the prod dashboard's
+# testnet panels read through (via Tailscale Funnel :8443 -> :8091).
+#
+# Replaces the old "launch by hand in tmux" setup, which did NOT survive a host
+# reboot (the 2026-07-04 03:07 kernel-update reboot took the node down and left
+# it down). systemd restarts it on boot and on crash.
+#
+# Install: see the header of start-testnet-node.sh / project docs. Briefly:
+#   sudo cp scripts/aztec-testnet-node.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now aztec-testnet-node
+#
+# NOTE: systemd only fixes reboot/crash resilience. If Aztec Labs redeploys the
+# testnet to a new protocol version, the node will auto-restart straight into
+# "standby mode" and still serve nothing until the matching client is installed
+# (aztec-up install <ver>) — that step is still manual.
+Description=Aztec alpha-testnet archiver node (dashboard RPC backend, :8091)
+After=network-online.target
+Wants=network-online.target
+# World state + bb scratch live under /mnt/nodes — don't start until it's mounted.
+RequiresMountsFor=/mnt/nodes
+# Keep retrying forever (e.g. if the LAN L1 stack isn't up yet at boot); never
+# trip the start-rate limiter into a permanent "failed" state.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=fervor
+Group=fervor
+WorkingDirectory=/home/fervor/projects/aztec-experiments
+Environment=HOME=/home/fervor
+# The aztec launcher (aztec.sh) calls bare `node` and spawns native tools (bb,
+# nargo) from ~/.aztec/current/bin — pin PATH so they resolve under systemd's
+# minimal environment.
+Environment=PATH=/home/fervor/.aztec/current/bin:/home/fervor/.aztec/current/node_modules/.bin:/home/fervor/.aztec/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/fervor/projects/aztec-experiments/scripts/start-testnet-node.sh
+Restart=always
+RestartSec=10
+TimeoutStopSec=30
+# Preserve the existing node.log convention (healthcheck reads the RPC, not the
+# log, so this is just for humans). Use `journalctl -u aztec-testnet-node` too.
+StandardOutput=append:/mnt/nodes/aztec-testnet-v4/node.log
+StandardError=append:/mnt/nodes/aztec-testnet-v4/node.log
+
+[Install]
+WantedBy=multi-user.target
